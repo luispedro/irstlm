@@ -13,7 +13,7 @@ CPPFLAGS = -O3 -DMYCODESIZE=3
 
 #IRSTLM LIBRARY
 LIBOBJ = cmd.o util.o mempool.o htable.o dictionary.o n_gram.o ngramcache.o lmtable.o
-LIBDIR = ../bin/$(MACHTYPE)
+LIBDIR = ../lib/$(MACHTYPE)
 LIB = $(LIBDIR)/libirstlm.a
 
 BINDIR = ../bin/$(MACHTYPE)
