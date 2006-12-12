@@ -25,7 +25,7 @@
 		D701C7AD0B2EB472007D2774 /* n_gram.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A30B2EB472007D2774 /* n_gram.h */; };
 		D701C7AE0B2EB472007D2774 /* ngramcache.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A40B2EB472007D2774 /* ngramcache.h */; };
 		D701C7AF0B2EB472007D2774 /* util.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A50B2EB472007D2774 /* util.h */; };
-		D7E4C0210B2EB5EF00DDA2A4 /* compile-lm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7E4C0200B2EB5EF00DDA2A4 /* compile-lm.cpp */; };
+		D77D1C430B2F1FCA00D79D16 /* quantize-lm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D77D1C420B2F1FCA00D79D16 /* quantize-lm.cpp */; };
 		D7E4C0780B2EB75E00DDA2A4 /* libirstlm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */; };
 /* End PBXBuildFile section */
 
@@ -67,10 +67,9 @@
 		D701C7A50B2EB472007D2774 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = src/util.h; sourceTree = "<group>"; };
 		D701C7B00B2EB4D8007D2774 /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = makefile; path = src/makefile; sourceTree = "<group>"; };
 		D77D1C1F0B2F1D7200D79D16 /* quantize-lm */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = "quantize-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D77D1C260B2F1DE600D79D16 /* quantize-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "quantize-lm.cpp"; path = "src/quantize-lm.cpp"; sourceTree = "<group>"; };
+		D77D1C420B2F1FCA00D79D16 /* quantize-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "quantize-lm.cpp"; path = "src/quantize-lm.cpp"; sourceTree = "<group>"; };
 		D7E4C0170B2EB5C100DDA2A4 /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "compile-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirstlm.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		D7E4C0200B2EB5EF00DDA2A4 /* compile-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "compile-lm.cpp"; path = "src/compile-lm.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,8 +113,7 @@
 		D701C78C0B2EB333007D2774 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				D77D1C260B2F1DE600D79D16 /* quantize-lm.cpp */,
-				D7E4C0200B2EB5EF00DDA2A4 /* compile-lm.cpp */,
+				D77D1C420B2F1FCA00D79D16 /* quantize-lm.cpp */,
 				D701C7930B2EB37D007D2774 /* util.cpp */,
 				D701C7910B2EB37D007D2774 /* n_gram.cpp */,
 				D701C78D0B2EB37D007D2774 /* dictionary.cpp */,
@@ -236,7 +234,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D7E4C0210B2EB5EF00DDA2A4 /* compile-lm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,6 +256,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D77D1C430B2F1FCA00D79D16 /* quantize-lm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

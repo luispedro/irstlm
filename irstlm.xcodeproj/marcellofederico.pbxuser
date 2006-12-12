@@ -5,7 +5,7 @@
 		activeExecutable = D77D1C200B2F1D7200D79D16 /* quantize-lm */;
 		activeTarget = D77D1C1E0B2F1D7200D79D16 /* quantize-lm */;
 		addToTargets = (
-			D701C7240B2EACC4007D2774 /* compile-lm */,
+			D77D1C1E0B2F1D7200D79D16 /* quantize-lm */,
 		);
 		codeSenseManager = D733D3350B1F347900565249 /* Code sense */;
 		executables = (
@@ -130,6 +130,7 @@
 		};
 		perUserProjectItems = {
 			D77D1C3C0B2F1E9300D79D16 /* PBXTextBookmark */ = D77D1C3C0B2F1E9300D79D16 /* PBXTextBookmark */;
+			D77D1C450B2F1FD800D79D16 /* PBXTextBookmark */ = D77D1C450B2F1FD800D79D16 /* PBXTextBookmark */;
 			D7E4C07C0B2EB95000DDA2A4 = D7E4C07C0B2EB95000DDA2A4 /* PBXBookmark */;
 			D7E4C0B90B2EDBBB00DDA2A4 = D7E4C0B90B2EDBBB00DDA2A4 /* PBXTextBookmark */;
 			D7E4C0BC0B2EDCD200DDA2A4 = D7E4C0BC0B2EDCD200DDA2A4 /* PBXTextBookmark */;
@@ -197,6 +198,16 @@
 		);
 	};
 	D77D1C3C0B2F1E9300D79D16 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = D701C7B00B2EB4D8007D2774 /* makefile */;
+		name = "makefile: 36";
+		rLen = 0;
+		rLoc = 888;
+		rType = 0;
+		vrLen = 888;
+		vrLoc = 0;
+	};
+	D77D1C450B2F1FD800D79D16 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = D701C7B00B2EB4D8007D2774 /* makefile */;
 		name = "makefile: 36";
