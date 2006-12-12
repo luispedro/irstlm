@@ -5,7 +5,6 @@
 		activeExecutable = D701C7260B2EACC4007D2774 /* compile-lm */;
 		activeTarget = D733D3F30B1F3B0800565249 /* irstlm */;
 		addToTargets = (
-			D733D3F30B1F3B0800565249 /* irstlm */,
 		);
 		codeSenseManager = D733D3350B1F347900565249 /* Code sense */;
 		executables = (

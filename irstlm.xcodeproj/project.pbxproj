@@ -15,6 +15,16 @@
 		D701C7980B2EB37D007D2774 /* n_gram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7910B2EB37D007D2774 /* n_gram.cpp */; };
 		D701C7990B2EB37D007D2774 /* ngramcache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7920B2EB37D007D2774 /* ngramcache.cpp */; };
 		D701C79A0B2EB37D007D2774 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7930B2EB37D007D2774 /* util.cpp */; };
+		D701C7A60B2EB472007D2774 /* cmd.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C79C0B2EB472007D2774 /* cmd.h */; };
+		D701C7A70B2EB472007D2774 /* dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C79D0B2EB472007D2774 /* dictionary.h */; };
+		D701C7A80B2EB472007D2774 /* gzfilebuf.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C79E0B2EB472007D2774 /* gzfilebuf.h */; };
+		D701C7A90B2EB472007D2774 /* htable.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C79F0B2EB472007D2774 /* htable.h */; };
+		D701C7AA0B2EB472007D2774 /* index.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A00B2EB472007D2774 /* index.h */; };
+		D701C7AB0B2EB472007D2774 /* lmtable.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A10B2EB472007D2774 /* lmtable.h */; };
+		D701C7AC0B2EB472007D2774 /* mempool.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A20B2EB472007D2774 /* mempool.h */; };
+		D701C7AD0B2EB472007D2774 /* n_gram.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A30B2EB472007D2774 /* n_gram.h */; };
+		D701C7AE0B2EB472007D2774 /* ngramcache.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A40B2EB472007D2774 /* ngramcache.h */; };
+		D701C7AF0B2EB472007D2774 /* util.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A50B2EB472007D2774 /* util.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +48,17 @@
 		D701C7910B2EB37D007D2774 /* n_gram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = n_gram.cpp; path = src/n_gram.cpp; sourceTree = "<group>"; };
 		D701C7920B2EB37D007D2774 /* ngramcache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ngramcache.cpp; path = src/ngramcache.cpp; sourceTree = "<group>"; };
 		D701C7930B2EB37D007D2774 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = src/util.cpp; sourceTree = "<group>"; };
+		D701C79C0B2EB472007D2774 /* cmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cmd.h; path = src/cmd.h; sourceTree = "<group>"; };
+		D701C79D0B2EB472007D2774 /* dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dictionary.h; path = src/dictionary.h; sourceTree = "<group>"; };
+		D701C79E0B2EB472007D2774 /* gzfilebuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gzfilebuf.h; path = src/gzfilebuf.h; sourceTree = "<group>"; };
+		D701C79F0B2EB472007D2774 /* htable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = htable.h; path = src/htable.h; sourceTree = "<group>"; };
+		D701C7A00B2EB472007D2774 /* index.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = index.h; path = src/index.h; sourceTree = "<group>"; };
+		D701C7A10B2EB472007D2774 /* lmtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lmtable.h; path = src/lmtable.h; sourceTree = "<group>"; };
+		D701C7A20B2EB472007D2774 /* mempool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mempool.h; path = src/mempool.h; sourceTree = "<group>"; };
+		D701C7A30B2EB472007D2774 /* n_gram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = n_gram.h; path = src/n_gram.h; sourceTree = "<group>"; };
+		D701C7A40B2EB472007D2774 /* ngramcache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ngramcache.h; path = src/ngramcache.h; sourceTree = "<group>"; };
+		D701C7A50B2EB472007D2774 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = src/util.h; sourceTree = "<group>"; };
+		D701C7B00B2EB4D8007D2774 /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = makefile; path = src/makefile; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,8 +82,8 @@
 		08FB7794FE84155DC02AAC07 /* irstlm */ = {
 			isa = PBXGroup;
 			children = (
-				D701C79B0B2EB3E2007D2774 /* d */,
 				D701C78C0B2EB333007D2774 /* src */,
+				D701C7B00B2EB4D8007D2774 /* makefile */,
 			);
 			name = irstlm;
 			sourceTree = "<group>";
@@ -73,6 +94,16 @@
 				D701C7930B2EB37D007D2774 /* util.cpp */,
 				D701C7910B2EB37D007D2774 /* n_gram.cpp */,
 				D701C78D0B2EB37D007D2774 /* dictionary.cpp */,
+				D701C79C0B2EB472007D2774 /* cmd.h */,
+				D701C79D0B2EB472007D2774 /* dictionary.h */,
+				D701C79E0B2EB472007D2774 /* gzfilebuf.h */,
+				D701C79F0B2EB472007D2774 /* htable.h */,
+				D701C7A00B2EB472007D2774 /* index.h */,
+				D701C7A10B2EB472007D2774 /* lmtable.h */,
+				D701C7A20B2EB472007D2774 /* mempool.h */,
+				D701C7A30B2EB472007D2774 /* n_gram.h */,
+				D701C7A40B2EB472007D2774 /* ngramcache.h */,
+				D701C7A50B2EB472007D2774 /* util.h */,
 				D701C78E0B2EB37D007D2774 /* htable.cpp */,
 				D701C78F0B2EB37D007D2774 /* lmtable.cpp */,
 				D701C7900B2EB37D007D2774 /* mempool.cpp */,
@@ -82,13 +113,6 @@
 			name = src;
 			sourceTree = "<group>";
 		};
-		D701C79B0B2EB3E2007D2774 /* d */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = d;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -96,6 +120,16 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D701C7A60B2EB472007D2774 /* cmd.h in Headers */,
+				D701C7A70B2EB472007D2774 /* dictionary.h in Headers */,
+				D701C7A80B2EB472007D2774 /* gzfilebuf.h in Headers */,
+				D701C7A90B2EB472007D2774 /* htable.h in Headers */,
+				D701C7AA0B2EB472007D2774 /* index.h in Headers */,
+				D701C7AB0B2EB472007D2774 /* lmtable.h in Headers */,
+				D701C7AC0B2EB472007D2774 /* mempool.h in Headers */,
+				D701C7AD0B2EB472007D2774 /* n_gram.h in Headers */,
+				D701C7AE0B2EB472007D2774 /* ngramcache.h in Headers */,
+				D701C7AF0B2EB472007D2774 /* util.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
