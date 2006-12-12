@@ -33,4 +33,3 @@ compile-lm: compile-lm.cpp  $(LIB)
 	
 quantize-lm: quantize-lm.cpp  $(LIB)
 	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz	
-scn 
