@@ -25,6 +25,8 @@
 		D701C7AD0B2EB472007D2774 /* n_gram.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A30B2EB472007D2774 /* n_gram.h */; };
 		D701C7AE0B2EB472007D2774 /* ngramcache.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A40B2EB472007D2774 /* ngramcache.h */; };
 		D701C7AF0B2EB472007D2774 /* util.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A50B2EB472007D2774 /* util.h */; };
+		D7E4C0210B2EB5EF00DDA2A4 /* compile-lm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7E4C0200B2EB5EF00DDA2A4 /* compile-lm.cpp */; };
+		D7E4C0780B2EB75E00DDA2A4 /* libirstlm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,14 +34,12 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = D733D3F30B1F3B0800565249 /* irstlm */;
+			remoteGlobalIDString = D733D3F30B1F3B0800565249;
 			remoteInfo = irstlm;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D701C6FC0B2DC4C3007D2774 /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libirstlm.a; path = /Users/marcellofederico/Workspace/software/opensource/irstlm/build/Debug/libirstlm.a; sourceTree = "<absolute>"; };
-		D701C7250B2EACC4007D2774 /* compile-lm */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; name = "compile-lm"; path = "/Users/marcellofederico/Workspace/software/opensource/irstlm/build/Debug/compile-lm"; sourceTree = "<absolute>"; };
 		D701C7870B2EB27C007D2774 /* cmd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd.c; path = src/cmd.c; sourceTree = "<group>"; };
 		D701C78D0B2EB37D007D2774 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dictionary.cpp; path = src/dictionary.cpp; sourceTree = "<group>"; };
 		D701C78E0B2EB37D007D2774 /* htable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htable.cpp; path = src/htable.cpp; sourceTree = "<group>"; };
@@ -59,6 +59,9 @@
 		D701C7A40B2EB472007D2774 /* ngramcache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ngramcache.h; path = src/ngramcache.h; sourceTree = "<group>"; };
 		D701C7A50B2EB472007D2774 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = src/util.h; sourceTree = "<group>"; };
 		D701C7B00B2EB4D8007D2774 /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = makefile; path = src/makefile; sourceTree = "<group>"; };
+		D7E4C0170B2EB5C100DDA2A4 /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "compile-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libirstlm.a; path = build/Debug/libirstlm.a; sourceTree = "<group>"; };
+		D7E4C0200B2EB5EF00DDA2A4 /* compile-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "compile-lm.cpp"; path = "src/compile-lm.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7E4C0780B2EB75E00DDA2A4 /* libirstlm.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,8 +86,11 @@
 		08FB7794FE84155DC02AAC07 /* irstlm */ = {
 			isa = PBXGroup;
 			children = (
+				D7E4C0200B2EB5EF00DDA2A4 /* compile-lm.cpp */,
 				D701C78C0B2EB333007D2774 /* src */,
 				D701C7B00B2EB4D8007D2774 /* makefile */,
+				D7E4C0170B2EB5C100DDA2A4 /* compile-lm */,
+				D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */,
 			);
 			name = irstlm;
 			sourceTree = "<group>";
@@ -151,7 +158,7 @@
 			);
 			name = "compile-lm";
 			productName = "compile-lm";
-			productReference = D701C7250B2EACC4007D2774 /* compile-lm */;
+			productReference = D7E4C0170B2EB5C100DDA2A4 /* compile-lm */;
 			productType = "com.apple.product-type.tool";
 		};
 		D733D3F30B1F3B0800565249 /* irstlm */ = {
@@ -168,7 +175,7 @@
 			);
 			name = irstlm;
 			productName = irstlm;
-			productReference = D701C6FC0B2DC4C3007D2774 /* libirstlm.a */;
+			productReference = D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -193,6 +200,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7E4C0210B2EB5EF00DDA2A4 /* compile-lm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +260,16 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/build/Debug\"";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = "compile-lm";
 				ZERO_LINK = YES;
@@ -266,6 +284,16 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/build/Debug\"";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = "compile-lm";
 				ZERO_LINK = NO;

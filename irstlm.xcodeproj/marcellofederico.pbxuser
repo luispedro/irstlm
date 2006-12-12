@@ -2,13 +2,14 @@
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
 		activeBuildConfigurationName = Debug;
-		activeExecutable = D701C7260B2EACC4007D2774 /* compile-lm */;
-		activeTarget = D733D3F30B1F3B0800565249 /* irstlm */;
+		activeExecutable = D7E4C0180B2EB5C100DDA2A4 /* compile-lm */;
+		activeTarget = D701C7240B2EACC4007D2774 /* compile-lm */;
 		addToTargets = (
+			D701C7240B2EACC4007D2774 /* compile-lm */,
 		);
 		codeSenseManager = D733D3350B1F347900565249 /* Code sense */;
 		executables = (
-			D701C7260B2EACC4007D2774 /* compile-lm */,
+			D7E4C0180B2EB5C100DDA2A4 /* compile-lm */,
 		);
 		perUserDictionary = {
 			PBXConfiguration.PBXFileTableDataSource3.PBXErrorsWarningsDataSource = {
@@ -44,7 +45,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					451,
+					515,
 					20,
 					48,
 					43,
@@ -107,7 +108,7 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
 					200,
-					271,
+					335,
 					20,
 					48,
 					43,
@@ -123,8 +124,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 187548867;
-			PBXWorkspaceStateSaveDate = 187548867;
+			PBXPerProjectTemplateStateSaveDate = 187610561;
+			PBXWorkspaceStateSaveDate = 187610561;
 		};
 		sourceControlManager = D733D3340B1F347900565249 /* Source Control */;
 		userBuildSettings = {
@@ -133,31 +134,7 @@
 	D701C7240B2EACC4007D2774 /* compile-lm */ = {
 		activeExec = 0;
 		executables = (
-			D701C7260B2EACC4007D2774 /* compile-lm */,
-		);
-	};
-	D701C7260B2EACC4007D2774 /* compile-lm */ = {
-		isa = PBXExecutable;
-		activeArgIndex = 2147483647;
-		activeArgIndices = (
-		);
-		argumentStrings = (
-		);
-		autoAttachOnCrash = 1;
-		configStateDict = {
-		};
-		customDataFormattersEnabled = 1;
-		debuggerPlugin = GDBDebugging;
-		disassemblyDisplayState = 0;
-		dylibVariantSuffix = "";
-		enableDebugStr = 1;
-		environmentEntries = (
-		);
-		executableSystemSymbolLevel = 0;
-		executableUserSymbolLevel = 0;
-		libgmallocEnabled = 0;
-		name = "compile-lm";
-		sourceDirectories = (
+			D7E4C0180B2EB5C100DDA2A4 /* compile-lm */,
 		);
 	};
 	D733D3340B1F347900565249 /* Source Control */ = {
@@ -175,5 +152,28 @@
 	};
 	D733D3F30B1F3B0800565249 /* irstlm */ = {
 		activeExec = 0;
+	};
+	D7E4C0180B2EB5C100DDA2A4 /* compile-lm */ = {
+		isa = PBXExecutable;
+		activeArgIndex = 2147483647;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = "compile-lm";
+		sourceDirectories = (
+		);
 	};
 }
