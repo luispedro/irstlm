@@ -6,27 +6,42 @@
 	objectVersion = 42;
 	objects = {
 
-/* Begin PBXCopyFilesBuildPhase section */
-		8DD76F690486A84900D96B5E /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
+/* Begin PBXBuildFile section */
+		D701C7880B2EB27C007D2774 /* cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = D701C7870B2EB27C007D2774 /* cmd.c */; };
+		D701C7940B2EB37D007D2774 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C78D0B2EB37D007D2774 /* dictionary.cpp */; };
+		D701C7950B2EB37D007D2774 /* htable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C78E0B2EB37D007D2774 /* htable.cpp */; };
+		D701C7960B2EB37D007D2774 /* lmtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C78F0B2EB37D007D2774 /* lmtable.cpp */; };
+		D701C7970B2EB37D007D2774 /* mempool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7900B2EB37D007D2774 /* mempool.cpp */; };
+		D701C7980B2EB37D007D2774 /* n_gram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7910B2EB37D007D2774 /* n_gram.cpp */; };
+		D701C7990B2EB37D007D2774 /* ngramcache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7920B2EB37D007D2774 /* ngramcache.cpp */; };
+		D701C79A0B2EB37D007D2774 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7930B2EB37D007D2774 /* util.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D701C74E0B2EAEDB007D2774 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D733D3F30B1F3B0800565249 /* irstlm */;
+			remoteInfo = irstlm;
 		};
-/* End PBXCopyFilesBuildPhase section */
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		D701C6FC0B2DC4C3007D2774 /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libirstlm.a; path = /Users/marcellofederico/Workspace/software/opensource/irstlm/build/Debug/libirstlm.a; sourceTree = "<absolute>"; };
-		D701C6FE0B2DC4C3007D2774 /* irstlm */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; name = irstlm; path = /Users/marcellofederico/Workspace/software/opensource/irstlm/build/Debug/irstlm; sourceTree = "<absolute>"; };
-		D701C7090B2EA73E007D2774 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = SOURCE_ROOT; };
-		D701C71E0B2EA77C007D2774 /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = SOURCE_ROOT; };
+		D701C7250B2EACC4007D2774 /* compile-lm */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; name = "compile-lm"; path = "/Users/marcellofederico/Workspace/software/opensource/irstlm/build/Debug/compile-lm"; sourceTree = "<absolute>"; };
+		D701C7870B2EB27C007D2774 /* cmd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd.c; path = src/cmd.c; sourceTree = "<group>"; };
+		D701C78D0B2EB37D007D2774 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dictionary.cpp; path = src/dictionary.cpp; sourceTree = "<group>"; };
+		D701C78E0B2EB37D007D2774 /* htable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htable.cpp; path = src/htable.cpp; sourceTree = "<group>"; };
+		D701C78F0B2EB37D007D2774 /* lmtable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lmtable.cpp; path = src/lmtable.cpp; sourceTree = "<group>"; };
+		D701C7900B2EB37D007D2774 /* mempool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mempool.cpp; path = src/mempool.cpp; sourceTree = "<group>"; };
+		D701C7910B2EB37D007D2774 /* n_gram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = n_gram.cpp; path = src/n_gram.cpp; sourceTree = "<group>"; };
+		D701C7920B2EB37D007D2774 /* ngramcache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ngramcache.cpp; path = src/ngramcache.cpp; sourceTree = "<group>"; };
+		D701C7930B2EB37D007D2774 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = src/util.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		8DD76F660486A84900D96B5E /* Frameworks */ = {
+		D701C7230B2EACC4007D2774 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -46,10 +61,32 @@
 		08FB7794FE84155DC02AAC07 /* irstlm */ = {
 			isa = PBXGroup;
 			children = (
-				D701C71E0B2EA77C007D2774 /* doc */,
-				D701C7090B2EA73E007D2774 /* src */,
+				D701C79B0B2EB3E2007D2774 /* d */,
+				D701C78C0B2EB333007D2774 /* src */,
 			);
 			name = irstlm;
+			sourceTree = "<group>";
+		};
+		D701C78C0B2EB333007D2774 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				D701C7930B2EB37D007D2774 /* util.cpp */,
+				D701C7910B2EB37D007D2774 /* n_gram.cpp */,
+				D701C78D0B2EB37D007D2774 /* dictionary.cpp */,
+				D701C78E0B2EB37D007D2774 /* htable.cpp */,
+				D701C78F0B2EB37D007D2774 /* lmtable.cpp */,
+				D701C7900B2EB37D007D2774 /* mempool.cpp */,
+				D701C7920B2EB37D007D2774 /* ngramcache.cpp */,
+				D701C7870B2EB27C007D2774 /* cmd.c */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		D701C79B0B2EB3E2007D2774 /* d */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = d;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -65,22 +102,22 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		8DD76F620486A84900D96B5E /* tlm */ = {
+		D701C7240B2EACC4007D2774 /* compile-lm */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "tlm" */;
+			buildConfigurationList = D701C7270B2EACFF007D2774 /* Build configuration list for PBXNativeTarget "compile-lm" */;
 			buildPhases = (
-				8DD76F640486A84900D96B5E /* Sources */,
-				8DD76F660486A84900D96B5E /* Frameworks */,
-				8DD76F690486A84900D96B5E /* CopyFiles */,
+				D701C7220B2EACC4007D2774 /* Sources */,
+				D701C7230B2EACC4007D2774 /* Frameworks */,
 			);
 			buildRules = (
 			);
+			comments = "Command to compile a LM into a binary format\n";
 			dependencies = (
+				D701C74F0B2EAEDB007D2774 /* PBXTargetDependency */,
 			);
-			name = tlm;
-			productInstallPath = "$(HOME)/bin";
-			productName = irstlm;
-			productReference = D701C6FE0B2DC4C3007D2774 /* irstlm */;
+			name = "compile-lm";
+			productName = "compile-lm";
+			productReference = D701C7250B2EACC4007D2774 /* compile-lm */;
 			productType = "com.apple.product-type.tool";
 		};
 		D733D3F30B1F3B0800565249 /* irstlm */ = {
@@ -111,14 +148,14 @@
 			productRefGroup = 08FB7794FE84155DC02AAC07 /* irstlm */;
 			projectDirPath = "";
 			targets = (
-				8DD76F620486A84900D96B5E /* tlm */,
 				D733D3F30B1F3B0800565249 /* irstlm */,
+				D701C7240B2EACC4007D2774 /* compile-lm */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		8DD76F640486A84900D96B5E /* Sources */ = {
+		D701C7220B2EACC4007D2774 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -129,40 +166,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D701C7880B2EB27C007D2774 /* cmd.c in Sources */,
+				D701C7940B2EB37D007D2774 /* dictionary.cpp in Sources */,
+				D701C7950B2EB37D007D2774 /* htable.cpp in Sources */,
+				D701C7960B2EB37D007D2774 /* lmtable.cpp in Sources */,
+				D701C7970B2EB37D007D2774 /* mempool.cpp in Sources */,
+				D701C7980B2EB37D007D2774 /* n_gram.cpp in Sources */,
+				D701C7990B2EB37D007D2774 /* ngramcache.cpp in Sources */,
+				D701C79A0B2EB37D007D2774 /* util.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		D701C74F0B2EAEDB007D2774 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D733D3F30B1F3B0800565249 /* irstlm */;
+			targetProxy = D701C74E0B2EAEDB007D2774 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
-		1DEB923208733DC60010E9CD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = "$(HOME)/bin";
-				PRODUCT_NAME = irstlm;
-				ZERO_LINK = YES;
-			};
-			name = Debug;
-		};
-		1DEB923308733DC60010E9CD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				INSTALL_PATH = "$(HOME)/bin";
-				PRODUCT_NAME = irstlm;
-			};
-			name = Release;
-		};
 		1DEB923608733DC60010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -180,6 +205,36 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Release;
+		};
+		D701C7280B2EACFF007D2774 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = "compile-lm";
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		D701C7290B2EACFF007D2774 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = "compile-lm";
+				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -226,20 +281,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "tlm" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1DEB923208733DC60010E9CD /* Debug */,
-				1DEB923308733DC60010E9CD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "irstlm" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
 				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D701C7270B2EACFF007D2774 /* Build configuration list for PBXNativeTarget "compile-lm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D701C7280B2EACFF007D2774 /* Debug */,
+				D701C7290B2EACFF007D2774 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

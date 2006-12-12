@@ -2,15 +2,30 @@
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
 		activeBuildConfigurationName = Debug;
-		activeExecutable = D701C6FF0B2DC4C3007D2774 /* tlm */;
+		activeExecutable = D701C7260B2EACC4007D2774 /* compile-lm */;
 		activeTarget = D733D3F30B1F3B0800565249 /* irstlm */;
 		addToTargets = (
+			D733D3F30B1F3B0800565249 /* irstlm */,
 		);
 		codeSenseManager = D733D3350B1F347900565249 /* Code sense */;
 		executables = (
-			D701C6FF0B2DC4C3007D2774 /* tlm */,
+			D701C7260B2EACC4007D2774 /* compile-lm */,
 		);
 		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXErrorsWarningsDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXErrorsWarningsDataSource_LocationID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					300,
+					200,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXErrorsWarningsDataSource_TypeID,
+					PBXErrorsWarningsDataSource_MessageID,
+					PBXErrorsWarningsDataSource_LocationID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
@@ -30,7 +45,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					557,
+					451,
 					20,
 					48,
 					43,
@@ -93,7 +108,7 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
 					200,
-					377,
+					271,
 					20,
 					48,
 					43,
@@ -116,13 +131,13 @@
 		userBuildSettings = {
 		};
 	};
-	8DD76F620486A84900D96B5E /* tlm */ = {
+	D701C7240B2EACC4007D2774 /* compile-lm */ = {
 		activeExec = 0;
 		executables = (
-			D701C6FF0B2DC4C3007D2774 /* tlm */,
+			D701C7260B2EACC4007D2774 /* compile-lm */,
 		);
 	};
-	D701C6FF0B2DC4C3007D2774 /* tlm */ = {
+	D701C7260B2EACC4007D2774 /* compile-lm */ = {
 		isa = PBXExecutable;
 		activeArgIndex = 2147483647;
 		activeArgIndices = (
@@ -135,13 +150,14 @@
 		customDataFormattersEnabled = 1;
 		debuggerPlugin = GDBDebugging;
 		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
 		enableDebugStr = 1;
 		environmentEntries = (
 		);
 		executableSystemSymbolLevel = 0;
 		executableUserSymbolLevel = 0;
 		libgmallocEnabled = 0;
-		name = tlm;
+		name = "compile-lm";
 		sourceDirectories = (
 		);
 	};
