@@ -37,6 +37,13 @@
 			remoteGlobalIDString = D733D3F30B1F3B0800565249;
 			remoteInfo = irstlm;
 		};
+		D77D1C210B2F1D7B00D79D16 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D733D3F30B1F3B0800565249 /* irstlm */;
+			remoteInfo = irstlm;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -59,8 +66,10 @@
 		D701C7A40B2EB472007D2774 /* ngramcache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ngramcache.h; path = src/ngramcache.h; sourceTree = "<group>"; };
 		D701C7A50B2EB472007D2774 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = src/util.h; sourceTree = "<group>"; };
 		D701C7B00B2EB4D8007D2774 /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = makefile; path = src/makefile; sourceTree = "<group>"; };
+		D77D1C1F0B2F1D7200D79D16 /* quantize-lm */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = "quantize-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D77D1C260B2F1DE600D79D16 /* quantize-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "quantize-lm.cpp"; path = "src/quantize-lm.cpp"; sourceTree = "<group>"; };
 		D7E4C0170B2EB5C100DDA2A4 /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "compile-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libirstlm.a; path = build/Debug/libirstlm.a; sourceTree = "<group>"; };
+		D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirstlm.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7E4C0200B2EB5EF00DDA2A4 /* compile-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "compile-lm.cpp"; path = "src/compile-lm.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -80,17 +89,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D77D1C1D0B2F1D7200D79D16 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		08FB7794FE84155DC02AAC07 /* irstlm */ = {
 			isa = PBXGroup;
 			children = (
-				D7E4C0200B2EB5EF00DDA2A4 /* compile-lm.cpp */,
 				D701C78C0B2EB333007D2774 /* src */,
 				D701C7B00B2EB4D8007D2774 /* makefile */,
 				D7E4C0170B2EB5C100DDA2A4 /* compile-lm */,
 				D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */,
+				D77D1C1F0B2F1D7200D79D16 /* quantize-lm */,
 			);
 			name = irstlm;
 			sourceTree = "<group>";
@@ -98,6 +114,8 @@
 		D701C78C0B2EB333007D2774 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				D77D1C260B2F1DE600D79D16 /* quantize-lm.cpp */,
+				D7E4C0200B2EB5EF00DDA2A4 /* compile-lm.cpp */,
 				D701C7930B2EB37D007D2774 /* util.cpp */,
 				D701C7910B2EB37D007D2774 /* n_gram.cpp */,
 				D701C78D0B2EB37D007D2774 /* dictionary.cpp */,
@@ -178,6 +196,23 @@
 			productReference = D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		D77D1C1E0B2F1D7200D79D16 /* quantize-lm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D77D1C230B2F1D9900D79D16 /* Build configuration list for PBXNativeTarget "quantize-lm" */;
+			buildPhases = (
+				D77D1C1C0B2F1D7200D79D16 /* Sources */,
+				D77D1C1D0B2F1D7200D79D16 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D77D1C220B2F1D7B00D79D16 /* PBXTargetDependency */,
+			);
+			name = "quantize-lm";
+			productName = "quantize-lm";
+			productReference = D77D1C1F0B2F1D7200D79D16 /* quantize-lm */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -191,6 +226,7 @@
 			targets = (
 				D733D3F30B1F3B0800565249 /* irstlm */,
 				D701C7240B2EACC4007D2774 /* compile-lm */,
+				D77D1C1E0B2F1D7200D79D16 /* quantize-lm */,
 			);
 		};
 /* End PBXProject section */
@@ -219,6 +255,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D77D1C1C0B2F1D7200D79D16 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -226,6 +269,11 @@
 			isa = PBXTargetDependency;
 			target = D733D3F30B1F3B0800565249 /* irstlm */;
 			targetProxy = D701C74E0B2EAEDB007D2774 /* PBXContainerItemProxy */;
+		};
+		D77D1C220B2F1D7B00D79D16 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D733D3F30B1F3B0800565249 /* irstlm */;
+			targetProxy = D77D1C210B2F1D7B00D79D16 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -340,6 +388,46 @@
 			};
 			name = Release;
 		};
+		D77D1C240B2F1D9900D79D16 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "quantize-lm";
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		D77D1C250B2F1D9900D79D16 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "quantize-lm";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -366,6 +454,15 @@
 			buildConfigurations = (
 				D733D3F60B1F3B2600565249 /* Debug */,
 				D733D3F70B1F3B2600565249 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D77D1C230B2F1D9900D79D16 /* Build configuration list for PBXNativeTarget "quantize-lm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D77D1C240B2F1D9900D79D16 /* Debug */,
+				D77D1C250B2F1D9900D79D16 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

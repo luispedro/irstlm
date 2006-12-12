@@ -2,14 +2,15 @@
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
 		activeBuildConfigurationName = Debug;
-		activeExecutable = D7E4C0180B2EB5C100DDA2A4 /* compile-lm */;
-		activeTarget = D701C7240B2EACC4007D2774 /* compile-lm */;
+		activeExecutable = D77D1C200B2F1D7200D79D16 /* quantize-lm */;
+		activeTarget = D77D1C1E0B2F1D7200D79D16 /* quantize-lm */;
 		addToTargets = (
 			D701C7240B2EACC4007D2774 /* compile-lm */,
 		);
 		codeSenseManager = D733D3350B1F347900565249 /* Code sense */;
 		executables = (
 			D7E4C0180B2EB5C100DDA2A4 /* compile-lm */,
+			D77D1C200B2F1D7200D79D16 /* quantize-lm */,
 		);
 		perUserDictionary = {
 			PBXConfiguration.PBXFileTableDataSource3.PBXErrorsWarningsDataSource = {
@@ -124,8 +125,14 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 187610561;
-			PBXWorkspaceStateSaveDate = 187610561;
+			PBXPerProjectTemplateStateSaveDate = 187636971;
+			PBXWorkspaceStateSaveDate = 187636971;
+		};
+		perUserProjectItems = {
+			D77D1C3C0B2F1E9300D79D16 /* PBXTextBookmark */ = D77D1C3C0B2F1E9300D79D16 /* PBXTextBookmark */;
+			D7E4C07C0B2EB95000DDA2A4 = D7E4C07C0B2EB95000DDA2A4 /* PBXBookmark */;
+			D7E4C0B90B2EDBBB00DDA2A4 = D7E4C0B90B2EDBBB00DDA2A4 /* PBXTextBookmark */;
+			D7E4C0BC0B2EDCD200DDA2A4 = D7E4C0BC0B2EDCD200DDA2A4 /* PBXTextBookmark */;
 		};
 		sourceControlManager = D733D3340B1F347900565249 /* Source Control */;
 		userBuildSettings = {
@@ -136,6 +143,13 @@
 		executables = (
 			D7E4C0180B2EB5C100DDA2A4 /* compile-lm */,
 		);
+	};
+	D701C7B00B2EB4D8007D2774 /* makefile */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {610, 675}}";
+			sepNavSelRange = "{888, 0}";
+			sepNavVisRect = "{{0, 0}, {610, 675}}";
+		};
 	};
 	D733D3340B1F347900565249 /* Source Control */ = {
 		isa = PBXSourceControlManager;
@@ -152,6 +166,45 @@
 	};
 	D733D3F30B1F3B0800565249 /* irstlm */ = {
 		activeExec = 0;
+	};
+	D77D1C1E0B2F1D7200D79D16 /* quantize-lm */ = {
+		activeExec = 0;
+		executables = (
+			D77D1C200B2F1D7200D79D16 /* quantize-lm */,
+		);
+	};
+	D77D1C200B2F1D7200D79D16 /* quantize-lm */ = {
+		isa = PBXExecutable;
+		activeArgIndex = 2147483647;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = "quantize-lm";
+		sourceDirectories = (
+		);
+	};
+	D77D1C3C0B2F1E9300D79D16 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = D701C7B00B2EB4D8007D2774 /* makefile */;
+		name = "makefile: 36";
+		rLen = 0;
+		rLoc = 888;
+		rType = 0;
+		vrLen = 888;
+		vrLoc = 0;
 	};
 	D7E4C0180B2EB5C100DDA2A4 /* compile-lm */ = {
 		isa = PBXExecutable;
@@ -175,5 +228,29 @@
 		name = "compile-lm";
 		sourceDirectories = (
 		);
+	};
+	D7E4C07C0B2EB95000DDA2A4 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = D701C7B00B2EB4D8007D2774 /* makefile */;
+	};
+	D7E4C0B90B2EDBBB00DDA2A4 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = D701C7B00B2EB4D8007D2774 /* makefile */;
+		name = "makefile: 36";
+		rLen = 0;
+		rLoc = 888;
+		rType = 0;
+		vrLen = 888;
+		vrLoc = 0;
+	};
+	D7E4C0BC0B2EDCD200DDA2A4 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = D701C7B00B2EB4D8007D2774 /* makefile */;
+		name = "makefile: 36";
+		rLen = 0;
+		rLoc = 888;
+		rType = 0;
+		vrLen = 888;
+		vrLoc = 0;
 	};
 }
