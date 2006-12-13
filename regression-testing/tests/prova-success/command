@@ -1,0 +1,5 @@
+#! /bin/sh -w
+
+echo OUTPUT > /dev/stdout
+echo ERROR > /dev/stderr
+
