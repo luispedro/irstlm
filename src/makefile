@@ -12,7 +12,7 @@ CPP      = g++ -g
 CPPFLAGS = -O3 -DMYCODESIZE=3  
 
 #IRSTLM LIBRARY
-LIBOBJ = cmd.o util.o mempool.o htable.o dictionary.o n_gram.o ngramcache.o lmtable.o mfstream.o
+LIBOBJ = cmd.o util.o mempool.o htable.o dictionary.o n_gram.o ngramcache.o lmtable.o mfstream.o ngramtable.o
 LIBDIR = ../lib/$(MACHTYPE)
 LIB = $(LIBDIR)/libirstlm.a
 
@@ -25,7 +25,7 @@ $(LIB): $(LIBOBJ)
 	ar r $(LIB) $?
 
 #TARGET COMMANDS
-all: compile-lm quantize-lm dict
+all: compile-lm quantize-lm dict ngt
 clean:;rm *.o
 
 compile-lm: compile-lm.cpp  $(LIB)
@@ -35,4 +35,7 @@ quantize-lm: quantize-lm.cpp  $(LIB)
 	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz	
 
 dict: dict.cpp  $(LIB)
+	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz	
+
+ngt: ngt.cpp  $(LIB)
 	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz	
