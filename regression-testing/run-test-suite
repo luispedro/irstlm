@@ -8,6 +8,7 @@ use Getopt::Long;
 my @tests = qw (
   prova-success
   prova-failure
+	basic-dict
                );
 ############################################################
 

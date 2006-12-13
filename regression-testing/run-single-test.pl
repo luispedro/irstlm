@@ -88,7 +88,7 @@ exit 0;
 sub exec_test {
   my ($test_dir,$results) = @_;
   my $start_time = time;
-  my ($o, $ec, $sig) = run_command("sh $test_dir/command 1> $results/run.stdout 2> $results/run.stderr");
+  my ($o, $ec, $sig) = run_command("sh $test_dir/command $test_dir 1> $results/run.stdout 2> $results/run.stderr");
   my $elapsed = 0;
   $elapsed = time - $start_time;
   return ($o, $elapsed, $ec, $sig);
