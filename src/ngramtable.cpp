@@ -8,48 +8,53 @@ using namespace std;
 #include "n_gram.h"
 #include "ngramtable.h"
 
-ngramtable::ngramtable(char* filename,int maxl,char* is,
-		       char* oovlex,int dstco,char* hmask,
-		       int inplen,TABLETYPE ttype,int codesize):
-  tabletype(ttype,codesize){
+//ngramtable::ngramtable(char* filename,int maxl,char* is,
+//											 char* oovlex,int dstco,char* hmask,
+//											 int inplen,TABLETYPE ttype,int codesize):
 
+
+ngramtable::ngramtable(char* filename,int maxl,char* is,
+											 char* oovlex,char* filterdictfile,int dstco,char* hmask,
+											 int inplen,TABLETYPE ttype,int codesize):
+tabletype(ttype,codesize){
+	
   cerr << "[codesize " << CODESIZE << "]\n";
   char header[100];
   
   info[0]='\0';
-
+	
   corrcounts=0;
-
+	
   if (filename){
     int n;
     mfstream inp(filename,ios::in );
-
+		
     inp >> header;
     
     if (strncmp(header,"nGrAm",5)==0 ||
-	strncmp(header,"NgRaM",5)==0)
-      {
-	inp >> n;
-	inp >> card;
-	inp >> info;
-	if (strcmp(info,"LM_")==0){ 
-	  inp >> resolution;
-	  inp >> decay;
-	  sprintf(info,"%s %d %f",info,resolution,decay);
-	}
-	else{ //default for old LM probs
-	  resolution=10000000;
-	  decay=0.9999;
-        }	
-
-	maxl=n; //owerwrite maxl
-	
-	cerr << n << " " << card << " " << info << "\n";
-      }
-  
+				strncmp(header,"NgRaM",5)==0)
+		{
+			inp >> n;
+			inp >> card;
+			inp >> info;
+			if (strcmp(info,"LM_")==0){ 
+				inp >> resolution;
+				inp >> decay;
+				sprintf(info,"%s %d %f",info,resolution,decay);
+			}
+			else{ //default for old LM probs
+				resolution=10000000;
+				decay=0.9999;
+			}	
+			
+			maxl=n; //owerwrite maxl
+			
+			cerr << n << " " << card << " " << info << "\n";
+		}
+		
     inp.close();
   }
-
+	
   if (!maxl){
     cerr << "ngramtable: ngram size must be specified\n";
     exit(1);
@@ -57,15 +62,15 @@ ngramtable::ngramtable(char* filename,int maxl,char* is,
   
   //distant co-occurreces works for bigrams and trigrams
   if (dstco && (maxl!=2) && (maxl!=3))
-    {
-      cerr << "distant co-occurrences work with 2-gram and 3-gram!\n";
-      exit(1);
-    }
-
+	{
+		cerr << "distant co-occurrences work with 2-gram and 3-gram!\n";
+		exit(1);
+	}
+	
   maxlev=maxl;
   tree=(node) new char[inodesize(4)];
   memset(tree,0,inodesize(4));
-
+	
   treeflags=INODE | FREQ4;
   
   if (maxlev>1)
@@ -73,16 +78,16 @@ ngramtable::ngramtable(char* filename,int maxl,char* is,
   else if (maxlev==1)
     mtflags(tree,LNODE | FREQ4);
   else
-    {
-      cerr << "ngramtable: wrong level setting\n";
-      exit(1);
-    }
+	{
+		cerr << "ngramtable: wrong level setting\n";
+		exit(1);
+	}
   
   word(tree,0); // dummy variable
-
+	
   if (I_FREQ_NUM)
     freq(tree,treeflags,0); // frequency of all n-grams
-
+	
   msucc(tree,0);     // number of different n-grams 
   mtable(tree,NULL); // table of n-gram
   
@@ -91,7 +96,7 @@ ngramtable::ngramtable(char* filename,int maxl,char* is,
   mentr=new int[maxlev+1];
   memory= new int[maxlev+1];
   occupancy= new int[maxlev+1];
-
+	
   mentr[0]=1;
   memory[0]=inodesize(4); // root is an inode with integer frequency
   occupancy[0]=inodesize(4); // root is an inode with integer frequency
@@ -102,16 +107,27 @@ ngramtable::ngramtable(char* filename,int maxl,char* is,
   dict=new dictionary(NULL,1000000,is,oovlex);
   
   if (!filename) return ;
-
+	
+  filterdict=NULL;
+	if (filterdictfile){
+		filterdict=new dictionary(filterdictfile,1000000,is,oovlex);
+/*
+ filterdict->incflag(1);
+		filterdict->encode(BOS_);
+		filterdict->encode(EOS_);
+		filterdict->incflag(0);
+*/
+	}
+	
   // switch to specific loading methods
-
+	
   if ((strncmp(header,"ngram",5)==0) ||
       (strncmp(header,"NGRAM",5)==0))
-    {
-      cerr << "this ngram file format is no more supported!\n";
-      exit(1);
-    }
-    
+	{
+		cerr << "this ngram file format is no more supported!\n";
+		exit(1);
+	}
+	
   if (strncmp(header,"nGrAm",5)==0){
     loadtxt(filename);
   }
@@ -125,16 +141,16 @@ ngramtable::ngramtable(char* filename,int maxl,char* is,
     else
       generate_hmask(filename,hmask,inplen);
   }
-
- 
+	
+	
   if (tbtype()==LEAFPROB){
     du_code=dict->encode(DUMMY_);
     bo_code=dict->encode(BACKOFF_);
   }
 }
 
-void ngramtable::savetxt(char *filename,int depth){
-
+void ngramtable::savetxt(char *filename,int depth,int googleformat){
+	
   if (depth>maxlev){
     cerr << "savetxt: wrong n-gram size\n";
     exit(1);
@@ -145,17 +161,22 @@ void ngramtable::savetxt(char *filename,int depth){
   card=mentr[depth];
   
   ngram ng(dict);
-  
-  cerr << "savetxt: nGrAm " <<  depth << " " << card << " " << info << "\n";
-  
+
+  if (googleformat)
+		cerr << "savetxt in Google format: nGrAm " <<  depth << " " << card << " " << info << "\n";
+  else
+		cerr << "savetxt: nGrAm " <<  depth << " " << card << " " << info << "\n";
+		
   mfstream out(filename,ios::out );
 
-  out << "nGrAm " << depth << " " << card << " " << info << "\n";
-   
-  dict->save(out);
-
+  if (!googleformat)	
+		out << "nGrAm " << depth << " " << card << " " << info << "\n";
+	
+  if (!googleformat)	
+		dict->save(out);
+	
   scan(ng,INIT,depth);
-
+	
   while(scan(ng,CONT,depth)) out << ng <<"\n";
   
   cerr << "\n";
@@ -167,48 +188,48 @@ void ngramtable::savetxt(char *filename,int depth){
 void ngramtable::loadtxt(char *filename){
   
   ngram ng(dict);;
-
+	
   cerr << "loadtxt ";
-
+	
   mfstream inp(filename,ios::in);
   
   int i,c=0;
-
+	
   char header[100];
-
+	
   inp.getline(header,100);
   
   cerr << header ;
-
+	
   dict->load(inp);
-
+	
   while (!inp.eof()){
     
     for (i=0;i<maxlev;i++) inp >> ng; 
-
+		
     inp >> ng.freq;
-
+		
     put(ng);
-
+		
     ng.size=0;
     
     if (!(++c % 1000000)) cerr << ".";
     
   }
-
+	
   cerr << "\n";
   
   inp.close();
 }
 
 void ngramtable::savebin(mfstream& out,node nd,NODETYPE ndt,int lev,int mlev){
-
+	
   out.write(nd+WORD_OFFS,CODESIZE);
   
   //write frequency
-
+	
   int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
-
+	
   int frnum=1;
   if (tbtype()==LEAFPROB && (ndt & LNODE))
     frnum=L_FREQ_NUM;
@@ -230,10 +251,10 @@ void ngramtable::savebin(mfstream& out,node nd,NODETYPE ndt,int lev,int mlev){
     if (lev==(mlev-1)) 
       //transforms flags into a leaf node
       fl=(fl & ~INODE) | LNODE;
-
+		
     out.write((const char*) &fl,CHARSIZE);
     fl=mtflags(nd);
-
+		
     out.write(nd+MSUCC_OFFS,CODESIZE);
     
     int msz=mtablesz(nd);
@@ -248,17 +269,17 @@ void ngramtable::savebin(mfstream& out,node nd,NODETYPE ndt,int lev,int mlev){
 void ngramtable::savebin(mfstream& out){
   
   int depth=maxlev;
-
+	
   card=mentr[depth];
-
+	
   cerr << "savebin ";
-
+	
   out.writex((char *)&depth,INTSIZE);
-
+	
   out.write((char *)&treeflags,CHARSIZE);
   
   savebin(out,tree,treeflags,0,depth);
-
+	
   cerr << "\n";
 }
 
@@ -269,47 +290,47 @@ void ngramtable::savebin(char *filename,int depth){
     cerr << "savebin: wrong n-gram size\n";
     exit(1);
   }
-
+	
   depth=(depth>0?depth:maxlev);
-
+	
   card=mentr[depth];
-
+	
   cerr << "savebin NgRaM " << depth << " " << card;
-
+	
   mfstream out(filename,ios::out );
-
+	
   if (dict->oovcode()!=-1) //there are OOV words
     out << "NgRaM_ " << depth << " " << card << " " << info << "\n";
   else
     out << "NgRaM " << depth << " " << card << " " << info << "\n";
-
+	
   dict->save(out);
-
+	
   out.writex((char *)&depth,INTSIZE);
-
+	
   out.write((char *)&treeflags,CHARSIZE);
   
   savebin(out,tree,treeflags,0,depth);
-
+	
   out.close();
-
+	
   cerr << "\n";
 }
 
 
 void ngramtable::loadbin(mfstream& inp,node nd,NODETYPE ndt,int lev){
   static int c=0;
-
+	
   // read code
   inp.read(nd+WORD_OFFS,CODESIZE);
   
   // read frequency
   int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
-
+	
   int frnum=1;
   if (tbtype()==LEAFPROB && (ndt & LNODE))
     frnum=L_FREQ_NUM;
-
+	
   if ((ndt & LNODE) || I_FREQ_NUM){//check if to read freq
     if (ndt & FREQ1)
       inp.read(nd+offs,1 * frnum);
@@ -339,7 +360,7 @@ void ngramtable::loadbin(mfstream& inp,node nd,NODETYPE ndt,int lev){
       grow(&mtb,INODE,lev+1,m,msz);
       
       for (int i=0;i<m;i++)
-	loadbin(inp,mtb + i * msz,fl,lev+1);
+				loadbin(inp,mtb + i * msz,fl,lev+1);
       
       mtable(nd,mtb);
     }
@@ -356,12 +377,12 @@ void ngramtable::loadbin(mfstream& inp,node nd,NODETYPE ndt,int lev){
 
 
 void ngramtable::loadbin(mfstream& inp){
-
+	
   cerr << "loadbin ";
-
+	
   inp.readx((char *)&maxlev,INTSIZE);
   inp.read((char *)&treeflags,CHARSIZE);
-
+	
   loadbin(inp,tree,treeflags,0);
   
   cerr << "\n";
@@ -369,7 +390,7 @@ void ngramtable::loadbin(mfstream& inp){
 
 
 void ngramtable::loadbin(char *filename){
-
+	
   cerr << "loadbin ";
   mfstream inp(filename,ios::in );
   
@@ -378,14 +399,14 @@ void ngramtable::loadbin(char *filename){
   inp.getline(header,100);
   
   cerr << header ;
-
+	
   dict->load(inp);  
-
+	
   inp.readx((char *)&maxlev,INTSIZE);
   inp.read((char *)&treeflags,CHARSIZE);
- 
+	
   loadbin(inp,tree,treeflags,0);
-    
+	
   inp.close();
   
   cerr << "\n";
@@ -395,14 +416,14 @@ void ngramtable::loadbin(char *filename){
 void ngramtable::generate(char *filename){
   mfstream inp(filename,ios::in);
   int i,c=0;
-
+	
   if (!inp){
     cerr << "cannot open " << filename << "\n";
     exit(1);
   }
-
+	
   cerr << "load:";
-
+	
   ngram ng(dict->oovlexp()?dict->oovlexp():dict);
   ngram ng2(dict);
   dict->incflag(1);
@@ -412,15 +433,15 @@ void ngramtable::generate(char *filename){
     ng.pushw(dict->BoS());
     ng.freq=1;
   };
-
+	
   while (inp >> ng){
     
     ng2.trans(ng); //reencode with new dictionary
     
     if (dict->size() >= code_range[CODESIZE]){
       cerr 
-	<< "dictionary size overflows code range " 
-	<< code_range[CODESIZE] << "\n";
+			<< "dictionary size overflows code range " 
+			<< code_range[CODESIZE] << "\n";
       exit(1);
     };
     
@@ -429,20 +450,20 @@ void ngramtable::generate(char *filename){
     put(ng2);
     
     if (!(++c % 1000000)) cerr << ".";
-  
+		
   }
-
+	
   cerr << "adding some more n-grams to make table consistent\n";
   for (i=1;i<=maxlev;i++){
     ng2.pushw(dict->BoS());
     ng2.freq=1;
     put(ng2);
   };
-
+	
   dict->incflag(0);
   inp.close();
   strcpy(info,"ngram");
-
+	
   cerr << "\n";
 }
 
@@ -450,12 +471,12 @@ void ngramtable::generate_hmask(char *filename,char* hmask,int inplen){
   mfstream inp(filename,ios::in);
   int i,c=0;
   int selmask[MAX_NGRAM];
-
+	
   if (!inp){
     cerr << "cannot open " << filename << "\n";
     exit(1);
   }
-
+	
   //parse hmask
   i=0; selmask[i++]=1;
   for (c=0;c< strlen(hmask);c++){
@@ -471,7 +492,7 @@ void ngramtable::generate_hmask(char *filename,char* hmask,int inplen){
   //  for (i=0;i<maxlev;i++)
   //cerr << "selmask " << i << "-> " << selmask[i] << "\n";
   cerr << "load:";
-
+	
   ngram ng(dict->oovlexp()?dict->oovlexp():dict);
   ngram ng2(dict);
   dict->incflag(1);
@@ -481,17 +502,17 @@ void ngramtable::generate_hmask(char *filename,char* hmask,int inplen){
     
     ng2.trans(ng); //reencode with new dictionary
     ng.size=0;    //reset  ng
-
+		
     if (ng2.size >= selmask[maxlev-1]){
       for (i=0;i<maxlev;i++)
-	*ng2.wordp(i+1)=*ng2.wordp(selmask[i]);
+				*ng2.wordp(i+1)=*ng2.wordp(selmask[i]);
       
       //cout << ng2 << "size:" << ng2.size << "\n";
       if (dict->size() >= code_range[CODESIZE]){
-	cerr 
-	  << "dictionary size overflows code range " 
-	  <<  code_range[CODESIZE] << "\n";
-	exit(1);
+				cerr 
+				<< "dictionary size overflows code range " 
+				<<  code_range[CODESIZE] << "\n";
+				exit(1);
       };
       put(ng2);
     }
@@ -500,11 +521,11 @@ void ngramtable::generate_hmask(char *filename,char* hmask,int inplen){
     
     if (!(++c % 1000000)) cerr << ".";
   };
-
+	
   dict->incflag(0);
   inp.close();
   sprintf(info,"hm%s\n",hmask);
-
+	
   cerr << "\n";
 }
 
@@ -515,93 +536,93 @@ int cmpint(const void *a,const void *b){
 void ngramtable::generate_dstco(char *filename,int dstco){
   mfstream inp(filename,ios::in);
   int c=0;
-
+	
   if (!inp){
     cerr << "cannot open " << filename << "\n";
     exit(1);
   }
-
+	
   cerr << "load distant co-occurrences:";
   if (dstco>MAX_NGRAM)
-    {
-      cerr << "window size (" << dstco << ") exceeds MAXNGRAM\n";
-      inp.close();
-      exit (1);
-    }
-
+	{
+		cerr << "window size (" << dstco << ") exceeds MAXNGRAM\n";
+		inp.close();
+		exit (1);
+	}
+	
   ngram ng(dict->oovlexp()?dict->oovlexp():dict);
   ngram ng2(dict);
   ngram dng(dict); 
   dict->incflag(1);
-
+	
   while (inp >> ng){
     if (ng.size){
       
       ng2.trans(ng); //reencode with new dictionary
       
       if (ng2.size>dstco) ng2.size=dstco; //maximum distance
-
+			
       if (dict->size() >= code_range[CODESIZE]){
-	cerr 
-	  << "dictionary size overflows code range " 
-	  << code_range[CODESIZE] << "\n";
-	exit(1);
+				cerr 
+				<< "dictionary size overflows code range " 
+				<< code_range[CODESIZE] << "\n";
+				exit(1);
       };
       
       dict->incfreq(*ng2.wordp(1),1);
       
       if (maxlev == 1 )
-	cerr << "maxlev is wrong! (Possible values are 2 or 3)\n";
+				cerr << "maxlev is wrong! (Possible values are 2 or 3)\n";
       
       else if (maxlev == 2 ){ //maxlev ==2
-	dng.size=2;    
-	dng.freq=1;
-	
-	//cerr << "size=" << ng2.size << "\n";
-	
-	for (int i=2;i<=ng2.size;i++){
-	  
-	  if (*ng2.wordp(1)<*ng2.wordp(i)){
-	    *dng.wordp(2)=*ng2.wordp(i);
-	    *dng.wordp(1)=*ng2.wordp(1);
-	  }
-	  else{
-	    *dng.wordp(1)=*ng2.wordp(i);
-	    *dng.wordp(2)=*ng2.wordp(1);
-	  }
-	  //cerr << dng << "\n";
-	  put(dng);
-	}
-	if (!(++c % 1000000)) cerr << ".";
+				dng.size=2;    
+				dng.freq=1;
+				
+				//cerr << "size=" << ng2.size << "\n";
+				
+				for (int i=2;i<=ng2.size;i++){
+					
+					if (*ng2.wordp(1)<*ng2.wordp(i)){
+						*dng.wordp(2)=*ng2.wordp(i);
+						*dng.wordp(1)=*ng2.wordp(1);
+					}
+					else{
+						*dng.wordp(1)=*ng2.wordp(i);
+						*dng.wordp(2)=*ng2.wordp(1);
+					}
+					//cerr << dng << "\n";
+					put(dng);
+				}
+				if (!(++c % 1000000)) cerr << ".";
       }
       else{ //maxlev ==3
-	dng.size=3;    
-	dng.freq=1;
-	
-	//cerr << "size=" << ng2.size << "\n";
-	int ar[3];
-
-	ar[0]=*ng2.wordp(1);
-	for (int i=2;i<ng2.size;i++){
-	  ar[1]=*ng2.wordp(i);
-	  for (int j=i+1;j<=ng2.size;j++){
-	    ar[2]=*ng2.wordp(j);
-	    
-	    //sort ar
-	    qsort(ar,3,sizeof(int),cmpint);
-	    
-	    *dng.wordp(1)=ar[0];
-	    *dng.wordp(2)=ar[1];
-	    *dng.wordp(3)=ar[2];
-	    
-	    //	    cerr << ng2 << "\n";
-	    //cerr << dng << "\n";
-	    //cerr << *dng.wordp(1) << " " 
-	    //	 << *dng.wordp(2) << " " 
-	    //	 << *dng.wordp(3) << "\n";
-	    put(dng);
-	  }
-	}
+				dng.size=3;    
+				dng.freq=1;
+				
+				//cerr << "size=" << ng2.size << "\n";
+				int ar[3];
+				
+				ar[0]=*ng2.wordp(1);
+				for (int i=2;i<ng2.size;i++){
+					ar[1]=*ng2.wordp(i);
+					for (int j=i+1;j<=ng2.size;j++){
+						ar[2]=*ng2.wordp(j);
+						
+						//sort ar
+						qsort(ar,3,sizeof(int),cmpint);
+						
+						*dng.wordp(1)=ar[0];
+						*dng.wordp(2)=ar[1];
+						*dng.wordp(3)=ar[2];
+						
+						//	    cerr << ng2 << "\n";
+						//cerr << dng << "\n";
+						//cerr << *dng.wordp(1) << " " 
+						//	 << *dng.wordp(2) << " " 
+						//	 << *dng.wordp(3) << "\n";
+						put(dng);
+					}
+				}
       }
     }
   }
@@ -614,22 +635,22 @@ void ngramtable::generate_dstco(char *filename,int dstco){
 
 
 void ngramtable::augment(ngramtable* ngt){
-
+	
   if (ngt->maxlev != maxlev){
     cerr << "ngt augmentation is not possible " 
-	 << "due to table incompatibility!";
+		<< "due to table incompatibility!";
     exit(1);
   }
-
+	
   if (ngt->dict->oovcode()!=-1)
     cerr <<"oov: " << ngt->dict->freq(ngt->dict->oovcode()) << "\n";
   cerr <<"size: " << ngt->dict->size() << "\n";
-
+	
   if (dict->oovcode()!=-1)
     cerr <<"oov: " << dict->freq(dict->oovcode()) << "\n";
   cerr <<"size: " << dict->size() << "\n";
-
-
+	
+	
   dict->incflag(1);
   cerr << "augmenting ngram table\n";
   ngram ng1(ngt->dict);
@@ -642,11 +663,11 @@ void ngramtable::augment(ngramtable* ngt){
     if ((++c % 1000000) ==0) cerr <<"."; 
   }
   cerr << "\n";
-
+	
   for (int i=0;i<ngt->dict->size();i++)
     dict->incfreq(dict->encode(ngt->dict->decode(i)),
-		  ngt->dict->freq(i));
-
+									ngt->dict->freq(i));
+	
   dict->incflag(0);
   
   int oov=dict->getcode(dict->OOV());
@@ -654,7 +675,7 @@ void ngramtable::augment(ngramtable* ngt){
   if (oov>=0){
     dict->oovcode(oov);  
   }    
- 
+	
   cerr << "oov: " << dict->freq(dict->oovcode()) << "\n";
   cerr << "size: " << dict->size() << "\n";
 }
@@ -662,7 +683,7 @@ void ngramtable::augment(ngramtable* ngt){
 void ngramtable::show(){
   
   ngram ng(dict);
-
+	
   scan(ng,INIT);
   cout << "Stampo contenuto della tabella\n";
   while (scan(ng)) {
@@ -677,127 +698,127 @@ int ngramtable::mybsearch(char *ar, int n, int size, unsigned char *key, int *id
   register unsigned char *p;
   register int result;
   register int i;
-
+	
   /* return idx with the first 
-     position equal or greater than key */
-
+		position equal or greater than key */
+	
   /*   Warning("start bsearch \n"); */
-
+	
   low = 0;high = n; *idx=0;
   while (low < high)
-    {
-      *idx = (low + high) / 2;
-      p = (unsigned char *) (ar + (*idx * size));
-      
-      //comparison
-      for (i=(CODESIZE-1);i>=0;i--){
-	result=key[i]-p[i];
-	if (result) break;
-      }
-
-      if (result < 0)
-	high = *idx;
-      else if (result > 0)
-	low = *idx + 1;
-      else
-	return 1;
-    }
-
+	{
+		*idx = (low + high) / 2;
+		p = (unsigned char *) (ar + (*idx * size));
+		
+		//comparison
+		for (i=(CODESIZE-1);i>=0;i--){
+			result=key[i]-p[i];
+			if (result) break;
+		}
+		
+		if (result < 0)
+			high = *idx;
+		else if (result > 0)
+			low = *idx + 1;
+		else
+			return 1;
+	}
+	
   *idx=low;
-
+	
   return 0;
-
+	
 }
 
 void *ngramtable::search(table *tb,NODETYPE ndt,int lev,int n,int sz,int *ngp,
-			 ACTION action,char **found){
-
+												 ACTION action,char **found){
+	
   char w[CODESIZE];
   putmem(w,ngp[0],0,CODESIZE);
   int wint=ngp[0];
-
+	
   // index returned by mybsearch 
-
+	
   if (found) *found=NULL;
-
+	
   int idx=0; 
-
+	
   switch(action){
     
-  case ENTER:
-
-    if (!*tb || 
-	!mybsearch(*tb,n,sz,(unsigned char *)w,&idx))
+		case ENTER:
+			
+			if (!*tb || 
+					!mybsearch(*tb,n,sz,(unsigned char *)w,&idx))
       {
-	// let possibly grow the table
-	grow(tb,ndt,lev,n,sz); // devo aggiungere un elemento n+1
-
-	//shift table by one	
-	
-	memmove(*tb + (idx+1) * sz,
-		*tb + idx * sz,
-		(n-idx) * sz);
-	
-	memset(*tb + idx * sz , 0 , sz);
-
-	word(*tb + idx * sz, wint);
-	
+				// let possibly grow the table
+				grow(tb,ndt,lev,n,sz); // devo aggiungere un elemento n+1
+				
+				//shift table by one	
+				
+				memmove(*tb + (idx+1) * sz,
+								*tb + idx * sz,
+								(n-idx) * sz);
+				
+				memset(*tb + idx * sz , 0 , sz);
+				
+				word(*tb + idx * sz, wint);
+				
       }
-    else
-      if (found) *found=*tb + ( idx * sz ); 
-    
-    return *tb + ( idx * sz ); 
-
-    break;
-    
-  case FIND:
-
-    if (!*tb || 
-	!mybsearch(*tb,n,sz,(unsigned char *)w,&idx))
-      return 0;
-    else
-      if (found) *found=*tb + (idx * sz);
-
-    return *tb + (idx * sz);
-
-    break;
-    
-  case DELETE:
-
-    if (*tb &&
-	mybsearch(*tb,n,sz,(unsigned char *)w,&idx))
+			else
+				if (found) *found=*tb + ( idx * sz ); 
+			
+			return *tb + ( idx * sz ); 
+			
+			break;
+			
+		case FIND:
+			
+			if (!*tb || 
+					!mybsearch(*tb,n,sz,(unsigned char *)w,&idx))
+				return 0;
+			else
+				if (found) *found=*tb + (idx * sz);
+				
+				return *tb + (idx * sz);
+			
+			break;
+			
+		case DELETE:
+			
+			if (*tb &&
+					mybsearch(*tb,n,sz,(unsigned char *)w,&idx))
       {
-	//shift table down by one	
-	
-	static char buffer[100];
-
-	memcpy(buffer,*tb + idx * sz , sz);
-
-	if (idx <(n-1))
-	  memmove(*tb + idx * sz,
-		  *tb + (idx + 1) * sz,
-		  (n-idx-1) * sz);
-	
-	//put the deleted item after the last item
-
-	memcpy(*tb + (n-1) * sz , buffer , sz);
-	
-	if (found) *found=*tb + (n-1) * sz ; 	
-	
-	return *tb + (n-1) * sz ; 	
-      
+				//shift table down by one	
+				
+				static char buffer[100];
+				
+				memcpy(buffer,*tb + idx * sz , sz);
+				
+				if (idx <(n-1))
+					memmove(*tb + idx * sz,
+									*tb + (idx + 1) * sz,
+									(n-idx-1) * sz);
+				
+				//put the deleted item after the last item
+				
+				memcpy(*tb + (n-1) * sz , buffer , sz);
+				
+				if (found) *found=*tb + (n-1) * sz ; 	
+				
+				return *tb + (n-1) * sz ; 	
+				
       }
-    else
-      
-      return NULL;
-
-    break;
-
-  default:
-    cerr << "this option is not implemented yet\n";
-    break;
+			else
+				
+				return NULL;
+			
+			break;
+			
+		default:
+			cerr << "this option is not implemented yet\n";
+			break;
   }
-
+	
 }
 
 int ngramtable::comptbsize(int n){
@@ -819,17 +840,17 @@ int ngramtable::comptbsize(int n){
   else if (n>2) return 4;
   else if (n>1) return 2;
   else return 1;
-
+	
 }
 
 
 char **ngramtable::grow(table *tb,NODETYPE ndt,int lev,
-			int n,int sz,NODETYPE oldndt){
+												int n,int sz,NODETYPE oldndt){
   int inc;
   int num;
-
+	
   //memory pools for inode/lnode tables
-   
+	
   if (oldndt==0){
     
     if ((*tb==NULL) & n>0){ 
@@ -837,7 +858,7 @@ char **ngramtable::grow(table *tb,NODETYPE ndt,int lev,
       //first allocation 
       
       if (n>16384) 
-	inc=(n/16384)*16384+(n % 16384?16384:0);
+				inc=(n/16384)*16384+(n % 16384?16384:0);
       else if (n>8192) inc=16384;
       else if (n>4096) inc=8192;
       else if (n>2048) inc=4096;
@@ -853,7 +874,7 @@ char **ngramtable::grow(table *tb,NODETYPE ndt,int lev,
       else if (n>2) inc=4;
       else if (n>1) inc=2;
       else inc=1;
-
+			
       n=0; //inc is the correct target size
       
     }
@@ -866,127 +887,136 @@ char **ngramtable::grow(table *tb,NODETYPE ndt,int lev,
       // check multiples of 1024
       if ((n>=16384) && !(n % 16384)) inc=16384;
       else{
-	switch (n){
-	case 0:inc=1;break;
-	case 1:case 2:case 4:case 8:case 16:case 32:
-	case 64:case 128:case 256:case 512:case 1024:
-	case 2048: case 4096:case 8192:
-	  inc=n;
-	  break;
-	default: 
-	  return tb;
-	}
+				switch (n){
+					case 0:inc=1;break;
+					case 1:case 2:case 4:case 8:case 16:case 32:
+					case 64:case 128:case 256:case 512:case 1024:
+					case 2048: case 4096:case 8192:
+						inc=n;
+						break;
+					default: 
+						return tb;
+				}
       }
     }
     
     table ntb=(char *)mem->reallocate(*tb,n * sz,(n + inc) * sz);
     
     memory[lev]+= (inc * sz);
-      
+		
     *tb=ntb;
   }
-
+	
   else{
     //change frequency type of table
     //no entries will be added now
-
+		
     int oldsz;
     
     // guess the current memory size !!!!
     num=comptbsize(n);
-
+		
     if ((ndt & INODE) && I_FREQ_NUM){
       if (oldndt & FREQ1)
-	oldsz=inodesize(1);
+				oldsz=inodesize(1);
       else
-	if (oldndt & FREQ2)
-	  oldsz=inodesize(2);
-	else 
-	  if (oldndt & FREQ3)
-	    oldsz=inodesize(3);
-	  else{
-	    cerr << "funzione non prevista\n";
-	    exit(1);
-	  }
+				if (oldndt & FREQ2)
+					oldsz=inodesize(2);
+			else 
+				if (oldndt & FREQ3)
+					oldsz=inodesize(3);
+			else{
+				cerr << "funzione non prevista\n";
+				exit(1);
+			}
     }else 
       if (ndt & LNODE){
-	if (oldndt & FREQ1)
-	  oldsz=lnodesize(1);
-	else 
-	  if (oldndt & FREQ2)
-	    oldsz=lnodesize(2);
-	  else
-	    if (oldndt & FREQ3)
-	      oldsz=lnodesize(3);
-	    else{
-	      cerr << "funzione non prevista\n";
-	      exit(1);
-	    }
+				if (oldndt & FREQ1)
+					oldsz=lnodesize(1);
+				else 
+					if (oldndt & FREQ2)
+						oldsz=lnodesize(2);
+				else
+					if (oldndt & FREQ3)
+						oldsz=lnodesize(3);
+				else{
+					cerr << "funzione non prevista\n";
+					exit(1);
+				}
       }
-
+		
     table ntb=(char *)mem->allocate(num * sz);
     memset((char *)ntb,0,num * sz);    
-
+		
     if (ndt & INODE)
       for (int i=0;i<n;i++){
-	word(ntb+i*sz,word(*tb+i*oldsz));
-	msucc(ntb+i*sz,msucc(*tb+i*oldsz));
-	mtflags(ntb+i*sz,mtflags(*tb+i*oldsz));
-	mtable(ntb+i*sz,mtable(*tb+i*oldsz));
-	for (int j=0;j<I_FREQ_NUM;j++)
-	  setfreq(ntb+i*sz,ndt,getfreq(*tb+i*oldsz,oldndt,j),j);
+				word(ntb+i*sz,word(*tb+i*oldsz));
+				msucc(ntb+i*sz,msucc(*tb+i*oldsz));
+				mtflags(ntb+i*sz,mtflags(*tb+i*oldsz));
+				mtable(ntb+i*sz,mtable(*tb+i*oldsz));
+				for (int j=0;j<I_FREQ_NUM;j++)
+					setfreq(ntb+i*sz,ndt,getfreq(*tb+i*oldsz,oldndt,j),j);
       }
-    else
-      for (int i=0;i<n;i++){
-	word(ntb+i*sz,word(*tb+i*oldsz));
-	for (int j=0;j<L_FREQ_NUM;j++)
-	  setfreq(ntb+i*sz,ndt,getfreq(*tb+i*oldsz,oldndt,j),j);
-      }
-
-    mem->free(*tb,num * oldsz); //num is the correct size
+				else
+					for (int i=0;i<n;i++){
+						word(ntb+i*sz,word(*tb+i*oldsz));
+						for (int j=0;j<L_FREQ_NUM;j++)
+							setfreq(ntb+i*sz,ndt,getfreq(*tb+i*oldsz,oldndt,j),j);
+					}
+						
+						mem->free(*tb,num * oldsz); //num is the correct size
     memory[lev]+=num * (sz - oldsz);
     occupancy[lev]+=n * (sz-oldsz);
     
     *tb=ntb;
   }
-
+	
   return tb;
-
+	
 };
 
- 
+
 int ngramtable::put(ngram& ng){
   
   return ngramtable::put(ng,tree,treeflags,0);
-
+	
 }
 
 int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
-  
   char *found;
   node subnd;
-
+	
   if (ng.size<maxlev) return 0;
-
+	
+	
+	// if filtering dictionary exists
+	// and if the first word of the ngram does not belong to it
+	// do not insert the ngram
+	if (filterdict){
+	  int code=filterdict->encode(dict->decode(*ng.wordp(maxlev)));
+		
+    if (code==filterdict->oovcode())			return 0;
+	}
+	
   //cerr << "l:" << lev << " put:" << ng << "\n";
-    
+	
   for (int l=lev;l<maxlev;l++){
-      
+		
     if (I_FREQ_NUM || (ndt & LNODE))
       freq(nd,ndt,freq(nd,ndt) + ng.freq);
-
+		
     table mtb=mtable(nd);
-      
+		
     // it has to be added to the multiple table
-      
+		
     subnd=(char *)
       search(&mtb,
-	     mtflags(nd),
-	     l+1,
-	     msucc(nd),
-	     mtablesz(nd),
-	     ng.wordp(maxlev-l),
-	     ENTER,&found);
+						 mtflags(nd),
+						 l+1,
+						 msucc(nd),
+						 mtablesz(nd),
+						 ng.wordp(maxlev-l),
+						 ENTER,&found);
 	  
     if (!found){//a new element has been added
       
@@ -994,57 +1024,57 @@ int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
       
       mentr[l+1]++;
       occupancy[l+1]+=mtablesz(nd);
-
+			
       unsigned char freq_flag;
       if (I_FREQ_NUM)
-	//tree with internal freqs must 
-	//be never expanded during usage 
-	//of the secondary frequencies
-	freq_flag=(ng.freq>65535?FREQ4:FREQ1);
+				//tree with internal freqs must 
+				//be never expanded during usage 
+				//of the secondary frequencies
+				freq_flag=(ng.freq>65535?FREQ4:FREQ1);
       else
-	//all leafprob with L_FREQ_NUM >=1
-	//do NOT have INTERNAL freqs
-	//will have freq size specified
-	//by the resolution parameter
-	//to avoid expansion
-	freq_flag=L_FREQ_SIZE;
-
+				//all leafprob with L_FREQ_NUM >=1
+				//do NOT have INTERNAL freqs
+				//will have freq size specified
+				//by the resolution parameter
+				//to avoid expansion
+				freq_flag=L_FREQ_SIZE;
+			
       if ((l+1)<maxlev) //update mtable flags
-	{
-	  if ((l+2)<maxlev)
-	    mtflags(subnd,INODE | freq_flag);
-	  else
-	    mtflags(subnd,LNODE | freq_flag);
-
-	}
+			{
+				if ((l+2)<maxlev)
+					mtflags(subnd,INODE | freq_flag);
+				else
+					mtflags(subnd,LNODE | freq_flag);
+				
+			}
     }
-
+		
     // ... go on with the subtree
-      
+		
     // check if we must extend the subnode 
-
+		
     NODETYPE oldndt=mtflags(nd);
-
+		
     if ((I_FREQ_NUM || (mtflags(nd) & LNODE))  &&  
-	(mtflags(nd) & FREQ1) &&
-	((freq(subnd,mtflags(nd))+ng.freq)>255))
-
+				(mtflags(nd) & FREQ1) &&
+				((freq(subnd,mtflags(nd))+ng.freq)>255))
+			
       mtflags(nd,(mtflags(nd) & ~FREQ1) | FREQ2); //update flags
-
+		
     
     if ((I_FREQ_NUM || (mtflags(nd) & LNODE))  &&  
-	(mtflags(nd) & FREQ2) &&
-	((freq(subnd,mtflags(nd))+ng.freq)>65535))
+				(mtflags(nd) & FREQ2) &&
+				((freq(subnd,mtflags(nd))+ng.freq)>65535))
       
       mtflags(nd,(mtflags(nd) & ~FREQ2) | FREQ3); //update flags
-      
-
+		
+		
     if ((I_FREQ_NUM || (mtflags(nd) & LNODE))  &&  
-	(mtflags(nd) & FREQ3) &&
-	((freq(subnd,mtflags(nd))+ng.freq)>16777215))
-
+				(mtflags(nd) & FREQ3) &&
+				((freq(subnd,mtflags(nd))+ng.freq)>16777215))
+			
       mtflags(nd,(mtflags(nd) & ~FREQ3) | FREQ4); //update flags
-
+		
     if (mtflags(nd)!=oldndt){
       // flags have changed, table has to be expanded
       //expand subtable
@@ -1054,21 +1084,21 @@ int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
       cerr << "\b\b";
       //update subnode
       subnd=(char *)
-	search(&mtb,
-	       mtflags(nd),
-	       l+1,
-	       msucc(nd),
-	       mtablesz(nd),
-	       ng.wordp(maxlev-l),
-	       FIND,&found);
+				search(&mtb,
+							 mtflags(nd),
+							 l+1,
+							 msucc(nd),
+							 mtablesz(nd),
+							 ng.wordp(maxlev-l),
+							 FIND,&found);
     }
-
-      
+		
+		
     mtable(nd,mtb);
     ndt=mtflags(nd);
     nd=subnd;
   }
-    
+	
   freq(nd, ndt, freq(nd,ndt) + ng.freq);
   
   return 1;
@@ -1088,132 +1118,132 @@ int ngramtable::get(ngram& ng,int n,int lev){
     cerr << "get: ngram cannot be smaller than table size\n";
     exit(1);
   }
-
+	
   if (n<lev){
     cerr << "time shift must be >= ngram-size";
     exit(1);
   }
-
+	
   if (ng.wordp(n)){
-
-     nd=tree;
-     ndt=treeflags;
-
-     for (int l=0;l<lev;l++){
+		
+		nd=tree;
+		ndt=treeflags;
+		
+		for (int l=0;l<lev;l++){
       
-       table mtb=mtable(nd);
-
-       subnd=(char *)
-	 search(&mtb,
-		mtflags(nd),
-		l+1,
-		msucc(nd),
-		mtablesz(nd),
-		ng.wordp(n-l),
-		FIND,&found);
-	  
-       ndt=mtflags(nd);
-       nd=subnd;
-	  
-       if (nd==0) return 0;
-     }
+			table mtb=mtable(nd);
+			
+			subnd=(char *)
+				search(&mtb,
+							 mtflags(nd),
+							 l+1,
+							 msucc(nd),
+							 mtablesz(nd),
+							 ng.wordp(n-l),
+							 FIND,&found);
+			
+			ndt=mtflags(nd);
+			nd=subnd;
+			
+			if (nd==0) return 0;
+		}
     
-     ng.size=n;
-     ng.freq=freq(nd,ndt);
-     ng.link=nd;
-     ng.lev=lev;
-     ng.pinfo=ndt; //parent node info
-
-     if (lev<maxlev){
-       ng.succ=msucc(nd);
-       ng.info=mtflags(nd);
-     }
-     else{
-       ng.succ=0;
-       ng.info=LNODE;
-     }
-     return 1;
-   }
-   return 0;
+		ng.size=n;
+		ng.freq=freq(nd,ndt);
+		ng.link=nd;
+		ng.lev=lev;
+		ng.pinfo=ndt; //parent node info
+		
+		if (lev<maxlev){
+			ng.succ=msucc(nd);
+			ng.info=mtflags(nd);
+		}
+		else{
+			ng.succ=0;
+			ng.info=LNODE;
+		}
+		return 1;
+	}
+	return 0;
 }
 
 
 int ngramtable::scan(node nd,NODETYPE ndt,int lev,
-		     ngram& ng,ACTION action,int maxl){
- 
+										 ngram& ng,ACTION action,int maxl){
+	
   assert(lev<=maxlev);
-
+	
   if ((I_FREQ_NUM==0) && (maxl < maxlev)){
     cerr << "scan: ngram cannot be smaller than LEAFPROB table\n";
     exit(1);
   }
   
-
+	
   if (maxl==-1) maxl=maxlev;
   
   ng.size=maxl;
   
   switch (action){
     
-  case INIT:
-    //reset ngram local indexes
-    
-    for (int l=0;l<=maxlev;l++) ng.midx[l]=0;
-    
-    return 1;
-
-  case CONT:
-    
-    if (lev>(maxl-1)) return 0;
-    
-    if (ng.midx[lev]<msucc(nd))
+		case INIT:
+			//reset ngram local indexes
+			
+			for (int l=0;l<=maxlev;l++) ng.midx[l]=0;
+			
+			return 1;
+			
+		case CONT:
+			
+			if (lev>(maxl-1)) return 0;
+			
+			if (ng.midx[lev]<msucc(nd))
       {
-	//put current word into ng
-	*ng.wordp(maxl-lev)=
-	  word(mtable(nd)+ng.midx[lev] * mtablesz(nd));
-
-	//inspect subtree
-	//check if there is something left in the tree
-
-	if (lev<(maxl-1)){
-	  if (scan(mtable(nd) + ng.midx[lev] * mtablesz(nd),
-		   INODE,
-		   lev+1,ng,CONT,maxl))
-	    return 1;
-	  else{
-	    ng.midx[lev]++; //go to next
-	    for (int l=lev+1;l<=maxlev;l++) ng.midx[l]=0;//reset indexes
-
-	    return scan(nd,INODE,lev,ng,CONT,maxl); //restart scanning
-	  }
-	}
-	else{
-	  // put data into the n-gram
-	  
-	  *ng.wordp(maxl-lev)=
-	    word(mtable(nd)+ng.midx[lev] * mtablesz(nd));
-
-	  ng.freq=freq(mtable(nd)+ ng.midx[lev] * mtablesz(nd),mtflags(nd));
-	  ng.pinfo=mtflags(nd);
-
-	  if (maxl<maxlev){
-	    ng.info=mtflags(mtable(nd)+ ng.midx[lev] * mtablesz(nd));
-	    ng.link=mtable(nd)+ng.midx[lev] * mtablesz(nd); //link to the node
-	    ng.succ=msucc(mtable(nd)+ ng.midx[lev] * mtablesz(nd));
-	  }
-	  else{
-	    ng.info=LNODE;
-	    ng.link=NULL;
-	    ng.succ=0;
-	  }
-	  
-	  ng.midx[lev]++;
-	  
-	  return 1;
-	}
+				//put current word into ng
+				*ng.wordp(maxl-lev)=
+				word(mtable(nd)+ng.midx[lev] * mtablesz(nd));
+				
+				//inspect subtree
+				//check if there is something left in the tree
+				
+				if (lev<(maxl-1)){
+					if (scan(mtable(nd) + ng.midx[lev] * mtablesz(nd),
+									 INODE,
+									 lev+1,ng,CONT,maxl))
+						return 1;
+					else{
+						ng.midx[lev]++; //go to next
+						for (int l=lev+1;l<=maxlev;l++) ng.midx[l]=0;//reset indexes
+							
+							return scan(nd,INODE,lev,ng,CONT,maxl); //restart scanning
+					}
+				}
+				else{
+					// put data into the n-gram
+					
+					*ng.wordp(maxl-lev)=
+					word(mtable(nd)+ng.midx[lev] * mtablesz(nd));
+					
+					ng.freq=freq(mtable(nd)+ ng.midx[lev] * mtablesz(nd),mtflags(nd));
+					ng.pinfo=mtflags(nd);
+					
+					if (maxl<maxlev){
+						ng.info=mtflags(mtable(nd)+ ng.midx[lev] * mtablesz(nd));
+						ng.link=mtable(nd)+ng.midx[lev] * mtablesz(nd); //link to the node
+						ng.succ=msucc(mtable(nd)+ ng.midx[lev] * mtablesz(nd));
+					}
+					else{
+						ng.info=LNODE;
+						ng.link=NULL;
+						ng.succ=0;
+					}
+					
+					ng.midx[lev]++;
+					
+					return 1;
+				}
       }
-    else
-      return 0;
+				else
+					return 0;
   }
 }
 
@@ -1249,15 +1279,15 @@ void ngramtable::stat(int level){
   float mega=1024 * 1024;
   
   cout.precision(2);
-
+	
   cout << "ngramtable class statistics\n";
   
   cout << "levels " << maxlev << "\n";
   for (int l=0;l<=maxlev;l++){
     cout << "lev " << l 
-	 << " entries "<< mentr[l] 
-	 << " allocated mem " << memory[l]/mega << "Mb "
-	 << " used mem " << occupancy[l]/mega << "Mb \n";
+		<< " entries "<< mentr[l] 
+		<< " allocated mem " << memory[l]/mega << "Mb "
+		<< " used mem " << occupancy[l]/mega << "Mb \n";
     totmem+=memory[l];
     totwaste+=(memory[l]-occupancy[l]);
   }
@@ -1266,16 +1296,16 @@ void ngramtable::stat(int level){
   cout << "wasted mem " << totwaste/mega << "Mb\n\n\n";
   
   if (level >1 ) dict->stat();
-
+	
   cout << "\n\n";
-
+	
   if (level >2) mem->stat();
-    
+	
 }
 
 
 double ngramtable::prob(ngram ong){
-
+	
   if (ong.size==0) return 0.0;
   if (ong.size>maxlev) ong.size=maxlev;
   
@@ -1283,57 +1313,57 @@ double ngramtable::prob(ngram ong){
   
   ngram ng(dict);
   ng.trans(ong);
-
+	
   double bo;
-
+	
   ng.size=maxlev;
   for (int s=ong.size+1;s<=maxlev;s++) 
     *ng.wordp(s)=du_code;
   
   if (get(ng)){
-  
+		
     if (ong.size>1 && resolution<10000000)
       return (double)pow(decay,(resolution-ng.freq));
     else
       return (double)(ng.freq+1)/10000000.0;
- 
+		
   }else{ // backoff-probability
-
+		
     bo_state(1); //set backoff state to 1
-
+		
     *ng.wordp(1)=bo_code;
     
     if (get(ng)) 
       
       bo=resolution<10000000
-	?(double)pow(decay,(resolution-ng.freq))
-	:(double)(ng.freq+1)/10000000.0;
-
+				?(double)pow(decay,(resolution-ng.freq))
+				:(double)(ng.freq+1)/10000000.0;
+		
     else
       bo=1.0;
     
     ong.size--;
-
+		
     return bo * prob(ong);
   }
 }
 
 
 /*
-main(int argc, char** argv){
-  dictionary d(argv[1]);
-
-  ngram ng(&d);
-
-  cerr << "caricato dizionario da " << argv[1] << "\n";
-  
-  ngramtable t(&d,argv[2],1);
-  
-  t.stat(1);
-  t.savetxt(argv[3]);
-
-}
-*/
+ main(int argc, char** argv){
+	 dictionary d(argv[1]);
+	 
+	 ngram ng(&d);
+	 
+	 cerr << "caricato dizionario da " << argv[1] << "\n";
+	 
+	 ngramtable t(&d,argv[2],1);
+	 
+	 t.stat(1);
+	 t.savetxt(argv[3]);
+	 
+ }
+ */
 
 
 

@@ -299,14 +299,23 @@ class ngramtable:tabletype{
  public:
 
   int         corrcounts; //corrected counters flag
-
+	
   dictionary     *dict; // dictionary
 
-  ngramtable(char* filename,int maxl,char* is,char *oovlex,
+	// filtering dictionary: 
+	// if the first word of the ngram does not belong to filterdict
+	// do not insert the ngram
+  dictionary     *filterdict;
+	
+//  ngramtable(char* filename,int maxl,char* is,char *oovlex,
+//	     int dstco=0,char* hmask=NULL,int inplen=0,
+//	     TABLETYPE tt=FULL,int codesize=DEFCODESIZE);
+
+	ngramtable(char* filename,int maxl,char* is,char *oovlex,char* filterdictfile,
 	     int dstco=0,char* hmask=NULL,int inplen=0,
 	     TABLETYPE tt=FULL,int codesize=DEFCODESIZE);
 
-  inline char* ngtype(char *str=NULL){if (str!=NULL) strcpy(info,str);return info;}
+	inline char* ngtype(char *str=NULL){if (str!=NULL) strcpy(info,str);return info;}
 
   ~ngramtable();
   void freetree(node nd);
@@ -325,8 +334,9 @@ class ngramtable:tabletype{
   }
   
   int maxlevel(){return maxlev;};
-
-  void savetxt(char *filename,int sz=0);
+	
+//  void savetxt(char *filename,int sz=0);
+  void savetxt(char *filename,int sz=0,int googleformat=0);
   void loadtxt(char *filename);
 
   void savebin(char *filename,int sz=0);
