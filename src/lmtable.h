@@ -221,8 +221,10 @@ public:
   void savebin(const char *filename);
   void dumplm(std::fstream& out,ngram ng, int ilev, int elev, int ipos,int epos);
   
-  void load(std::istream& inp,const char* filename=NULL,int mmap=0);
+  void load(std::istream& inp,const char* filename=NULL,const char* outfilename=NULL,int mmap=0);
+  void loadtxt(std::istream& inp,const char* header,const char* outfilename,int mmap);
   void loadtxt(std::istream& inp,const char* header);
+  void loadtxtmmap(std::istream& inp,const char* header,const char* outfilename);
   void loadbin(std::istream& inp,const char* header,const char* filename=NULL,int mmap=0);
   
   void loadbinheader(std::istream& inp, const char* header);

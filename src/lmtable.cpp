@@ -69,7 +69,7 @@ lmtable::lmtable(){
  
 //loadstd::istream& inp a lmtable from a lm file
 
-void lmtable::load(istream& inp,const char* filename,int keep_on_disk){
+void lmtable::load(istream& inp,const char* filename,const char* outfilename,int keep_on_disk){
 
 #ifdef WIN32
   if (keep_on_disk>0){
@@ -79,18 +79,15 @@ void lmtable::load(istream& inp,const char* filename,int keep_on_disk){
 #endif
 
   //give a look at the header to select loading method
-  char header[1024];	
+  char header[MAX_LINE];	
   inp >> header; cerr << header << "\n";
-  
+
   if (strncmp(header,"Qblmt",5)==0 || strncmp(header,"blmt",4)==0){        
     loadbin(inp,header,filename,keep_on_disk);
   }
   else{ 
-    if (keep_on_disk>0) 
-      std::cerr << "Memory Mapping not available for text LM\n";
-    loadtxt(inp,header);
+    loadtxt(inp,header,outfilename,keep_on_disk);
   }
-  dict->genoovcode();
     	
   cerr << "OOV code is " << dict->oovcode() << "\n";
   
@@ -154,7 +151,7 @@ int parseline(istream& inp, int Order,ngram& ng,float& prob,float& bow){
     assert(sscanf(words[Order+1],"%f",&bow));
   else
     bow=0.0; //this is log10prob=0 for implicit backoff		
-  
+
   return 1;
 }
 
@@ -177,6 +174,211 @@ void lmtable::loadcenters(istream& inp,int Order){
   
 }
 
+void lmtable::loadtxt(istream& inp,const char* header,const char* outfilename,int mmap){
+    if (mmap>0) 
+      loadtxtmmap(inp,header,outfilename);
+    else {
+      loadtxt(inp,header);
+      dict->genoovcode();
+    }
+}
+
+void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilename){
+  
+  char nameNgrams[BUFSIZ];
+  char nameHeader[BUFSIZ];
+
+  FILE *fd = NULL;
+  long filesize=0;
+
+  int Order,n;
+
+  int maxlevel_h;
+  char *SepString = " \t\n";
+
+  //open input stream and prepare an input string
+  char line[MAX_LINE];
+
+  //prepare word dictionary
+  //dict=(dictionary*) new dictionary(NULL,1000000,NULL,NULL); 
+  dict->incflag(1);
+	
+  //put here ngrams, log10 probabilities or their codes
+  ngram ng(dict); 
+  float pb,bow;;
+  
+  //check the header to decide if the LM is quantized or not
+  isQtable=(strncmp(header,"qARPA",5)==0?true:false);
+
+  if (isQtable) {
+    inp >> maxlevel_h;
+    n=1;
+    while (n <= maxlevel_h)
+      inp >> NumCenters[n++];
+    if (n-1!=maxlevel_h) {
+      cerr << "lmtable::loadtxtmmap: wrong first line: expected \"qARPA N centroid_1...centroid_N\"\n";
+      exit(0);
+    }
+  }
+
+	
+  //we will configure the table later we we know the maxlev;
+  bool yetconfigured=false;
+	
+  cerr << "loadtxtmmap()\n"; 
+	
+  // READ ARPA Header
+  
+  while (inp.getline(line,MAX_LINE)){
+		
+    if (strlen(line)==MAX_LINE-1){
+      cerr << "lmtable::loadtxtmmap: input line exceed MAXLINE (" 
+      << MAX_LINE << ") chars " << line << "\n";
+      exit(1);
+    }
+    
+    bool backslash = (line[0] == '\\');
+    
+    if (sscanf(line, "ngram %d=%d", &Order, &n) == 2) {
+      maxsize[Order] = n; maxlev=Order; //upadte Order
+    }
+		
+    if (backslash && sscanf(line, "\\%d-grams", &Order) == 1) {
+			
+      //at this point we are sure about the size of the LM
+      if (!yetconfigured){
+        configure(maxlev,isQtable);
+	yetconfigured=true;
+
+	//opening output file
+	strcpy(nameNgrams,outfilename);
+	strcat(nameNgrams, "-ngrams");
+
+	cerr << "saving ngrams probs in " << nameNgrams << "\n";
+
+	fd = fopen(nameNgrams, "w+");
+
+	// compute the size of file (only for tables and - possibly - centroids; no header nor dictionary)
+        for (int l=1;l<=maxlev;l++)
+	  if (l<maxlev)
+	    filesize +=  maxsize[l] * nodesize(tbltype[l]) + 2 * NumCenters[l] * sizeof(float);
+	  else
+	    filesize +=  maxsize[l] * nodesize(tbltype[l]) + NumCenters[l] * sizeof(float);
+	cerr << "filesize = " << filesize << "\n";
+
+	// set the file to the proper size:
+	ftruncate(fileno(fd),filesize);
+	table[0]=(char *)(MMap(fileno(fd),PROT_READ|PROT_WRITE,0,filesize,&tableGaps[0]));
+
+        //allocate space for tables into the file through mmap:
+
+	if (maxlev>1)
+	  table[1]=table[0] + 2 * NumCenters[1] * sizeof(float);
+	else
+	  table[1]=table[0] + NumCenters[1] * sizeof(float);
+
+	for (int l=2;l<=maxlev;l++)
+	  if (l<maxlev)
+	      table[l]=(char *)(table[l-1] + maxsize[l-1]*nodesize(tbltype[l-1]) + 
+				2 * NumCenters[l] * sizeof(float));
+	  else
+	      table[l]=(char *)(table[l-1] + maxsize[l-1]*nodesize(tbltype[l-1]) + 
+				NumCenters[l] * sizeof(float));
+      }
+      cerr << Order << "-grams: reading ";
+      if (isQtable) {
+	loadcenters(inp,Order);	
+	// writing centroids on disk 
+	if (Order<maxlev){
+	  memcpy(table[Order] - 2 * NumCenters[Order] * sizeof(float),
+		 Pcenters[Order],
+		 NumCenters[Order] * sizeof(float));
+	  memcpy(table[Order] - NumCenters[Order] * sizeof(float),
+		  Bcenters[Order],
+		  NumCenters[Order] * sizeof(float));
+	} else
+	  memcpy(table[Order] - NumCenters[Order] * sizeof(float),
+		 Pcenters[Order],
+		 NumCenters[Order] * sizeof(float));
+      }
+			
+      //allocate support vector to manage badly ordered n-grams
+      if (maxlev>1 && Order<maxlev) {
+        startpos[Order]=new int[maxsize[Order]];
+        for (int c=0;c<maxsize[Order];c++) startpos[Order][c]=-1;
+      }
+      //prepare to read the n-grams entries
+      cerr << maxsize[Order] << " entries\n";
+      
+      //WE ASSUME A WELL STRUCTURED FILE!!!
+      for (int c=0;c<maxsize[Order];c++){
+				
+        if (parseline(inp,Order,ng,pb,bow))
+          add(ng,
+              (int)(isQtable?pb:*((int *)&pb)),
+              (int)(isQtable?bow:*((int *)&bow)));
+
+      }
+      // now we can fix table at level Order -1
+
+      if (maxlev>1 && Order>1) checkbounds(Order-1);			
+
+    }
+  }
+	
+  cerr << "closing output file: " << nameNgrams << "\n";
+  Munmap(table[0],filesize,MS_SYNC);
+  for (int l=1;l<=maxlev;l++)
+    table[l]=0; // to avoid wrong free in ~lmtable()
+  fclose(fd);
+  cerr << "done\n";
+
+  dict->incflag(0);  
+  dict->genoovcode();
+
+  // saving header + dictionary
+
+  strcpy(nameHeader,outfilename);
+  strcat(nameHeader, "-header");
+  cerr << "saving header+dictionary in " << nameHeader << "\n";
+  fstream out(nameHeader,ios::out);  
+	
+  // print header
+  if (isQtable){
+    out << "Qblmt " << maxlev;
+    for (int i=1;i<=maxlev;i++) out << " " << cursize[i];
+    out << "\nNumCenters";
+    for (int i=1;i<=maxlev;i++)  out << " " << NumCenters[i];
+    out << "\n";
+    
+  }else{
+    out << "blmt " << maxlev;
+    for (int i=1;i<=maxlev;i++) out << " " << cursize[i] ;
+    out << "\n";
+  }
+	
+  dict->save(out);
+
+  out.close();
+  cerr << "done\n";
+
+  // cat header+dictionary and n-grams files:
+
+  char cmd[MAX_LINE];
+  sprintf(cmd,"cat %s >> %s", nameNgrams, nameHeader);
+  cerr << "run cmd <" << cmd << ">\n";
+  system(cmd);
+
+  sprintf(cmd,"mv %s %s", nameHeader, outfilename);
+  cerr << "run cmd <" << cmd << ">\n";
+  system(cmd);
+
+  sprintf(cmd,"rm %s", nameNgrams);
+  cerr << "run cmd <" << cmd << ">\n";
+  system(cmd);
+
+  return;
+}
 
 void lmtable::loadtxt(istream& inp,const char* header){
   
@@ -271,7 +473,7 @@ void lmtable::checkbounds(int level){
   LMT_TYPE ndt=tbltype[level], succndt=tbltype[level+1];
   int ndsz=nodesize(ndt), succndsz=nodesize(succndt);
 	
-   //re-order table at level+1 on disk
+  //re-order table at level+1 on disk
   //generate random filename to avoid collisions 
   ofstream out;string filePath;
   createtempfile(out,filePath,ios::out);
@@ -296,7 +498,7 @@ void lmtable::checkbounds(int level){
   }
   out.close();
 
-	fstream inp(filePath.c_str(),ios::in);
+  fstream inp(filePath.c_str(),ios::in);
   
   inp.read(succtbl,cursize[level+1]*succndsz);
   inp.close();  
@@ -311,7 +513,7 @@ void lmtable::checkbounds(int level){
 int lmtable::add(ngram& ng,int iprob,int ibow){
 	
   char *found; LMT_TYPE ndt; int ndsz;  
-  
+
   if (ng.size>1){
 		
     // find the prefix starting from the first level
@@ -362,9 +564,11 @@ int lmtable::add(ngram& ng,int iprob,int ibow){
   word(found,*ng.wordp(1)); 
   prob(found,ndt,iprob);
   if (ng.size<maxlev){bow(found,ndt,ibow);bound(found,ndt,-2);}
-	
+
   cursize[ng.size]++;
 	
+
+
   return 1;
 	
 }

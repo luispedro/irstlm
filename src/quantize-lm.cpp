@@ -158,14 +158,14 @@ int main(int argc, const char **argv)
   
   int* mapP=NULL; int* mapB=NULL;
   
-  int centers=k;
+  int centers[MAXLEV + 1];
   streampos iposition;
   
-  out << "qARPA\n"; //print output header
-  
-    
   for (int i=1;i<=MAXLEV;i++) numNgrams[i]=0;
-  
+
+  for (int i=1;i<=MAXLEV;i++) centers[i]=k; /* all levels 256 centroids; in
+					       case read them as parameters */
+
   char line[MAX_LINE];
   
   while (inp.getline(line,MAX_LINE)){
@@ -175,17 +175,31 @@ int main(int argc, const char **argv)
     if (sscanf(line, "ngram %d=%d", &Order, &n) == 2) {
       numNgrams[Order] = n;
       MaxOrder=Order;
+      continue;
     }
     
+    if (!strncmp(line, "\\data\\", 6) || strlen(line)==0)
+      continue;
+
     if (backslash && sscanf(line, "\\%d-grams", &Order) == 1) {
       
+      // print output header:
+      if (Order == 1) {
+	out << "qARPA " << MaxOrder;
+	for (int i=1;i<=MaxOrder;i++) 
+	  out << " " << centers[i];
+	out << "\n\n\\data\\\n";
+
+	for (int i=1;i<=MaxOrder;i++) 
+	  out << "ngram " << i << "= " << numNgrams[i] << "\n";
+      }
+
+      out << "\n";
       out << line << "\n";
       cerr << "-- Start processing of " << Order << "-grams\n";
       assert(Order <= MAXLEV);
       
       int N=numNgrams[Order];
-      centers=k;
-      if (Order==1) centers=256; // always use 256 centers
       
       char* words[MAXLEV+3];
       dataPts=new double[N]; // allocate data         
@@ -204,10 +218,10 @@ int main(int argc, const char **argv)
                 
       cerr << "quantizing " << N << " probabilities\n";
       
-      centersP=new double[centers];
+      centersP=new double[centers[Order]];
       mapP=new int[N];
       
-      ComputeCluster(centers,centersP,N,dataPts);
+      ComputeCluster(centers[Order],centersP,N,dataPts);
       
 
       assert(bintable !=NULL);
@@ -232,11 +246,11 @@ int main(int argc, const char **argv)
           dataPts[nPts]=exp(logbow * logten);
         }
         
-        centersB=new double[centers];
+        centersB=new double[centers[Order]];
         mapB=new int[N];
         
         cerr << "quantizing " << N << " backoff weights\n";
-        ComputeCluster(centers,centersB,N,dataPts);
+        ComputeCluster(centers[Order],centersB,N,dataPts);
         
         assert(bintable !=NULL);
         for (int p=0;p<N;p++){
@@ -246,10 +260,10 @@ int main(int argc, const char **argv)
       }
       
             
-      out << centers << "\n";
-      for (nPts=0;nPts<centers;nPts++){
-        out << log(centersP[nPts])/logten;
-        if (Order<MaxOrder) out << " " << log(centersB[nPts])/logten;
+      out << centers[Order] << "\n";
+      for (nPts=0;nPts<centers[Order];nPts++){
+        out << FloorScore(log(centersP[nPts])/logten);
+        if (Order<MaxOrder) out << " " << FloorScore(log(centersB[nPts])/logten);
         out << "\n";
       }
       

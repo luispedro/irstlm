@@ -149,8 +149,8 @@ int main(int argc, const char **argv)
       exit(1);
     }
        
-   lmt.load(inp,infile.c_str(),memmap);       
-    
+   lmt.load(inp,infile.c_str(),outfile.c_str(),memmap);       
+
   if (seval != ""){
     std::cerr << "Start Eval\n";
     std::cerr << "OOV code: " << lmt.dict->oovcode() << "\n";
@@ -197,12 +197,13 @@ int main(int argc, const char **argv)
       return 0;    
   };
   
-  std::cout << "Saving to " << outfile << std::endl;
-  if (textoutput) 
+  if (textoutput) {
+    std::cout << "Saving in txt format to " << outfile << std::endl;
     lmt.savetxt(outfile.c_str());    
-  else 
+  } else if (!memmap) {
+    std::cout << "Saving in bin format to " << outfile << std::endl;
     lmt.savebin(outfile.c_str());
-  
+  }
   return 0;
 }
 
