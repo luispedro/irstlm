@@ -80,7 +80,7 @@ for ($n=1;$n<=$MAXLEV;$n++){
   close(INP);
 
 }
-printf LM "\\end\n";
+printf LM "\\end\\\n";
 close(LM);
 
 
