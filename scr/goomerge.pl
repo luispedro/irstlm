@@ -9,15 +9,20 @@
 #all into one single file
 
 
-$path="lm-5g";           #path of existing sub-LM files
-$LMFile="BigLM-5g.lm";   #output file to be created
-$MAXLEV=5;               #max level of LM
+$path=($ARGV[0]?$ARGV[0]:"");           #path of existing sub-LM files
+$LMFile=($ARGV[1]?$ARGV[1]:"");   #output file to be created
+$MAXLEV=($ARGV[2]?$ARGV[2]:0);               #max level of LM
+
+die "usage: goomerge.pl sub-lm-path output-lm ngram-level \n" 
+  if !($MAXLEV && $LMFile && $path); 
+
+warn "running with sub-lm-path=$path output-lm=$LMFile ngram-level=$MAXLEV\n";
 
 $gzip="/usr/bin/gzip";   
 $gunzip="/usr/bin/gunzip";
 
 
-#first go through in order to compute n-gram sizes
+warn "compute n-gram sizes\n";
 @size=();
 $tot1gr=0;
 
@@ -38,7 +43,7 @@ for ($n=1;$n<=$MAXLEV;$n++){
 }
 
 
-#build final LM
+warn "build final LM\n";
 
 $LMFile.=".gz" if $LMFile!~/.gz$/;
 open(LM,"|$gzip -c > $LMFile") || die "Cannot open $LMFile\n";
@@ -51,24 +56,31 @@ for ($n=1;$n<=$MAXLEV;$n++){
  
 for ($n=1;$n<=$MAXLEV;$n++){
   
+  warn "level $n\n";
+  
   @files=map { glob($_) } "${path}*.${n}gr*";
   $files=join(" ",@files);
   open(INP,"$gunzip -c $files|") || die "cannot open $f\n";
 
   printf LM "\\$n-grams:\n";
   while(<INP>){
-    if ($n==1){
-      chop; 
-      @e=split(" ",$_);
-      printf LM "%s %f\n",join(" ",@e[0..$#e-1]),
-	(log($e[$#e])-log($tot1gr))/log(10.0);
+    @e=split(" ",$_);chop;
+    if ($n==1){     
+      $e[$#e]=(log($e[$#e])-log($tot1gr))/log(10.0);
+    };
 
+    if ($n<$MAXLEV){
+      printf LM "%f %s %s\n",$e[$#e],join(" ",@e[1..$#e-1]),$e[0];	
     }
-    else{print LM $_};
+    else{
+      printf LM "%f %s\n",$e[$#e],join(" ",@e[0..$#e-1]);	
+    }
   }
+  
   close(INP);
-}
 
+}
+printf LM "\\end\n";
 close(LM);
 
 
