@@ -62,7 +62,7 @@ while ($ng=<INP>){
   chop $ng; @ng=split(/[ \t]/,$ng); $ngcnt=(pop @ng) - $freqshift;
   
   if ($oldwrd ne $ng[0]){
-    printf (GR "%s %s\n",$totcnt,$oldwrd) if $oldwrd;
+    printf (GR "%s %s\n",$totcnt,$oldwrd) if $oldwrd ne '';
     $totcnt=0;$oldwrd=$ng[0];
   }
   
