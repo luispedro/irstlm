@@ -112,7 +112,7 @@ int main(int argc, char **argv)
   if (aug){
     ngt->dict->incflag(1);
 		//    ngramtable ngt2(aug,ngsz,isym,NULL,0,NULL,0,table_type);
-    ngramtable ngt2(aug,ngsz,isym,NULL,NULL,0,NULL,0,table_type);
+    ngramtable ngt2(aug,ngsz,isym,NULL,NULL,0,0,NULL,0,table_type);
     ngt->augment(&ngt2);
     ngt->dict->incflag(0);
   }
@@ -121,8 +121,8 @@ int main(int argc, char **argv)
     int c=0;
     dictionary sd(subdic,500000,isym,NULL);
 		
-		//    ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,NULL,0,table_type);
-    ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,NULL,0,NULL,0,table_type);
+		//    ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,0,NULL,0,table_type);
+    ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,NULL,0,0,NULL,0,table_type);
 		ngt2->dict->load(subdic);
     ngt2->dict->cleanfreq();
 		
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
     }
 		
 		//    ngramtable* ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,NULL,0,table_type);
-    ngramtable* ngt2=new ngramtable(NULL,ngsz,NULL,NULL,NULL,0,NULL,0,table_type);
+    ngramtable* ngt2=new ngramtable(NULL,ngsz,NULL,NULL,NULL,0,0,NULL,0,table_type);
 		
     ngt2->dict->incflag(1);
     
