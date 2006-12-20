@@ -37,7 +37,7 @@
 #define INODE  (unsigned char)   8
 #define LNODE  (unsigned char)  16
 #define SNODE  (unsigned char)  32
-#define AVAILABLE (unsigned char)  64
+#define FREQ6 (unsigned char)   64
 #define FREQ3  (unsigned char) 128
 
 typedef char* node;  //inodes, lnodes, snodes
@@ -80,7 +80,7 @@ class tabletype{
  public:
 
   int CODESIZE;                //sizeof word codes
-  unsigned int code_range[5]; //max code for each size
+  long long code_range[7]; //max code for each size
 
   //Offsets of internal node fields
   int WORD_OFFS;   //word code position
@@ -112,7 +112,8 @@ class tabletype{
     code_range[1]=255;
     code_range[2]=65535;
     code_range[3]=16777214;
-    code_range[4]=2147483640; //stay below true limit
+    code_range[4]=2147483640; 
+    code_range[6]=281474977000000LL; //stay below true limit
 
     //information which is useful to initialize 
     //LEAFPROB tables
@@ -287,8 +288,8 @@ class ngramtable:tabletype{
   
   int*          memory; // memory load per level
   int*       occupancy; // memory occupied per level
-  int*           mentr; // multiple entries per level
-  int             card; //entries at maxlev
+  long long*     mentr; // multiple entries per level
+  long long       card; //entries at maxlev
 
   int              idx[MAX_NGRAM+1];
  
@@ -311,9 +312,11 @@ class ngramtable:tabletype{
 //	     int dstco=0,char* hmask=NULL,int inplen=0,
 //	     TABLETYPE tt=FULL,int codesize=DEFCODESIZE);
 
-	ngramtable(char* filename,int maxl,char* is,char *oovlex,char* filterdictfile,
-	     int dstco=0,char* hmask=NULL,int inplen=0,
-	     TABLETYPE tt=FULL,int codesize=DEFCODESIZE);
+	ngramtable(char* filename,int maxl,char* is,char *oovlex,
+             char* filterdictfile,
+             int googletable=0,
+             int dstco=0,char* hmask=NULL,int inplen=0,
+             TABLETYPE tt=FULL,int codesize=DEFCODESIZE);
 
 	inline char* ngtype(char *str=NULL){if (str!=NULL) strcpy(info,str);return info;}
 
@@ -321,15 +324,15 @@ class ngramtable:tabletype{
   void freetree(node nd);
   void stat(int level=4);
 
-  inline int totfreq(int v=-1){
+  inline long long totfreq(long long v=-1){
     return (v==-1?freq(tree,INODE):freq(tree,INODE,v));
   }
 
-  inline int btotfreq(int v=-1){
+  inline long long btotfreq(long long v=-1){
     return (v==-1?getfreq(tree,treeflags,1):setfreq(tree,treeflags,v,1));
   }
 
-  inline int entries(int lev){
+  inline long long entries(int lev){
     return mentr[lev];
   }
   
@@ -337,7 +340,8 @@ class ngramtable:tabletype{
 	
 //  void savetxt(char *filename,int sz=0);
   void savetxt(char *filename,int sz=0,int googleformat=0);
-  void loadtxt(char *filename);
+  void loadtxt(char *filename,int googletable=0);
+  
 
   void savebin(char *filename,int sz=0);
   void savebin(mfstream& out);
@@ -399,6 +403,21 @@ class ngramtable:tabletype{
     return *value;
   };
   
+  inline long putmem(char* ptr,long long value,int offs,int size){
+    assert(ptr!=NULL);
+    for (int i=0;i<size;i++) 
+      ptr[offs+i]=(value >> (8 * i)) & 0xff;
+    return value;
+  };
+  
+  inline long getmem(char* ptr,long long* value,int offs,int size){
+    assert(ptr!=NULL);
+    *value=ptr[offs] & 0xff;
+    for (int i=1;i<size;i++) 
+      *value= *value | ( ( ptr[offs+i] & 0xff ) << (8 *i));
+    return *value;
+  };
+  
   inline void tb2ngcpy(int* wordp,char* tablep,int n=1){
     for (int i=0;i<n;i++)
       getmem(tablep,&wordp[i],i*CODESIZE,CODESIZE);
@@ -441,83 +460,90 @@ class ngramtable:tabletype{
   int update(ngram ng){
     
     if (!get(ng,ng.size,ng.size))
-      {
-	cerr << "cannot find " << ng << "\n";
-	exit (1);
-      }
-
+    {
+      cerr << "cannot find " << ng << "\n";
+      exit (1);
+    }
+    
     freq(ng.link,ng.pinfo,ng.freq);
-
+    
     return 1;
   }
+  
+  long freq(node nd,NODETYPE ndt,long long value)
+  {
+    int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
+    
+    if (ndt & FREQ1)
+      putmem(nd,value,offs,1);
+    else if (ndt & FREQ2)
+      putmem(nd,value,offs,2);
+    else if (ndt & FREQ3)
+      putmem(nd,value,offs,3);
+    else if (ndt & FREQ4)
+      putmem(nd,value,offs,4);
+    else
+      putmem(nd,value,offs,6);
+    return value;
+  };
 
-  int freq(node nd,NODETYPE ndt,int value)
-    {
-      int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
-      
-      if (ndt & FREQ1)
-	putmem(nd,value,offs,1);
-      else if (ndt & FREQ2)
-	putmem(nd,value,offs,2);
-      else if (ndt & FREQ3)
-	putmem(nd,value,offs,3);
-      else
-	putmem(nd,value,offs,4);
-      
-      return value;
-    };
+  long long freq(node nd,NODETYPE ndt)
+  {
+    int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
+    long long value;
+    
+    if (ndt & FREQ1)
+      getmem(nd,&value,offs,1);
+    else if (ndt & FREQ2)
+      getmem(nd,&value,offs,2);
+    else if (ndt & FREQ3)
+      getmem(nd,&value,offs,3);
+    else if (ndt & FREQ4)
+      getmem(nd,&value,offs,4);
+    else 
+      getmem(nd,&value,offs,6);
+    
+    return value;
+  };
+  
 
-  int freq(node nd,NODETYPE ndt)
-    {
-      int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
-      int value;
+  long long setfreq(node nd,NODETYPE ndt,long long value,int index=0)
+  {
+    int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
+    
+    if (ndt & FREQ1)
+      putmem(nd,value,offs+index * 1,1);
+    else if (ndt & FREQ2)
+      putmem(nd,value,offs+index * 2,2);
+    else if (ndt & FREQ3)
+      putmem(nd,value,offs+index * 3,3);
+    else if (ndt & FREQ4)
+      putmem(nd,value,offs+index * 4,4);
+    else
+      putmem(nd,value,offs+index * 6,6);
+    
+    return value;
+  };
 
-      if (ndt & FREQ1)
-	getmem(nd,&value,offs,1);
-      else if (ndt & FREQ2)
-	getmem(nd,&value,offs,2);
-      else if (ndt & FREQ3)
-	getmem(nd,&value,offs,3);
-      else
-	getmem(nd,&value,offs,4);
-      
-      return value;
-    };
-
-
-  int setfreq(node nd,NODETYPE ndt,int value,int index=0)
-    {
-      int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
-      
-      if (ndt & FREQ1)
-	putmem(nd,value,offs+index * 1,1);
-      else if (ndt & FREQ2)
-	putmem(nd,value,offs+index * 2,2);
-      else if (ndt & FREQ3)
-	putmem(nd,value,offs+index * 3,3);
-      else
-	putmem(nd,value,offs+index * 4,4);
-      
-      return value;
-    };
-
-  int getfreq(node nd,NODETYPE ndt,int index=0)
-    {
-      int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
-      
-      int value;
-
-      if (ndt & FREQ1)
-	getmem(nd,&value,offs+ index * 1,1);
-      else if (ndt & FREQ2)
-	getmem(nd,&value,offs+ index * 2,2);
-      else if (ndt & FREQ3)
-	getmem(nd,&value,offs+ index * 3,3);
-      else
-	getmem(nd,&value,offs+ index * 4,4);
-      
-      return value;
-    };
+  long long getfreq(node nd,NODETYPE ndt,int index=0)
+  {
+    int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
+    
+    long long value;
+    
+    if (ndt & FREQ1)
+      getmem(nd,&value,offs+ index * 1,1);
+    else if (ndt & FREQ2)
+      getmem(nd,&value,offs+ index * 2,2);
+    else if (ndt & FREQ3)
+      getmem(nd,&value,offs+ index * 3,3);
+    else if (ndt & FREQ4)
+      getmem(nd,&value,offs+ index * 4,4);
+    else
+      getmem(nd,&value,offs+ index * 6,6);
+    
+    return value;
+  };
 
 
   double boff(node nd)
@@ -582,48 +608,52 @@ class ngramtable:tabletype{
     };
 
   table mtable(node nd)
-    {
-      char v[PTRSIZE];;
-      for (int i=0;i<PTRSIZE;i++) 
-	v[i]=nd[MTAB_OFFS+i];
-      
-      return *(table *)v;
-    };
+  {
+    char v[PTRSIZE];;
+    for (int i=0;i<PTRSIZE;i++) 
+      v[i]=nd[MTAB_OFFS+i];
+    
+    return *(table *)v;
+  };
 
   table mtable(node nd,table value)
-    {
-      char *v=(char *)&value;
-      for (int i=0;i<PTRSIZE;i++) 
-	nd[MTAB_OFFS+i]=v[i];
-      return value;
-    }
-
+  {
+    char *v=(char *)&value;
+    for (int i=0;i<PTRSIZE;i++) 
+      nd[MTAB_OFFS+i]=v[i];
+    return value;
+  }
+  
   int mtablesz(node nd)
-    {
-      if (mtflags(nd) & LNODE){
-	if (mtflags(nd) & FREQ1)
-	  return lnodesize(1);
-	else if (mtflags(nd) & FREQ2)
-	  return lnodesize(2);
-	else if (mtflags(nd) & FREQ3)
-	  return lnodesize(3);
-	else
-	  return lnodesize(4);
-      }
-      else if (mtflags(nd) & INODE){
-	if (mtflags(nd) & FREQ1)
-	  return inodesize(1);
-	else if (mtflags(nd) & FREQ2)
-	  return inodesize(2);
-	else if (mtflags(nd) & FREQ3)
-	  return inodesize(3);
-	else
-	  return inodesize(4);
-      }
-      else{
-	cerr << "node has wrong flags\n";
-	exit(1);
-      }
+  {
+    if (mtflags(nd) & LNODE){
+      if (mtflags(nd) & FREQ1)
+        return lnodesize(1);
+      else if (mtflags(nd) & FREQ2)
+        return lnodesize(2);
+      else if (mtflags(nd) & FREQ3)
+        return lnodesize(3);
+      else if (mtflags(nd) & FREQ4)
+        return lnodesize(4);
+      else
+        return lnodesize(6);
+    }
+    else if (mtflags(nd) & INODE){
+      if (mtflags(nd) & FREQ1)
+        return inodesize(1);
+      else if (mtflags(nd) & FREQ2)
+        return inodesize(2);
+      else if (mtflags(nd) & FREQ3)
+        return inodesize(3);
+      else if (mtflags(nd) & FREQ4)
+        return inodesize(4);
+      else
+        return inodesize(6);
+    }
+    else{
+      cerr << "node has wrong flags\n";
+      exit(1);
+    }
     }
   
 

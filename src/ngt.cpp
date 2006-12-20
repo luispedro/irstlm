@@ -35,7 +35,8 @@ int main(int argc, char **argv)
   char *isym=NULL;      // interruption symbol
   char *aug=NULL;       // augmentation data
   char *hmask=NULL;        // historymask
-	int googleformat=0;    //print ngrams in Google format
+	int inputgoogleformat=0;    //reads ngrams in Google format
+  int outputgoogleformat=0;    //print ngrams in Google format
   int ngsz=0;           // n-gram default size 
   int dstco=0;          // compute distance co-occurrences 
   int bin=NO;
@@ -57,8 +58,10 @@ int main(int argc, char **argv)
 								"i", CMDSTRINGTYPE, &inp,
 								"OutputFile", CMDSTRINGTYPE, &out,
 								"o", CMDSTRINGTYPE, &out,
-								"GoogleFormat", CMDENUMTYPE, &googleformat, BooleanEnum,
-								"google", CMDENUMTYPE, &googleformat, BooleanEnum,
+                "InputGoogleFormat", CMDENUMTYPE, &inputgoogleformat, BooleanEnum,
+                "gooinp", CMDENUMTYPE, &inputgoogleformat, BooleanEnum,
+								"OutputGoogleFormat", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
+								"gooout", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
 								"SaveBinaryTable", CMDENUMTYPE, &bin, BooleanEnum,
 								"b", CMDENUMTYPE, &bin, BooleanEnum,
 								"LmTable", CMDENUMTYPE, &LMflag, BooleanEnum,
@@ -104,7 +107,7 @@ int main(int argc, char **argv)
   }
 	
 	//  ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,dstco,hmask,inplen,table_type);
-	ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,filterdict,dstco,hmask,inplen,table_type);
+	ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,filterdict,inputgoogleformat,dstco,hmask,inplen,table_type);
 		
   if (aug){
     ngt->dict->incflag(1);
@@ -293,7 +296,7 @@ int main(int argc, char **argv)
   if (memuse)  ngt->stat(0);
 	
   if (out)
-		bin?ngt->savebin(out,ngsz): ngt->savetxt(out,ngsz,googleformat);
+		bin?ngt->savebin(out,ngsz): ngt->savetxt(out,ngsz,outputgoogleformat);
 	
 	
 }

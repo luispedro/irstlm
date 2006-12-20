@@ -14,7 +14,8 @@ using namespace std;
 
 
 ngramtable::ngramtable(char* filename,int maxl,char* is,
-											 char* oovlex,char* filterdictfile,int dstco,char* hmask,
+											 char* oovlex,char* filterdictfile,
+                       int googletable,int dstco,char* hmask,
 											 int inplen,TABLETYPE ttype,int codesize):
 tabletype(ttype,codesize){
 	
@@ -93,7 +94,7 @@ tabletype(ttype,codesize){
   
   mem=new storage(256,10000);
   
-  mentr=new int[maxlev+1];
+  mentr=new long long[maxlev+1];
   memory= new int[maxlev+1];
   occupancy= new int[maxlev+1];
 	
@@ -128,20 +129,20 @@ tabletype(ttype,codesize){
 		exit(1);
 	}
 	
-  if (strncmp(header,"nGrAm",5)==0){
+  if (strncmp(header,"nGrAm",5)==0)
     loadtxt(filename);
-  }
   else if (strncmp(header,"NgRaM",5)==0)
     loadbin(filename);
   else if (dstco>0)
     generate_dstco(filename,dstco);
-  else{
-    if (hmask == NULL)
-      generate(filename);
-    else
-      generate_hmask(filename,hmask,inplen);
-  }
-	
+  else if (hmask != NULL)
+    generate_hmask(filename,hmask,inplen);
+  else if (googletable)
+    loadtxt(filename,googletable);
+  else
+    generate(filename);
+  
+
 	
   if (tbtype()==LEAFPROB){
     du_code=dict->encode(DUMMY_);
@@ -185,7 +186,7 @@ void ngramtable::savetxt(char *filename,int depth,int googleformat){
 }
 
 
-void ngramtable::loadtxt(char *filename){
+void ngramtable::loadtxt(char *filename,int googletable){
   
   ngram ng(dict);;
 	
@@ -195,21 +196,30 @@ void ngramtable::loadtxt(char *filename){
   
   int i,c=0;
 	
-  char header[100];
-	
-  inp.getline(header,100);
+  if (googletable){
+    dict->incflag(1);
+  }
+  else{
+    char header[100];	  
+    inp.getline(header,100);  
+    cerr << header ;
+    dict->load(inp);
+	}
   
-  cerr << header ;
-	
-  dict->load(inp);
-	
   while (!inp.eof()){
     
     for (i=0;i<maxlev;i++) inp >> ng; 
 		
     inp >> ng.freq;
 		
-    put(ng);
+    // if filtering dictionary exists
+    // and if the first word of the ngram does not belong to it
+    // do not insert the ngram
+    if (filterdict){
+      int code=filterdict->encode(dict->decode(*ng.wordp(maxlev)));      
+      if (code!=filterdict->oovcode())	put(ng);	
+    }
+    else put(ng);    
 		
     ng.size=0;
     
@@ -217,10 +227,16 @@ void ngramtable::loadtxt(char *filename){
     
   }
 	
+  if (googletable){
+    dict->incflag(0); 
+  }
+    
   cerr << "\n";
   
   inp.close();
 }
+
+
 
 void ngramtable::savebin(mfstream& out,node nd,NODETYPE ndt,int lev,int mlev){
 	
@@ -447,7 +463,14 @@ void ngramtable::generate(char *filename){
     
     if (ng.size) dict->incfreq(*ng2.wordp(1),1);
     
-    put(ng2);
+    // if filtering dictionary exists
+    // and if the first word of the ngram does not belong to it
+    // do not insert the ngram
+    if (filterdict){
+      int code=filterdict->encode(dict->decode(*ng2.wordp(maxlev)));      
+      if (code!=filterdict->oovcode())	put(ng2);	
+    }
+    else put(ng2);
     
     if (!(++c % 1000000)) cerr << ".";
 		
@@ -457,7 +480,15 @@ void ngramtable::generate(char *filename){
   for (i=1;i<=maxlev;i++){
     ng2.pushw(dict->BoS());
     ng2.freq=1;
-    put(ng2);
+    
+    // if filtering dictionary exists
+    // and if the first word of the ngram does not belong to it
+    // do not insert the ngram
+    if (filterdict){
+      int code=filterdict->encode(dict->decode(*ng2.wordp(maxlev)));      
+      if (code!=filterdict->oovcode())	put(ng2);	
+    }
+    else put(ng2);
   };
 	
   dict->incflag(0);
@@ -989,14 +1020,6 @@ int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
   if (ng.size<maxlev) return 0;
 	
 	
-	// if filtering dictionary exists
-	// and if the first word of the ngram does not belong to it
-	// do not insert the ngram
-	if (filterdict){
-	  int code=filterdict->encode(dict->decode(*ng.wordp(maxlev)));
-		
-    if (code==filterdict->oovcode())			return 0;
-	}
 	
   //cerr << "l:" << lev << " put:" << ng << "\n";
 	
@@ -1074,6 +1097,12 @@ int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
 				((freq(subnd,mtflags(nd))+ng.freq)>16777215))
 			
       mtflags(nd,(mtflags(nd) & ~FREQ3) | FREQ4); //update flags
+    
+    if ((I_FREQ_NUM || (mtflags(nd) & LNODE))  &&  
+				(mtflags(nd) & FREQ4) &&
+				((freq(subnd,mtflags(nd))+ng.freq)>4294967295))
+			
+      mtflags(nd,(mtflags(nd) & ~FREQ6) | FREQ6); //update flags
 		
     if (mtflags(nd)!=oldndt){
       // flags have changed, table has to be expanded
