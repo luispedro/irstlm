@@ -20,7 +20,6 @@ my $gunzip="/usr/bin/gunzip";
 
 
 my($help,$size,$freqshift,$ngrams,$sublm,$witten_bell,$kneser_ney)=();
-$witten_bell=1; #default smoothing method
 
 $help=1 unless
 &GetOptions('size=i' => \$size,
@@ -38,12 +37,13 @@ if ($help || !$size || !$ngrams || !$sublm){
         "--ngrams <string>   input file or command to read the ngram table\n",
         "--sublm <string>    output file prefix to write the sublm statistics \n",
         "--freq-shift <int>  (optional) value to be subtracted from all frequencies\n",
-        "--kneser-ney         use kneser-ney smoothing\n";
-        "--witten-bell       (default) use witten bell smoothin\n";
+        "--kneser-ney         use kneser-ney smoothing\n",
+        "--witten-bell        (default)use witten bell smoothin\n",
         "--help              (optional) print these instructions\n";    
   exit(1);
 }
 
+$witten_bell++ if !$witten_bell && !$kneser_ney;
 
 die "build-sublm: value of --size must be larger than 0\n" if $size<1;
 die "build-sublm: choose one smoothing method\n" if $witten_bell && $kneser_ney;
@@ -81,8 +81,9 @@ close(GR);
 
 my (@h,$h,$hpr);   #n-gram history 
 my (@dict,$code);  #sorted dictionary of history successors
-my $diff;          #Witten-Bell statistics: different successors of history
-my $N1,$N2,$beta   #Kneser-Ney Smoothing: n-grams occurring once or twice 
+my $diff;          #different successors of history
+my $locfreq;       #accumulate frequency of n-grams of given size
+my ($N1,$N2,$beta);   #Kneser-Ney Smoothing: n-grams occurring once or twice 
 
 warn "Computing n-gram probabilities:\n"; 
 
@@ -97,33 +98,67 @@ foreach (my $n=2;$n<=$size;$n++){
   chop($ng=<INP>); @ng=split(/[ \t]/,$ng);$ngcnt=(pop @ng) - $freqshift;
   chop($h=<HGR>);  @h=split(/ /,$h); $hpr=shift @h;
   
-  $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0; $oldwrd="";
+  $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0; $oldwrd="";$N1=0;$N2=0;$locfreq=0;
    
   do{
     while (join(" ",@h[0..$n-2]) eq join(" ",@ng[0..$n-2])){ #true the first time
         #print join(" ",@h[0..$n-2])," --- ", join(" ",@ng[0..$n-2])," $ngcnt \n";    
 
-        #collect Witten Bell smoothing statistics 
-        if ($oldwrd ne $ng[$n-1]){$dict[++$code]=$oldwrd=$ng[$n-1];$diff++;}
-        $cnt[$code]+=$ngcnt; $totcnt+=$ngcnt;   
-        #collect Kneser Ney smoothing statistics
+        #collect smoothing statistics 
+      if ($oldwrd ne $ng[$n-1]){
+        $dict[++$code]=$oldwrd=$ng[$n-1];
+        $diff++;
+        $N1++ if $locfreq==1;
+        $N2++ if $locfreq==2;
+        $locfreq=$ngcnt;
+      }
+      else{
+          $locfreq+=$ngcnt;
+      }
+            
+      $cnt[$code]+=$ngcnt; $totcnt+=$ngcnt;           
  
-       #read next ngram
+      #read next ngram
         chop($ng=<INP>); @ng=split(/[ \t]/,$ng);$ngcnt=(pop @ng) - $freqshift;	
       }
 
-     #print smoothed probabilities
-     for (my $c=0;$c<=$code;$c++){      
-       printf GR "%f %s %s\n",log($cnt[$c]/($totcnt+$diff))/$log10,join(" ",@h[0..$n-2]),$dict[$c];
-     }
+      #Kneser-Ney Smoothing 
+      
+      if ($kneser_ney){
+        if ($N1==0 || $N2==0){
+          warn "Error in Kneser-Ney smoothing N1 $N1 N2 $N2 diff $diff: resorting to Witten-Bell\n";
+          $beta=0;  
+        }
+        else{
+          $beta=$N1/($N1 + 2 * $N2); 
+        }
+      }
+      
+      #print smoothed probabilities
+     
+      for (my $c=0;$c<=$code;$c++){ 
+        if ($kneser_ney && $beta>0){
+          printf GR "%f %s %s\n",log(($cnt[$c]-$beta)/$totcnt)/$log10,
+                    join(" ",@h[0..$n-2]),$dict[$c];
+        }else{
+            printf GR "%f %s %s\n",log($cnt[$c]/($totcnt+$diff))/$log10,
+          join(" ",@h[0..$n-2]),$dict[$c];
+        }
+      }
 
      #rewrite history including back-off weight
+      
      print "$h - $ng - $totcnt $diff \n" if $totcnt+$diff==0;
-
-     printf NHGR "%s %f\n",$h,log($diff/($totcnt+$diff))/$log10;
+     if ($kneser_ney && $beta>0){
+       printf NHGR "%s %f\n",$h,log($beta * ($diff-$N1)/$totcnt)/$log10;
+     }
+     else{
+        printf NHGR "%s %f\n",$h,log($diff/($totcnt+$diff))/$log10;
+      }
+     
 
      #reset smoothing statistics
-     $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0;$oldwrd="";
+     $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0;$oldwrd="";$N1=0;$N2=0;$locfreq=0;
   
      #read next history
      chop($h=<HGR>);  @h=split(/ /,$h); $hpr=shift @h;
