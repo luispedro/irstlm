@@ -3,7 +3,6 @@
 cwd=`pwd`
 
 bin=$cwd/../bin/$MACHTYPE
-bin=~/workspace/irstlm/bin/$MACHTYPE
 
 testdir=$1
 cd $testdir
