@@ -19,13 +19,16 @@ my $gzip="/usr/bin/gzip";
 my $gunzip="/usr/bin/gunzip";
 
 
-my($help,$size,$freqshift,$ngrams,$sublm)=();
+my($help,$size,$freqshift,$ngrams,$sublm,$witten_bell,$kneser_ney)=();
+$witten_bell=1; #default smoothing method
 
 $help=1 unless
 &GetOptions('size=i' => \$size,
             'freq-shift=i' => \$freqshift, 
              'ngrams=s' => \$ngrams,
              'sublm=s' => \$sublm,
+             'witten-bell' => \$witten_bell,
+             'kneser-ney' => \$kneser_ney,
              'help' => \$help,);
 
 
@@ -35,13 +38,15 @@ if ($help || !$size || !$ngrams || !$sublm){
         "--ngrams <string>   input file or command to read the ngram table\n",
         "--sublm <string>    output file prefix to write the sublm statistics \n",
         "--freq-shift <int>  (optional) value to be subtracted from all frequencies\n",
+        "--kneser-ney         use kneser-ney smoothing\n";
+        "--witten-bell       (default) use witten bell smoothin\n";
         "--help              (optional) print these instructions\n";    
   exit(1);
 }
 
 
-die "goolm.pl: value of --size must be larger than 0\n" if $size<1;
-
+die "build-sublm: value of --size must be larger than 0\n" if $size<1;
+die "build-sublm: choose one smoothing method\n" if $witten_bell && $kneser_ney;
 
 my $log10=log(10.0);  #service variable to convert log into log10
 
@@ -76,7 +81,8 @@ close(GR);
 
 my (@h,$h,$hpr);   #n-gram history 
 my (@dict,$code);  #sorted dictionary of history successors
-my $diff;          #different successors of history
+my $diff;          #Witten-Bell statistics: different successors of history
+my $N1,$N2,$beta   #Kneser-Ney Smoothing: n-grams occurring once or twice 
 
 warn "Computing n-gram probabilities:\n"; 
 
@@ -99,7 +105,8 @@ foreach (my $n=2;$n<=$size;$n++){
 
         #collect Witten Bell smoothing statistics 
         if ($oldwrd ne $ng[$n-1]){$dict[++$code]=$oldwrd=$ng[$n-1];$diff++;}
-        $cnt[$code]+=$ngcnt; $totcnt+=$ngcnt;            
+        $cnt[$code]+=$ngcnt; $totcnt+=$ngcnt;   
+        #collect Kneser Ney smoothing statistics
  
        #read next ngram
         chop($ng=<INP>); @ng=split(/[ \t]/,$ng);$ngcnt=(pop @ng) - $freqshift;	
