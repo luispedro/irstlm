@@ -33,10 +33,9 @@ while(chomp($_=<IN>)){
 		$w=$_;
 		$f=1;
 	}
-	push @D, $w}=$f;
-	push @F, $w;
-$totf+=$f;
-#	print STDERR "$w , $D{$w} , $totf\n";
+	push @D, $w;
+	push @F, $f;
+        $totf+=$f;
 }
 close (IN);
 
