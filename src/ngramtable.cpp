@@ -211,6 +211,7 @@ void ngramtable::loadtxt(char *filename,int googletable){
     for (i=0;i<maxlev;i++) inp >> ng; 
 		
     inp >> ng.freq;
+		cerr << ng << std::endl;
 		
     // if filtering dictionary exists
     // and if the first word of the ngram does not belong to it
@@ -220,6 +221,10 @@ void ngramtable::loadtxt(char *filename,int googletable){
       if (code!=filterdict->oovcode())	put(ng);	
     }
     else put(ng);    
+		
+		get(ng);
+		
+		cerr << "get: " << ng << std::endl;
 		
     ng.size=0;
     
@@ -956,6 +961,9 @@ char **ngramtable::grow(table *tb,NODETYPE ndt,int lev,
 			else 
 				if (oldndt & FREQ3)
 					oldsz=inodesize(3);
+			else 
+				if (oldndt & FREQ4)
+					oldsz=inodesize(4);
 			else{
 				cerr << "funzione non prevista\n";
 				exit(1);
@@ -970,6 +978,9 @@ char **ngramtable::grow(table *tb,NODETYPE ndt,int lev,
 				else
 					if (oldndt & FREQ3)
 						oldsz=lnodesize(3);
+				else
+					if (oldndt & FREQ4)
+						oldsz=lnodesize(4);
 				else{
 					cerr << "funzione non prevista\n";
 					exit(1);
@@ -997,7 +1008,7 @@ char **ngramtable::grow(table *tb,NODETYPE ndt,int lev,
 						
 						mem->free(*tb,num * oldsz); //num is the correct size
     memory[lev]+=num * (sz - oldsz);
-    occupancy[lev]+=n * (sz-oldsz);
+    occupancy[lev]+=n * (sz - oldsz);
     
     *tb=ntb;
   }
@@ -1021,8 +1032,11 @@ int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
 	
 	
 	
-  //cerr << "l:" << lev << " put:" << ng << "\n";
-	
+  cerr << "l:" << lev << " put:" << ng << "\n";
+	cerr << "I_FREQ_NUM: " << I_FREQ_NUM << "\n";
+	cerr << "LNODE: " << (int) LNODE << "\n";
+	cerr << "ndt: " << (int) ndt << "\n";
+			
   for (int l=lev;l<maxlev;l++){
 		
     if (I_FREQ_NUM || (ndt & LNODE))
@@ -1100,9 +1114,9 @@ int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
     
     if ((I_FREQ_NUM || (mtflags(nd) & LNODE))  &&  
 				(mtflags(nd) & FREQ4) &&
-				((freq(subnd,mtflags(nd))+ng.freq)>4294967295))
+				((freq(subnd,mtflags(nd))+ng.freq)>4294967295LL))
 			
-      mtflags(nd,(mtflags(nd) & ~FREQ6) | FREQ6); //update flags
+      mtflags(nd,(mtflags(nd) & ~FREQ4) | FREQ6); //update flags
 		
     if (mtflags(nd)!=oldndt){
       // flags have changed, table has to be expanded

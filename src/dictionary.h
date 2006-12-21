@@ -152,7 +152,7 @@ class dictionary{
   void grow();
   //dictionary(int size=400,char* isym=NULL,char* oovlex=NULL);
   dictionary(char *filename=NULL,int size=DICT_INITSIZE,char* isymb=NULL,char* oovlex=NULL);
-  dictionary(dictionary* d);
+  dictionary(dictionary* d, int sortflag=1); //flag for sorting wrt to frequency (default=1, i.e. sort)
 
   ~dictionary();
   void generate(char *filename);

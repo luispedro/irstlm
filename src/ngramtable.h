@@ -113,8 +113,9 @@ class tabletype{
     code_range[2]=65535;
     code_range[3]=16777214;
     code_range[4]=2147483640; 
-    code_range[6]=281474977000000LL; //stay below true limit
-
+    code_range[6]=140737488360000LL; //stay below true limit
+//	code_range[6]=281474977000000LL; //stay below true limit
+				
     //information which is useful to initialize 
     //LEAFPROB tables
     L_FREQ_SIZE=FREQ1; 
@@ -470,7 +471,7 @@ class ngramtable:tabletype{
     return 1;
   }
   
-  long freq(node nd,NODETYPE ndt,long long value)
+  long long freq(node nd,NODETYPE ndt,long long value)
   {
     int offs=(ndt & LNODE)?L_FREQ_OFFS:I_FREQ_OFFS;
     

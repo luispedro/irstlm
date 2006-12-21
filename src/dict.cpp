@@ -31,21 +31,23 @@ int main(int argc, char **argv)
   char *out=NULL;
   char *intsymb=NULL;
   int freqflag=0;
+	int sortflag=1;
   int size=100000;
 
   DeclareParams(
-		"InputFile", CMDSTRINGTYPE, &inp,
-		"i", CMDSTRINGTYPE, &inp,
-		"OutputFile", CMDSTRINGTYPE, &out,
-		"o", CMDSTRINGTYPE, &out,
-		"f", CMDENUMTYPE, &freqflag,BooleanEnum,
-		"Freq", CMDENUMTYPE, &freqflag,BooleanEnum,
-		"Size", CMDINTTYPE, &size,
-		"s", CMDINTTYPE, &size,
-		"IntSymb", CMDSTRINGTYPE, &intsymb,
-		"is", CMDSTRINGTYPE, &intsymb,
-		(char *)NULL
-		);
+								"InputFile", CMDSTRINGTYPE, &inp,
+								"i", CMDSTRINGTYPE, &inp,
+								"OutputFile", CMDSTRINGTYPE, &out,
+								"o", CMDSTRINGTYPE, &out,
+								"f", CMDENUMTYPE, &freqflag,BooleanEnum,
+								"Freq", CMDENUMTYPE, &freqflag,BooleanEnum,
+								"sort", CMDENUMTYPE, &sortflag,BooleanEnum,
+								"Size", CMDINTTYPE, &size,
+								"s", CMDINTTYPE, &size,
+								"IntSymb", CMDSTRINGTYPE, &intsymb,
+								"is", CMDSTRINGTYPE, &intsymb,
+								(char *)NULL
+								);
   
   GetParams(&argc, &argv, (char*) NULL);
   
@@ -57,8 +59,11 @@ int main(int argc, char **argv)
   
   dictionary d(inp,size,intsymb);
 
-  if (freqflag){
-    dictionary sortd(&d);
+	if (sortflag && !freqflag)
+		sortflag=0;
+	
+  if (sortflag){
+    dictionary sortd(&d,sortflag);
     sortd.save(out,freqflag);
   }
   else

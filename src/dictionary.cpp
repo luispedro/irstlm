@@ -235,7 +235,7 @@ int cmpdictentry(const void *a,const void *b){
   return be->freq-ae->freq;
 }
 
-dictionary::dictionary(dictionary* d){
+dictionary::dictionary(dictionary* d, int sortflag){
   
   //transfer values
   
@@ -260,11 +260,13 @@ dictionary::dictionary(dictionary* d){
     tb[i].word=st->push(d->tb[i].word);
   }
   
-  //sort all entries according to frequency
-  cerr << "sorting dictionary ...";
-  qsort(tb,n,sizeof(dict_entry),cmpdictentry);
-  cerr << "done\n";
-
+	if (sortflag){
+		//sort all entries according to frequency
+		cerr << "sorting dictionary ...";
+		qsort(tb,n,sizeof(dict_entry),cmpdictentry);
+		cerr << "done\n";
+	}
+	
   for (int i=0;i<n;i++){
   
     //eventually re-assign oov code
