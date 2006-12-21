@@ -17,7 +17,7 @@ parts=$1; shift
 
 dictfile=dict$$
 
-$bindir/dict -i=$inputfile -o=$dictfile -f=y
+$bindir/dict -i=$inputfile -o=$dictfile -f=y -sort=n
 $scriptdir/split-dict.pl $dictfile ${dictfile}. $parts
 
 rm $dictfile

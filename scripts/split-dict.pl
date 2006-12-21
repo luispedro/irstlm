@@ -17,7 +17,7 @@ die "Input $input does not exists!\n" if (! -e $input);
 
 my $freqflag=0;
 my ($w,$f,$totf,$thr);
-my (%D,%S,@C);
+my (@D,@F,%S,@C);
 open(IN,"$input");
 while(chomp($_=<IN>)){
 	if (/dictionary/i){
@@ -33,8 +33,9 @@ while(chomp($_=<IN>)){
 		$w=$_;
 		$f=1;
 	}
-	$D{$w}=$f;
-	$totf+=$f;
+	push @D, $w}=$f;
+	push @F, $w;
+$totf+=$f;
 #	print STDERR "$w , $D{$w} , $totf\n";
 }
 close (IN);
@@ -43,12 +44,14 @@ $thr=$totf/$parts;
 print STDERR "thr: $thr , $totf , $parts\n";
 
 my $sfx=0;
+my $w;
 $totf=0;
-for $w (reverse sort { $D{$a} <=> $D{$b} } keys %D){
-	$totf+=$D{$w};
+for (my $i=0;$i<=$#D;$i++){
+  $totf+=$F[$i];
+	$w=$D[$i];
 	$S{$w}=$sfx;
 	$C[$sfx]++;
-#	print STDERR "$w , $D{$w} , $totf , $S{$w} , $C[$sfx]\n";
+#	print STDERR "$w , $i, $F[$i] , $totf , $S{$w} , $C[$sfx]\n";
 	if ($totf>$thr){
 		$totf=0;
 		$sfx++;
@@ -56,7 +59,8 @@ for $w (reverse sort { $D{$a} <=> $D{$b} } keys %D){
 }
 
 my $oldsfx=-1;
-for $w (reverse sort { $D{$a} <=> $D{$b} } keys %D){
+for (my $i=0;$i<=$#D;$i++){
+	$w=$D[$i];
 	$sfx="0000$S{$w}";
 	$sfx=~s/.+(\d{3})/$1/;
 #	print STDERR "$w , $sfx , $S{$w}\n";
@@ -73,7 +77,7 @@ print STDERR "opening $output$sfx\n";
 		$oldsfx=$sfx;
 	}
 	if ($freqflag){
-		print OUT "$w $D{$w}\n";
+		print OUT "$w $F[$i]\n";
 	}
 	else{
 		print OUT "$w\n";
