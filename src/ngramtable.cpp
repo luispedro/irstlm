@@ -1031,12 +1031,13 @@ int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
   if (ng.size<maxlev) return 0;
 	
 	
-	
+/*	
   cerr << "l:" << lev << " put:" << ng << "\n";
 	cerr << "I_FREQ_NUM: " << I_FREQ_NUM << "\n";
 	cerr << "LNODE: " << (int) LNODE << "\n";
 	cerr << "ndt: " << (int) ndt << "\n";
-			
+	*/
+		
   for (int l=lev;l<maxlev;l++){
 		
     if (I_FREQ_NUM || (ndt & LNODE))
