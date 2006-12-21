@@ -16,7 +16,7 @@ tail +2 dict | split -l 1000 - dict.
 rm dict
 
 for d in `ls dict.*` ; do
-$bin/ngt -i=$inputfile  -n=3 -google=y -o=w3.$d -fd=$d  > /dev/null
+$bin/ngt -i=$inputfile  -n=3 -gooout=y -o=w3.$d -fd=$d  > /dev/null
 rm $d
 done
 
