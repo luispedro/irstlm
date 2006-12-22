@@ -15,11 +15,12 @@ class inputfilestream : public std::istream
 {
 protected:
 	std::streambuf *m_streambuf;
+  bool _good;
 public:
   
 	inputfilestream(const std::string &filePath);
 	~inputfilestream();
-  
+  bool good(){return _good;}
 	void close();
 };
 

@@ -85,9 +85,8 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
   if (strncmp(header,"Qblmt",5)==0 || strncmp(header,"blmt",4)==0){        
     loadbin(inp,header,filename,keep_on_disk);
   }
-  else{
-    loadtxt(inp,header,outfilename,keep_on_disk);
-  }
+  else 
+    loadtxt(inp,header,outfilename,keep_on_disk);  
     	
   cerr << "OOV code is " << dict->oovcode() << "\n";
   
@@ -198,18 +197,18 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
   
   char nameNgrams[BUFSIZ];
   char nameHeader[BUFSIZ];
-
+  
   FILE *fd = NULL;
   long long filesize=0;
-
+  
   int Order,n;
-
+  
   int maxlevel_h;
   //char *SepString = " \t\n"; unused
-
+  
   //open input stream and prepare an input string
   char line[MAX_LINE];
-
+  
   //prepare word dictionary
   //dict=(dictionary*) new dictionary(NULL,1000000,NULL,NULL); 
   dict->incflag(1);
@@ -220,18 +219,23 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
   
   //check the header to decide if the LM is quantized or not
   isQtable=(strncmp(header,"qARPA",5)==0?true:false);
-
-  if (isQtable) {
-    inp >> maxlevel_h;
-    n=1;
-    while (n <= maxlevel_h)
-      inp >> NumCenters[n++];
-    if (n-1!=maxlevel_h) {
-      cerr << "lmtable::loadtxtmmap: wrong first line: expected \"qARPA N centroid_1...centroid_N\"\n";
-      exit(0);
+  
+  if (isQtable){
+    //check if header contains other infos  
+    inp >> line;
+    if (!(maxlevel_h=atoi(line))){
+      cerr << "loadtxt with mmap requires new qARPA header. Please regenerate the file.\n";
+      exit(1);
+    }
+    
+    for (n=1;n<=maxlevel_h;n++){
+      inp >> line;
+      if (!(NumCenters[n]=atoi(line))){
+        cerr << "loadtxt with mmap requires new qARPA header. Please regenerate the file.\n";
+        exit(0);
+      }
     }
   }
-
 	
   //we will configure the table later we we know the maxlev;
   bool yetconfigured=false;
@@ -260,65 +264,65 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
       //at this point we are sure about the size of the LM
       if (!yetconfigured){
         configure(maxlev,isQtable);
-	yetconfigured=true;
-
-	//opening output file
-	strcpy(nameNgrams,outfilename);
-	strcat(nameNgrams, "-ngrams");
-
-	cerr << "saving ngrams probs in " << nameNgrams << "\n";
-
-	fd = fopen(nameNgrams, "w+");
-
-	// compute the size of file (only for tables and - possibly - centroids; no header nor dictionary)
+        yetconfigured=true;
+        
+        //opening output file
+        strcpy(nameNgrams,outfilename);
+        strcat(nameNgrams, "-ngrams");
+        
+        cerr << "saving ngrams probs in " << nameNgrams << "\n";
+        
+        fd = fopen(nameNgrams, "w+");
+        
+        // compute the size of file (only for tables and - possibly - centroids; no header nor dictionary)
         for (int l=1;l<=maxlev;l++)
-	  if (l<maxlev)
-	    filesize +=  (long long)maxsize[l] * nodesize(tbltype[l]) + 2 * NumCenters[l] * sizeof(float);
-	  else 
-	    filesize +=  (long long)maxsize[l] * nodesize(tbltype[l]) + NumCenters[l] * sizeof(float);
-	cerr << "filesize = " << filesize << "\n";
-
-	// set the file to the proper size:
-	ftruncate(fileno(fd),filesize);
-	table[0]=(char *)(MMap(fileno(fd),PROT_READ|PROT_WRITE,0,filesize,&tableGaps[0]));
-
+          if (l<maxlev)
+            filesize +=  (long long)maxsize[l] * nodesize(tbltype[l]) + 2 * NumCenters[l] * sizeof(float);
+          else 
+            filesize +=  (long long)maxsize[l] * nodesize(tbltype[l]) + NumCenters[l] * sizeof(float);
+        cerr << "filesize = " << filesize << "\n";
+        
+        // set the file to the proper size:
+        ftruncate(fileno(fd),filesize);
+        table[0]=(char *)(MMap(fileno(fd),PROT_READ|PROT_WRITE,0,filesize,&tableGaps[0]));
+        
         //allocate space for tables into the file through mmap:
-
-	if (maxlev>1)
-	  table[1]=table[0] + 2 * NumCenters[1] * sizeof(float);
-	else
-	  table[1]=table[0] + NumCenters[1] * sizeof(float);
-
-	for (int l=2;l<=maxlev;l++)
-	  if (l<maxlev)
-	      table[l]=(char *)(table[l-1] + (long long)maxsize[l-1]*nodesize(tbltype[l-1]) + 
-				2 * NumCenters[l] * sizeof(float));
-	  else
-	      table[l]=(char *)(table[l-1] + (long long)maxsize[l-1]*nodesize(tbltype[l-1]) + 
-				NumCenters[l] * sizeof(float));
-
-	for (int l=2;l<=maxlev;l++)
-	  cerr << "table[" << l << "]-table[" << l-1 << "]=" 
-	       << table[l]-table[l-1] << " (nodesize=" << nodesize(tbltype[l-1]) << ")\n";
-
+        
+        if (maxlev>1)
+          table[1]=table[0] + 2 * NumCenters[1] * sizeof(float);
+        else
+          table[1]=table[0] + NumCenters[1] * sizeof(float);
+        
+        for (int l=2;l<=maxlev;l++)
+          if (l<maxlev)
+            table[l]=(char *)(table[l-1] + (long long)maxsize[l-1]*nodesize(tbltype[l-1]) + 
+                              2 * NumCenters[l] * sizeof(float));
+          else
+            table[l]=(char *)(table[l-1] + (long long)maxsize[l-1]*nodesize(tbltype[l-1]) + 
+                              NumCenters[l] * sizeof(float));
+        
+        for (int l=2;l<=maxlev;l++)
+          cerr << "table[" << l << "]-table[" << l-1 << "]=" 
+            << table[l]-table[l-1] << " (nodesize=" << nodesize(tbltype[l-1]) << ")\n";
+        
       }
       
-
+      
       cerr << Order << "-grams: reading ";
       if (isQtable) {
-	loadcenters(inp,Order);	
-	// writing centroids on disk 
-	if (Order<maxlev){
-	  memcpy(table[Order] - 2 * NumCenters[Order] * sizeof(float),
-		 Pcenters[Order],
-		 NumCenters[Order] * sizeof(float));
-	  memcpy(table[Order] - NumCenters[Order] * sizeof(float),
-		  Bcenters[Order],
-		  NumCenters[Order] * sizeof(float));
-	} else
-	  memcpy(table[Order] - NumCenters[Order] * sizeof(float),
-		 Pcenters[Order],
-		 NumCenters[Order] * sizeof(float));
+        loadcenters(inp,Order);	
+        // writing centroids on disk 
+        if (Order<maxlev){
+          memcpy(table[Order] - 2 * NumCenters[Order] * sizeof(float),
+                 Pcenters[Order],
+                 NumCenters[Order] * sizeof(float));
+          memcpy(table[Order] - NumCenters[Order] * sizeof(float),
+                 Bcenters[Order],
+                 NumCenters[Order] * sizeof(float));
+        } else
+          memcpy(table[Order] - NumCenters[Order] * sizeof(float),
+                 Pcenters[Order],
+                 NumCenters[Order] * sizeof(float));
       }
 			
       //allocate support vector to manage badly ordered n-grams
@@ -336,7 +340,7 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
           add(ng,
               (int)(isQtable?pb:*((int *)&pb)),
               (int)(isQtable?bow:*((int *)&bow)));
-
+        
       }
       // now we can fix table at level Order -1
       if (maxlev>1 && Order>1) checkbounds(Order-1);			
@@ -349,12 +353,12 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
     table[l]=0; // to avoid wrong free in ~lmtable()
   fclose(fd);
   cerr << "done\n";
-
+  
   dict->incflag(0);  
   dict->genoovcode();
-
+  
   // saving header + dictionary
-
+  
   strcpy(nameHeader,outfilename);
   strcat(nameHeader, "-header");
   cerr << "saving header+dictionary in " << nameHeader << "\n";
@@ -375,25 +379,25 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
   }
 	
   dict->save(out);
-
+  
   out.close();
   cerr << "done\n";
-
+  
   // cat header+dictionary and n-grams files:
-
+  
   char cmd[MAX_LINE];
   sprintf(cmd,"cat %s >> %s", nameNgrams, nameHeader);
   cerr << "run cmd <" << cmd << ">\n";
   system(cmd);
-
+  
   sprintf(cmd,"mv %s %s", nameHeader, outfilename);
   cerr << "run cmd <" << cmd << ">\n";
   system(cmd);
-
+  
   sprintf(cmd,"rm %s", nameNgrams);
   cerr << "run cmd <" << cmd << ">\n";
   system(cmd);
-
+  
   return;
 }
 
