@@ -273,7 +273,7 @@ public:
     return *value;
   };
   
-  
+
   int bo_state(int value=-1){ 
     return (value==-1?backoff_state:backoff_state=value); 
   };
@@ -349,8 +349,13 @@ public:
   };
   
   void stat(int lev=0);
+
+
+  void printTable(int level);
+
   
 };
+
 
 #endif
 

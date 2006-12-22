@@ -8,7 +8,7 @@
 #CPP=g++ -static -O3 -DMYCODESIZE=3 -DBOS_="\"<S>\"" -DEOS_="\"</S>\"" -DOOV_="\"<unkn>\""
 #CPP=g++ -pg -g  -DMYCODESIZE=3 
 
-CPP      = g++ -g  
+CPP      = g++ -g  -static
 CPPFLAGS = -O3 -DMYCODESIZE=3  -Wall
 
 #IRSTLM LIBRARY

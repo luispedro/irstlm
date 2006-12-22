@@ -85,7 +85,7 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
   if (strncmp(header,"Qblmt",5)==0 || strncmp(header,"blmt",4)==0){        
     loadbin(inp,header,filename,keep_on_disk);
   }
-  else{ 
+  else{
     loadtxt(inp,header,outfilename,keep_on_disk);
   }
     	
@@ -138,6 +138,9 @@ int parseline(istream& inp, int Order,ngram& ng,float& prob,float& bow){
   }
   
   howmany = parseWords(line, words, Order + 3);
+
+  if (!(howmany == (Order+ 1) || howmany == (Order + 2)))
+    cerr << "line=<" << line << ">\n";
   assert(howmany == (Order+ 1) || howmany == (Order + 2));
 	
   //read words
@@ -152,6 +155,14 @@ int parseline(istream& inp, int Order,ngram& ng,float& prob,float& bow){
   else
     bow=0.0; //this is log10prob=0 for implicit backoff		
 
+  /**
+  if (Order>1) {
+    cout << prob << "\n";
+    for (int i=1;i<=Order;i++) 
+      cout <<  words[i] << " ";
+    cout << "\n" << bow  << "\n\n";
+  }
+  **/
   return 1;
 }
 
@@ -189,7 +200,7 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
   char nameHeader[BUFSIZ];
 
   FILE *fd = NULL;
-  long filesize=0;
+  long long filesize=0;
 
   int Order,n;
 
@@ -241,6 +252,7 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
     
     if (sscanf(line, "ngram %d=%d", &Order, &n) == 2) {
       maxsize[Order] = n; maxlev=Order; //upadte Order
+      cerr << "size[" << Order << "]=" << maxsize[Order] << "\n";
     }
 		
     if (backslash && sscanf(line, "\\%d-grams", &Order) == 1) {
@@ -261,9 +273,9 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
 	// compute the size of file (only for tables and - possibly - centroids; no header nor dictionary)
         for (int l=1;l<=maxlev;l++)
 	  if (l<maxlev)
-	    filesize +=  maxsize[l] * nodesize(tbltype[l]) + 2 * NumCenters[l] * sizeof(float);
-	  else
-	    filesize +=  maxsize[l] * nodesize(tbltype[l]) + NumCenters[l] * sizeof(float);
+	    filesize +=  (long long)maxsize[l] * nodesize(tbltype[l]) + 2 * NumCenters[l] * sizeof(float);
+	  else 
+	    filesize +=  (long long)maxsize[l] * nodesize(tbltype[l]) + NumCenters[l] * sizeof(float);
 	cerr << "filesize = " << filesize << "\n";
 
 	// set the file to the proper size:
@@ -279,12 +291,19 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
 
 	for (int l=2;l<=maxlev;l++)
 	  if (l<maxlev)
-	      table[l]=(char *)(table[l-1] + maxsize[l-1]*nodesize(tbltype[l-1]) + 
+	      table[l]=(char *)(table[l-1] + (long long)maxsize[l-1]*nodesize(tbltype[l-1]) + 
 				2 * NumCenters[l] * sizeof(float));
 	  else
-	      table[l]=(char *)(table[l-1] + maxsize[l-1]*nodesize(tbltype[l-1]) + 
+	      table[l]=(char *)(table[l-1] + (long long)maxsize[l-1]*nodesize(tbltype[l-1]) + 
 				NumCenters[l] * sizeof(float));
+
+	for (int l=2;l<=maxlev;l++)
+	  cerr << "table[" << l << "]-table[" << l-1 << "]=" 
+	       << table[l]-table[l-1] << " (nodesize=" << nodesize(tbltype[l-1]) << ")\n";
+
       }
+      
+
       cerr << Order << "-grams: reading ";
       if (isQtable) {
 	loadcenters(inp,Order);	
@@ -320,9 +339,7 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
 
       }
       // now we can fix table at level Order -1
-
       if (maxlev>1 && Order>1) checkbounds(Order-1);			
-
     }
   }
 	
@@ -427,12 +444,12 @@ void lmtable::loadtxt(istream& inp,const char* header){
         configure(maxlev,isQtable);yetconfigured=true;
         //allocate space for loading the table of this level
         for (int i=1;i<=maxlev;i++)
-          table[i]= new char[maxsize[i] * nodesize(tbltype[i])];                    
+          table[i]= new char[maxsize[i] * nodesize(tbltype[i])];
       }			 
       
       cerr << Order << "-grams: reading ";
 			
-      if (isQtable) loadcenters(inp,Order);						
+      if (isQtable) loadcenters(inp,Order);
 			
       //allocate support vector to manage badly ordered n-grams
       if (maxlev>1 && Order<maxlev) {
@@ -462,6 +479,24 @@ void lmtable::loadtxt(istream& inp,const char* header){
 	
 }
 
+void lmtable::printTable(int level) {
+  char*  tbl=table[level];
+  LMT_TYPE ndt=tbltype[level];
+  int ndsz=nodesize(ndt);
+  int printEntryN=1000;
+  if (cursize[level]>0)
+    printEntryN=(printEntryN<cursize[level])?printEntryN:cursize[level];
+
+  cout << "level = " << level << "\n";
+  int p;
+  for (int c=0;c<printEntryN;c++){
+    p=prob(tbl,ndt);
+    cout << *(float *)&p << " " 
+	 << word(tbl) << "\n";
+    tbl+=ndsz;
+  }
+  return;
+}
 
 //Checkbound with sorting of n-gram table on disk
 
@@ -513,21 +548,31 @@ void lmtable::checkbounds(int level){
 int lmtable::add(ngram& ng,int iprob,int ibow){
 	
   char *found; LMT_TYPE ndt; int ndsz;  
+  static int no_more_msg = 0;
 
   if (ng.size>1){
 		
+/***
+    if (ng.size==3)
+      cout  << "In add, ng=<" << ng << "> <> " << *((float *)(&iprob)) << "\n";
+***/
     // find the prefix starting from the first level
     int start=0, end=cursize[1]; 
-		
+
     for (int l=1;l<ng.size;l++){
-			
+		
       ndt=tbltype[l]; ndsz=nodesize(ndt);
 			
       if (search(l,start,(end-start),ndsz,
                  ng.wordp(ng.size-l+1),LMT_FIND, &found)){
-				
+
+/***				
+	if (ng.size==3)
+	  cout << "l=" << l << ": found <" << *(ng.wordp(ng.size-l+1)) << ">\n";
+***/
+
         //update start-end positions for next step
-        if (l< (ng.size-1)){										
+        if (l< (ng.size-1)){
           //set start position
           if (found==table[l]) start=0; //first pos in table
           else start=bound(found - ndsz,ndt); //end of previous entry 
@@ -536,22 +581,29 @@ int lmtable::add(ngram& ng,int iprob,int ibow){
           end=bound(found,ndt);
         }
       }
-      else{
-        cerr << "warning: missing back-off for ngram " << ng << "\n";
-        return 0;
-      }		
+      else {
+	if (!no_more_msg)
+	  cerr << "warning: missing back-off for ngram " << ng << " (and possibly for others)\n";
+
+	no_more_msg++;
+	if (!(no_more_msg % 5000000))
+	  cerr << "!";
+
+	return 0;
+      }
     }
 		
     // update book keeping information about level ng-size -1.
     // if this is the first successor update start position
-    int position=(found-table[ng.size-1])/ndsz;
+    int position=(int)((found-table[ng.size-1])/(long long)ndsz);
+
+/***    cout << "(order,position)=(" << ng.size-1 << "," << position << ")\n";  ***/
     if (startpos[ng.size-1][position]==-1)
       startpos[ng.size-1][position]=cursize[ng.size];
 		
     //always update ending position	
     bound(found,ndt,cursize[ng.size]+1);
-    //cout << "startpos: " << startpos[ng.size-1][position] 
-    //<< " endpos: " << bound(found,ndt) << "\n";
+/*** cout << "startpos: " << startpos[ng.size-1][position] << " endpos: " << bound(found,ndt) << "\n"; ***/
 		
   }
 	
@@ -560,14 +612,20 @@ int lmtable::add(ngram& ng,int iprob,int ibow){
   assert(cursize[ng.size]< maxsize[ng.size]); // is there enough space?
   ndt=tbltype[ng.size];ndsz=nodesize(ndt);
   
-  found=table[ng.size] + (cursize[ng.size] * ndsz);
+  found=table[ng.size] + ((long long)cursize[ng.size] * ndsz);
   word(found,*ng.wordp(1)); 
   prob(found,ndt,iprob);
   if (ng.size<maxlev){bow(found,ndt,ibow);bound(found,ndt,-2);}
 
   cursize[ng.size]++;
-	
+  
+  if (!(cursize[ng.size]%5000000))
+    cerr << ".";
 
+/***
+  if (cursize[ng.size]<10)
+    cout << "inserisco al livello " << ng.size << " la parola con codice " << *ng.wordp(1) << " (ng=<" << ng << ">)\n";
+***/
 
   return 1;
 	
@@ -582,12 +640,17 @@ void *lmtable::search(int lev,
                       LMT_ACTION action,
                       char **found){
 	
+/***
+  if (lev>=2)
+    cout << "searching entry for codeword: " << ngp[0] << "...";
+***/
+
   //assume 1-grams is a 1-1 map of the vocabulary
   if (lev==1) return *found=(*ngp <n ? table[1] + *ngp * sz:NULL);
 
   //prepare table to be searched with mybserach  
   char* tb;
-  tb=table[lev]+(sz * offs);  
+  tb=table[lev]+((long long)sz * offs);  
   //prepare search pattern
   char w[LMTCODESIZE];putmem(w,ngp[0],0,LMTCODESIZE);
 	
@@ -600,7 +663,7 @@ void *lmtable::search(int lev,
     case LMT_FIND:			
       if (!tb || !mybsearch(tb,n,sz,(unsigned char *)w,&idx)) return NULL;
       else
-        return *found=tb + (idx * sz);
+        return *found=tb + ((long long)idx * sz);
     default:
       error("lmtable::search: this option is available");
   };
@@ -615,7 +678,7 @@ int lmtable::mybsearch(char *ar, int n, int size,
   
   register int low, high;
   register unsigned char *p;
-  register int result;
+  register long long result;
   register int i;
   
   /* return idx with the first position equal or greater than key */
@@ -626,7 +689,7 @@ int lmtable::mybsearch(char *ar, int n, int size,
   while (low < high)
   {
     *idx = (low + high) / 2;
-    p = (unsigned char *) (ar + (*idx * size));
+    p = (unsigned char *) (ar + (*idx * (long long)size));
     
     //comparison
     for (i=(LMTCODESIZE-1);i>=0;i--){
@@ -833,7 +896,9 @@ void lmtable::loadbin(istream& inp, const char* header,const char* filename,int 
 
 int lmtable::get(ngram& ng,int n,int lev){
   
-  //  cout << "cerco:" << ng << "\n";
+/***
+  cout << "cerco:" << ng << "\n";
+***/
   totget[lev]++;
   
   if (lev > maxlev) error("get: lev exceeds maxlevel");

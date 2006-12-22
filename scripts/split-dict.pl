@@ -19,13 +19,16 @@ my $freqflag=0;
 my ($w,$f,$totf,$thr);
 my (@D,@F,%S,@C);
 open(IN,"$input");
+
+chomp($_=<IN>);
+#if input is a dictionary.
+if (/^dictionary[ \t]+\d+[ \t]+\d+$/i){
+  my ($dummy,$size);
+  ($dummy,$dummy,$size)=split(/[ \t]+/,$_);
+  $freqflag=1 if /DICTIONARY/;
+}
+
 while(chomp($_=<IN>)){
-	if (/dictionary/i){
-		my ($dummy,$size);
-		($dummy,$dummy,$size)=split(/[ \t]+/,$_);
-		$freqflag=1 if /DICTIONARY/;
-		next;
-	}
 	if ($freqflag){
 		($w,$f)=split(/[ \t]+/,$_);
 	}

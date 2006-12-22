@@ -7,6 +7,7 @@
 #These files are a partition of the whole set of ngrams
 
 basedir=~/workspace/irstlm/
+basedir=/voxgate/ssi/cettolo/irstlm/
 bindir=$basedir/bin/$MACHTYPE
 scriptdir=$basedir/scripts
 
