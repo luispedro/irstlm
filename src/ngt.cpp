@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     table_type=LEAFPROB;
   }
 	
-	//  ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,dstco,hmask,inplen,table_type);
+	//ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,dstco,hmask,inplen,table_type);
 	ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,filterdict,inputgoogleformat,dstco,hmask,inplen,table_type);
 		
   if (aug){
@@ -169,7 +169,7 @@ int main(int argc, char **argv)
 		
     //parse hmask
     i=0; selmask[i++]=1;
-    for (c=0;c< strlen(hmask);c++){
+    for (c=0;c< (int)strlen(hmask);c++){
       cerr << hmask[c] << "\n";
       if (hmask[c] == '1')
 				selmask[i++]=c+2;

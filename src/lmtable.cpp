@@ -194,7 +194,7 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
   int Order,n;
 
   int maxlevel_h;
-  char *SepString = " \t\n";
+  //char *SepString = " \t\n"; unused
 
   //open input stream and prepare an input string
   char line[MAX_LINE];

@@ -515,7 +515,7 @@ void ngramtable::generate_hmask(char *filename,char* hmask,int inplen){
 	
   //parse hmask
   i=0; selmask[i++]=1;
-  for (c=0;c< strlen(hmask);c++){
+  for (c=0;c< (int)strlen(hmask);c++){
     cerr << hmask[c] << "\n";
     if (hmask[c] == '1')
       selmask[i++]=c+2;
@@ -730,17 +730,17 @@ void ngramtable::show(){
 
 int ngramtable::mybsearch(char *ar, int n, int size, unsigned char *key, int *idx)
 {
-  register int low, high;
-  register unsigned char *p;
-  register int result;
-  register int i;
+  
+  unsigned char *p=NULL;
+  int result=0;
+  int i=0;
 	
   /* return idx with the first 
 		position equal or greater than key */
 	
   /*   Warning("start bsearch \n"); */
 	
-  low = 0;high = n; *idx=0;
+  int low = 0;int high = n; *idx=0;
   while (low < high)
 	{
 		*idx = (low + high) / 2;
@@ -854,7 +854,9 @@ void *ngramtable::search(table *tb,NODETYPE ndt,int lev,int n,int sz,int *ngp,
 			cerr << "this option is not implemented yet\n";
 			break;
   }
-	
+  
+	return NULL;
+  
 }
 
 int ngramtable::comptbsize(int n){
@@ -947,7 +949,7 @@ char **ngramtable::grow(table *tb,NODETYPE ndt,int lev,
     //change frequency type of table
     //no entries will be added now
 		
-    int oldsz;
+    int oldsz=0;
     
     // guess the current memory size !!!!
     num=comptbsize(n);
@@ -1229,6 +1231,7 @@ int ngramtable::scan(node nd,NODETYPE ndt,int lev,
   
   switch (action){
     
+         
 		case INIT:
 			//reset ngram local indexes
 			
@@ -1288,7 +1291,13 @@ int ngramtable::scan(node nd,NODETYPE ndt,int lev,
       }
 				else
 					return 0;
+    
+    default:
+			cerr << "scan: not supported action\n";
+			break;
+      
   }
+  return 0;
 }
 
 

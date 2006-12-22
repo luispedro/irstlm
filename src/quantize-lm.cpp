@@ -148,8 +148,8 @@ int main(int argc, const char **argv)
   // *** Read ARPA FILE ** 
   
   int numNgrams[MAXLEV + 1]; /* # n-grams for each order */
-  int Order,MaxOrder;
-  int n;
+  int Order=0,MaxOrder=0;
+  int n=0;
   
   float logprob,logbow, logten=log(10.0);
   
@@ -262,8 +262,8 @@ int main(int argc, const char **argv)
             
       out << centers[Order] << "\n";
       for (nPts=0;nPts<centers[Order];nPts++){
-        out << FloorScore(log(centersP[nPts])/logten);
-        if (Order<MaxOrder) out << " " << FloorScore(log(centersB[nPts])/logten);
+        out << log(centersP[nPts])/logten;
+        if (Order<MaxOrder) out << " " << log(centersB[nPts])/logten;
         out << "\n";
       }
       
@@ -387,13 +387,13 @@ int ComputeCluster(int centers,double* ctrs,int N,double* dataPts){
     
     
     for (int i=0;i<centers;i++){
-      if (population[i]>0){
+      if (population[i]>0)
         ctrs[i]/=(float)population[i];
-        if (ctrs[i]<1e-99){
-            cerr << "Warning: adjusting center with too small prob " << ctrs[i] << "\n";
-            ctrs[i]=1e-99;
-        }
+      if (ctrs[i]<1e-99){
+        cerr << "Warning: adjusting center with too small prob " << ctrs[i] << "\n";
+        ctrs[i]=1e-99;
       }
+      
       //cout << i << " ctr " << ctrs[i] << " population " << population[i] << " species " << species[i] <<"\n";
     }
     
