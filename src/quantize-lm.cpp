@@ -185,15 +185,15 @@ int main(int argc, const char **argv)
       
       // print output header:
       if (Order == 1) {
-	out << "qARPA " << MaxOrder;
-	for (int i=1;i<=MaxOrder;i++) 
-	  out << " " << centers[i];
-	out << "\n\n\\data\\\n";
-
-	for (int i=1;i<=MaxOrder;i++) 
-	  out << "ngram " << i << "= " << numNgrams[i] << "\n";
+        out << "qARPA " << MaxOrder;
+        for (int i=1;i<=MaxOrder;i++) 
+          out << " " << centers[i];
+        out << "\n\n\\data\\\n";
+        
+        for (int i=1;i<=MaxOrder;i++) 
+          out << "ngram " << i << "= " << numNgrams[i] << "\n";
       }
-
+      
       out << "\n";
       out << line << "\n";
       cerr << "-- Start processing of " << Order << "-grams\n";
