@@ -69,11 +69,15 @@ tabletype(ttype,codesize){
 	}
 	
   maxlev=maxl;
-  tree=(node) new char[inodesize(4)];
-  memset(tree,0,inodesize(4));
-	
-  treeflags=INODE | FREQ4;
   
+  //Root not must have maximum frequency size
+  
+  treeflags=INODE | FREQ6;
+  tree=(node) new char[inodesize(6)];
+  memset(tree,0,inodesize(6));
+  
+ 
+  //1-gram table initial flags
   if (maxlev>1)
     mtflags(tree,INODE | FREQ4);
   else if (maxlev==1)
@@ -98,9 +102,10 @@ tabletype(ttype,codesize){
   memory= new int[maxlev+1];
   occupancy= new int[maxlev+1];
 	
+//Book keeping of occupied memory
   mentr[0]=1;
-  memory[0]=inodesize(4); // root is an inode with integer frequency
-  occupancy[0]=inodesize(4); // root is an inode with integer frequency
+  memory[0]=inodesize(6); // root is an inode with  highest frequency
+  occupancy[0]=inodesize(6); // root is an inode with  highest frequency
   
   for (int i=1;i<=maxlev;i++)
     mentr[i]=memory[i]=occupancy[i]=0;
@@ -211,7 +216,6 @@ void ngramtable::loadtxt(char *filename,int googletable){
     for (i=0;i<maxlev;i++) inp >> ng; 
 		
     inp >> ng.freq;
-		cerr << ng << std::endl;
 		
     // if filtering dictionary exists
     // and if the first word of the ngram does not belong to it
@@ -221,11 +225,7 @@ void ngramtable::loadtxt(char *filename,int googletable){
       if (code!=filterdict->oovcode())	put(ng);	
     }
     else put(ng);    
-		
-		get(ng);
-		
-		cerr << "get: " << ng << std::endl;
-		
+			
     ng.size=0;
     
     if (!(++c % 1000000)) cerr << ".";
@@ -1127,7 +1127,7 @@ int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
       cerr << "+"<<l+1;
       //table entries remain the same
       grow(&mtb,mtflags(nd),l+1,msucc(nd),mtablesz(nd),oldndt);
-      cerr << "\b\b";
+      //cerr << "\b\b";
       //update subnode
       subnd=(char *)
 				search(&mtb,

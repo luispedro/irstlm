@@ -407,7 +407,7 @@ class ngramtable:tabletype{
   inline long putmem(char* ptr,long long value,int offs,int size){
     assert(ptr!=NULL);
     for (int i=0;i<size;i++) 
-      ptr[offs+i]=(value >> (8 * i)) & 0xff;
+      ptr[offs+i]=(value >> (8 * i)) & 0xffLL;
     return value;
   };
   
@@ -415,7 +415,7 @@ class ngramtable:tabletype{
     assert(ptr!=NULL);
     *value=ptr[offs] & 0xff;
     for (int i=1;i<size;i++) 
-      *value= *value | ( ( ptr[offs+i] & 0xff ) << (8 *i));
+      *value= *value | ( ( ptr[offs+i] & 0xffLL ) << (8 *i));
     return *value;
   };
   
