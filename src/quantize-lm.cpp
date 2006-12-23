@@ -86,7 +86,7 @@ void usage(const char *msg = 0) {
 
 int main(int argc, const char **argv)
 {
-
+  
   //Process Parameters 
   
   if (argc < 2) { usage(); exit(1); }
@@ -101,7 +101,7 @@ int main(int argc, const char **argv)
   
   std::string infile = files[0];
   std::string outfile="";
-
+  
   if (files.size() == 1) {  
     outfile=infile;
     
@@ -123,16 +123,16 @@ int main(int argc, const char **argv)
   
   std::cout << "Reading " << infile << "..." << std::endl;
   
- inputfilestream inp(infile.c_str());
+  inputfilestream inp(infile.c_str());
   if (!inp.good()) {
     std::cerr << "Failed to open " << infile << "!\n";
     exit(1);
   }
   
-
+  
   std::ofstream out(outfile.c_str());
   std::cout << "Writing " << outfile << "..." << std::endl;
-
+  
   //prepare temporary file to save n-gram blocks for multiple reads 
   //this avoids using seeks which do not work with inputfilestream
   //it's odd but i need a bidirectional filestream!
@@ -142,7 +142,7 @@ int main(int argc, const char **argv)
   dummy.close();
   
   fstream filebuff(filePath.c_str(),ios::out|ios::in);
-    
+  
   int nPts = 0;  // actual number of points
   
   // *** Read ARPA FILE ** 
@@ -162,10 +162,10 @@ int main(int argc, const char **argv)
   streampos iposition;
   
   for (int i=1;i<=MAXLEV;i++) numNgrams[i]=0;
-
+  
   for (int i=1;i<=MAXLEV;i++) centers[i]=k; /* all levels 256 centroids; in
-					       case read them as parameters */
-
+    case read them as parameters */
+  
   char line[MAX_LINE];
   
   while (inp.getline(line,MAX_LINE)){
@@ -180,7 +180,7 @@ int main(int argc, const char **argv)
     
     if (!strncmp(line, "\\data\\", 6) || strlen(line)==0)
       continue;
-
+    
     if (backslash && sscanf(line, "\\%d-grams", &Order) == 1) {
       
       // print output header:
@@ -206,7 +206,7 @@ int main(int argc, const char **argv)
       
       //reset tempout file 
       filebuff.seekg(0);
-           
+      
       for (nPts=0;nPts<N;nPts++){
         inp.getline(line,MAX_LINE);  
         filebuff << line << std::endl;
@@ -215,7 +215,7 @@ int main(int argc, const char **argv)
         sscanf(words[0],"%f",&logprob);
         dataPts[nPts]=exp(logprob * logten);
       }
-                
+      
       cerr << "quantizing " << N << " probabilities\n";
       
       centersP=new double[centers[Order]];
@@ -223,7 +223,7 @@ int main(int argc, const char **argv)
       
       ComputeCluster(centers[Order],centersP,N,dataPts);
       
-
+      
       assert(bintable !=NULL);
       for (int p=0;p<N;p++){
         mapP[bintable[p].idx]=bintable[p].code;
@@ -231,11 +231,11 @@ int main(int argc, const char **argv)
       
       if (Order<MaxOrder){
         //second pass to read back-off weights
-      
+        
         filebuff.seekg(0);
-       
+        
         for (nPts=0;nPts<N;nPts++){
-         
+          
           filebuff.getline(line,MAX_LINE);
           
           int howmany = parseWords(line, words, Order + 3);
@@ -259,7 +259,7 @@ int main(int argc, const char **argv)
         
       }
       
-            
+      
       out << centers[Order] << "\n";
       for (nPts=0;nPts<centers[Order];nPts++){
         out << log(centersP[nPts])/logten;
@@ -284,7 +284,7 @@ int main(int argc, const char **argv)
         out << "\n";
         
       }
-            
+      
       if (mapP){delete [] mapP;mapP=NULL;}
       if (mapB){delete [] mapB;mapB=NULL;}
       
@@ -304,7 +304,7 @@ int main(int argc, const char **argv)
   cerr << "---- done\n";
   
   out.flush();
-   
+  
   out.close();
   inp.close();
   
