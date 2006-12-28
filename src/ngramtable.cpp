@@ -1127,7 +1127,7 @@ int ngramtable::put(ngram& ng,node nd,NODETYPE ndt,int lev){
       cerr << "+"<<l+1;
       //table entries remain the same
       grow(&mtb,mtflags(nd),l+1,msucc(nd),mtablesz(nd),oldndt);
-      //cerr << "\b\b";
+      cerr << "\b\b";
       //update subnode
       subnd=(char *)
 				search(&mtb,
