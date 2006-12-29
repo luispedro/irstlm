@@ -195,8 +195,8 @@ void ngramtable::loadtxt(char *filename,int googletable){
   
   ngram ng(dict);;
 	
-  cerr << "loadtxt ";
-	
+  cerr << "loadtxt:" << (googletable?"google format":"std table");
+
   mfstream inp(filename,ios::in);
   
   int i,c=0;
