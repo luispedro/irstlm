@@ -217,6 +217,8 @@ void ngramtable::loadtxt(char *filename,int googletable){
 		
     inp >> ng.freq;
 		
+    if (ng.size==0) continue;
+    
     // if filtering dictionary exists
     // and if the first word of the ngram does not belong to it
     // do not insert the ngram
