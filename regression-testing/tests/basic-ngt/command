@@ -1,0 +1,27 @@
+#! /bin/sh -w
+
+cwd=`pwd`
+
+bin=$cwd/../bin/$MACHTYPE
+
+testdir=$1
+cd $testdir
+
+inputfile=input
+
+$bin/dict -i=$inputfile -o=dict > /dev/null
+
+tail +2 dict | split -l 1000 - dict.
+
+rm dict
+
+for d in `ls dict.*` ; do
+$bin/ngt -i=$inputfile  -n=3 -gooout=y -o=w3.$d -fd=$d  > /dev/null
+rm $d
+done
+
+for w in `ls w3.dict.*` ; do
+cat $w
+rm $w
+done
+
