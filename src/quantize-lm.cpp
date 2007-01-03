@@ -38,22 +38,20 @@ using namespace std;
 //----------------------------------------------------------------------
 
 typedef struct{
-  double pt;
-  int idx;
-  short code;
-}BinEntry;
+  float pt;
+  unsigned int idx;
+  unsigned short code;
+}DataItem;
 
 
-int cmpBinEntry(const void* a,const void* b){
-  if (*(double *)a > *(double*)b)
+int cmpFloatEntry(const void* a,const void* b){
+  if (*(float *)a > *(float*)b)
     return 1;
-  else if (*(double *)a < *(double*)b)
+  else if (*(float *)a < *(float *)b)
     return -1;
   else
     return 0;
 }
-
-BinEntry* bintable=NULL;
 
 //----------------------------------------------------------------------
 //  Global entry points
@@ -61,7 +59,7 @@ BinEntry* bintable=NULL;
 
 int parseWords(char *sentence, char **words, int max);
 
-int ComputeCluster(int nc, double* cl,int N,double* Pts);
+int ComputeCluster(int nc, double* cl,int N,DataItem* Pts);
 
 //----------------------------------------------------------------------
 //  Global parameters (some are set in getArgs())
@@ -151,20 +149,23 @@ int main(int argc, const char **argv)
   int Order=0,MaxOrder=0;
   int n=0;
   
-  float logprob,logbow, logten=log(10.0);
+  float logprob,logbow;
   
-  double* dataPts=NULL;
-  double* centersP=NULL; double* centersB=NULL;
+  DataItem* dataPts;
+ 
+  double* centersP=NULL; 
+  double* centersB=NULL;
   
-  int* mapP=NULL; int* mapB=NULL;
+  //maps from point index to code
+  unsigned short* mapP=NULL; unsigned short* mapB=NULL;
   
   int centers[MAXLEV + 1];
   streampos iposition;
   
-  for (int i=1;i<=MAXLEV;i++) numNgrams[i]=0;
+  for (int i=1;i<=MAXLEV;i++) numNgrams[i]=0;  
+  for (int i=1;i<=MAXLEV;i++) centers[i]=k; 
   
-  for (int i=1;i<=MAXLEV;i++) centers[i]=k; /* all levels 256 centroids; in
-    case read them as parameters */
+  /* all levels 256 centroids; in case read them as parameters */
   
   char line[MAX_LINE];
   
@@ -202,7 +203,7 @@ int main(int argc, const char **argv)
       int N=numNgrams[Order];
       
       char* words[MAXLEV+3];
-      dataPts=new double[N]; // allocate data         
+      dataPts=new DataItem[N]; // allocate data         
       
       //reset tempout file 
       filebuff.seekg(0);
@@ -213,20 +214,20 @@ int main(int argc, const char **argv)
         int howmany = parseWords(line, words, Order + 3);
         assert(howmany == Order+2 || howmany == Order+1);
         sscanf(words[0],"%f",&logprob);
-        dataPts[nPts]=exp(logprob * logten);
+        dataPts[nPts].pt=logprob; //exp(logprob * logten);
+        dataPts[nPts].idx=nPts;
       }
       
       cerr << "quantizing " << N << " probabilities\n";
       
       centersP=new double[centers[Order]];
-      mapP=new int[N];
+      mapP=new unsigned short[N];
       
       ComputeCluster(centers[Order],centersP,N,dataPts);
       
       
-      assert(bintable !=NULL);
       for (int p=0;p<N;p++){
-        mapP[bintable[p].idx]=bintable[p].code;
+        mapP[dataPts[p].idx]=dataPts[p].code;
       }
       
       if (Order<MaxOrder){
@@ -243,18 +244,19 @@ int main(int argc, const char **argv)
             sscanf(words[Order+1],"%f",&logbow);
           else
             logbow=0; // backoff is implicit                    
-          dataPts[nPts]=exp(logbow * logten);
+          
+          dataPts[nPts].pt=logbow; 
+          dataPts[nPts].idx=nPts;
         }
         
         centersB=new double[centers[Order]];
-        mapB=new int[N];
+        mapB=new unsigned short[N];
         
         cerr << "quantizing " << N << " backoff weights\n";
         ComputeCluster(centers[Order],centersB,N,dataPts);
         
-        assert(bintable !=NULL);
         for (int p=0;p<N;p++){
-          mapB[bintable[p].idx]=bintable[p].code;
+          mapB[dataPts[p].idx]=dataPts[p].code;
         }
         
       }
@@ -262,8 +264,8 @@ int main(int argc, const char **argv)
       
       out << centers[Order] << "\n";
       for (nPts=0;nPts<centers[Order];nPts++){
-        out << log(centersP[nPts])/logten;
-        if (Order<MaxOrder) out << " " << log(centersB[nPts])/logten;
+        out << centersP[nPts]; 
+        if (Order<MaxOrder) out << " " << centersB[nPts];
         out << "\n";
       }
       
@@ -313,22 +315,16 @@ int main(int argc, const char **argv)
 
 // Compute Clusters
 
-int ComputeCluster(int centers,double* ctrs,int N,double* dataPts){
+int ComputeCluster(int centers,double* ctrs,int N,DataItem* bintable){
   
   
   //cerr << "\nExecuting Clutering Algorithm:  k=" << centers<< "\n";
+  double log10=log(10.0);
   
-  if (bintable) delete [] bintable;
-  
-  bintable=new BinEntry[N];
-  for (int i=0;i<N;i++){
-    bintable[i].pt=dataPts[i];
-    bintable[i].idx=i;
-    bintable[i].code=0;
-  }
+  for (int i=0;i<N;i++) bintable[i].code=0;
   
   //cout << "start sort \n";
-  qsort(bintable,N,sizeof(BinEntry),cmpBinEntry);
+  qsort(bintable,N,sizeof(DataItem),cmpFloatEntry);
   
   int different=1;
   
@@ -347,10 +343,10 @@ int ComputeCluster(int centers,double* ctrs,int N,double* dataPts){
   
   for (int i=0;i<centers;i++){
     population[i]=species[i]=0;
-    ctrs[i]=0.0;
+    ctrs[i]=0;
   }
   
-  // initial values
+  // initial values: this should catch up very low values: -99
   bintable[0].code=0;    
   population[0]=1;
   species[0]=1;
@@ -381,20 +377,22 @@ int ComputeCluster(int centers,double* ctrs,int N,double* dataPts){
       
       assert(bintable[i].code < centers);
       
-      ctrs[bintable[i].code]+=bintable[i].pt;
+      ctrs[bintable[i].code]=ctrs[bintable[i].code]+exp(bintable[i].pt * log10);
       
   }
-    
-    
+
     for (int i=0;i<centers;i++){
       if (population[i]>0)
-        ctrs[i]/=(float)population[i];
-      if (ctrs[i]<1e-99){
+        ctrs[i]=log(ctrs[i]/population[i])/log10;
+      else
+        ctrs[i]=-99;
+      
+      if (ctrs[i]<-99){
         cerr << "Warning: adjusting center with too small prob " << ctrs[i] << "\n";
-        ctrs[i]=1e-99;
+        ctrs[i]=-99;
       }
       
-      //cout << i << " ctr " << ctrs[i] << " population " << population[i] << " species " << species[i] <<"\n";
+      cout << i << " ctr " << ctrs[i] << " population " << population[i] << " species " << species[i] <<"\n";
     }
     
     cout.flush();
