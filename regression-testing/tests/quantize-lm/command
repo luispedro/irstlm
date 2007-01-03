@@ -1,0 +1,15 @@
+#! /bin/sh -w
+
+cwd=`pwd`
+
+bin=$cwd/../bin/$MACHTYPE
+
+testdir=$1
+cd $testdir
+
+inputfile=input
+outputfile=output
+
+$bin/quantize-lm $inputfile $outputfile > /dev/null
+cat $outputfile
+rm $outputfile
