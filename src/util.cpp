@@ -58,13 +58,16 @@ inputfilestream::inputfilestream(const std::string &filePath)
 : std::istream(0),
 m_streambuf(0)
 {
+  //check if file is readable
+  std::filebuf* fb = new std::filebuf();
+  _good=(fb->open(filePath.c_str(), std::ios::in)!=NULL);
+  
   if (filePath.size() > 3 &&
       filePath.substr(filePath.size() - 3, 3) == ".gz")
   {
-    m_streambuf = new gzfilebuf(filePath.c_str());
+    fb->close(); delete fb;
+    m_streambuf = new gzfilebuf(filePath.c_str());  
   } else {
-    std::filebuf* fb = new std::filebuf();
-    _good=(fb->open(filePath.c_str(), std::ios::in)!=NULL);
     m_streambuf = fb;
   }
   this->init(m_streambuf);
