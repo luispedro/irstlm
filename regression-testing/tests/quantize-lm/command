@@ -7,9 +7,9 @@ bin=$cwd/../bin/$MACHTYPE
 testdir=$1
 cd $testdir
 
-inputfile=input
+inputfile=input.gz
 outputfile=output
 
-$bin/quantize-lm $inputfile $outputfile > /dev/null
+$bin/quantize-lm $inputfile $outputfile /tmp/ppp > /dev/null
 cat $outputfile
 rm $outputfile
