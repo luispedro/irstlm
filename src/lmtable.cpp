@@ -682,7 +682,7 @@ int lmtable::mybsearch(char *ar, int n, int size,
   
   register int low, high;
   register unsigned char *p;
-  register long long result;
+  register long long result=0;
   register int i;
   
   /* return idx with the first position equal or greater than key */
