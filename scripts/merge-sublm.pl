@@ -26,6 +26,7 @@ if ($help || !$size || !$lm || !$sublm){
 my $gzip="/usr/bin/gzip";   
 my $gunzip="/usr/bin/gunzip";
 
+warn "merge-sublm.pl --size $size --sublm $sublm --lm $lm\n";
 
 warn "Compute total sizes of n-grams\n";
 my @size=();         #number of n-grams for each level
@@ -37,6 +38,8 @@ for (my $n=1;$n<=$size;$n++){
 
   @files=map { glob($_) } "${sublm}*.${n}gr*";
   $files=join(" ",@files);
+  $files || die "cannot find sublm files\n";
+  
   open(INP,"$gunzip -c $files|") || die "cannot open $files\n";
   while(<INP>){
     $size[$n]++;
