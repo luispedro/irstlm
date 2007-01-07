@@ -79,8 +79,9 @@ void usage(const char *msg = 0) {
     << "  quantize-lm reads a standard LM file in ARPA format and produces" << std::endl
     << "  a version of it with quantized probabilities and back-off weights"<< std::endl
     << "  that the IRST LMtoolkit can compile. Accepts LMs with .gz suffix." << std::endl
-    << "  You can specify the output file to be created and also the name " << std::endl
-    << "  of the temporary file that is used by the algorithm. "  << std::endl; 
+    << "  You can specify the output file to be created and also the pathname " << std::endl
+    << "  of a temporary file used by the program. As default, the temporary "  << std::endl 
+    << "  file is created in the /tmp directory."  << std::endl;
   }
 
 
