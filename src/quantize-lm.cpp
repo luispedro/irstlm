@@ -74,11 +74,13 @@ const int MAXLEV = 11;    //maximum n-gram size
 
 void usage(const char *msg = 0) {
   if (msg) { std::cerr << msg << std::endl; }
-  std::cerr << "Usage: quantize-lm input-file.lm [output-file.qlm]" << std::endl;
+  std::cerr << "Usage: quantize-lm input-file.lm [output-file.qlm [tmpfile]] " << std::endl;
   if (!msg) std::cerr << std::endl
     << "  quantize-lm reads a standard LM file in ARPA format and produces" << std::endl
     << "  a version of it with quantized probabilities and back-off weights"<< std::endl
-    << "  that the IRST LMtoolkit can compile. Accepts LMs with .gz suffix." << std::endl;
+    << "  that the IRST LMtoolkit can compile. Accepts LMs with .gz suffix." << std::endl
+    << "  You can specify the output file to be created and also the name " << std::endl
+    << "  of the temporary file that is used by the algorithm. "  << std::endl; 
   }
 
 
@@ -220,7 +222,10 @@ int main(int argc, const char **argv)
         inp.getline(line,MAX_LINE);  
         filebuff << line << std::endl;
         if (!filebuff.good()){
-          std::cerr << "Cannot write in temporary file " << tmpfile  << std::endl;
+          std::cerr << "Cannot write in temporary file " << tmpfile  << std::endl
+          << " Probably there is not enough space in this filesystem " << std::endl
+          << " Remove this file and eventually rerun quantize-lm by " << std::endl
+          << " specifing the name of the temporary file to be used " << std::endl; 
           exit(1);
         }
         int howmany = parseWords(line, words, Order + 3);
