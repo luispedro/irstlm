@@ -224,8 +224,9 @@ int main(int argc, const char **argv)
         if (!filebuff.good()){
           std::cerr << "Cannot write in temporary file " << tmpfile  << std::endl
           << " Probably there is not enough space in this filesystem " << std::endl
-          << " Remove this file and eventually rerun quantize-lm by " << std::endl
-          << " specifing the name of the temporary file to be used " << std::endl; 
+          << " Eventually rerun quantize-lm by specifyng the pathname" << std::endl
+          << " of the temporary file to be used. " << std::endl; 
+          removefile(tmpfile.c_str());
           exit(1);
         }
         int howmany = parseWords(line, words, Order + 3);
