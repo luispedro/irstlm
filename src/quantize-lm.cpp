@@ -219,6 +219,10 @@ int main(int argc, const char **argv)
       for (nPts=0;nPts<N;nPts++){
         inp.getline(line,MAX_LINE);  
         filebuff << line << std::endl;
+        if (!filebuff.good()){
+          std::cerr << "Cannot write in temporary file " << tmpfile  << std::endl;
+          exit(1);
+        }
         int howmany = parseWords(line, words, Order + 3);
         assert(howmany == Order+2 || howmany == Order+1);
         sscanf(words[0],"%f",&logprob);
@@ -307,9 +311,9 @@ int main(int argc, const char **argv)
       
     }
     
-    out << line << "\n";
   }
   
+  out << "\\end\\\n";
   cerr << "---- done\n";
   
   out.flush();
