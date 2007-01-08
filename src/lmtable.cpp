@@ -515,7 +515,7 @@ void lmtable::checkbounds(int level){
   //re-order table at level+1 on disk
   //generate random filename to avoid collisions 
   ofstream out;string filePath;
-  createtempfile(out,filePath,ios::out);
+  createtempfile(out,filePath,ios::out|ios::binary);
  
   int start,end,newstart;
 	
@@ -529,15 +529,24 @@ void lmtable::checkbounds(int level){
     assert(newstart+(end-start)<=cursize[level+1]);
     assert(end<=cursize[level+1]);
 		
-    if (start<end)
+    if (start<end){
       out.write((char*)(succtbl + start * succndsz),(end-start) * succndsz);  
+      if (!out.good()){
+        std::cerr << " Something went wrong while writing temporary file " << filePath
+        << " Maybe there is not enough space on this filesystem\n";
+        
+        out.close();
+        removefile(filePath);
+      }      
+    }
     
     bound(tbl+c*ndsz,ndt,newstart+(end-start));
     newstart+=(end-start);
   }
+      
   out.close();
 
-  fstream inp(filePath.c_str(),ios::in);
+  fstream inp(filePath.c_str(),ios::in|ios::binary);
   
   inp.read(succtbl,cursize[level+1]*succndsz);
   inp.close();  
@@ -725,8 +734,12 @@ void lmtable::savetxt(const char *filename){
 	
   out.precision(7);			
   
-  if (isQtable) out << "qARPA\n";	
-  
+  if (isQtable){
+    out << "qARPA " << maxlev;
+    for (l=1;l<=maxlev;l++)
+      out << " " << NumCenters[l];
+    out << endl;
+  }
   
   ngram ng(dict,0);
   
