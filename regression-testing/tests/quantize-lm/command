@@ -10,6 +10,4 @@ cd $testdir
 inputfile=input.gz
 outputfile=output
 
-$bin/quantize-lm $inputfile $outputfile /tmp/ppp > /dev/null
-cat $outputfile
-rm $outputfile
+$bin/quantize-lm $inputfile - /tmp/ppp 2> /dev/null
