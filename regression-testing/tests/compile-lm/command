@@ -12,6 +12,6 @@ outputfile1=output1
 outputfile2=output2
 
 $bin/compile-lm $inputfile $outputfile1  > /dev/null
-$bin/compile-lm $outputfile1 $outputfile2 -t=yes > /dev/null
+$bin/compile-lm $outputfile1 $outputfile2 -mm=yes -t=yes > /dev/null
 cat $outputfile2
 rm $outputfile1 $outputfile2
