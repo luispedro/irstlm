@@ -9,6 +9,7 @@ my @tests = qw (
   basic-dict
   basic-ngt
   quantize-lm
+  compile-lm
 );
 ############################################################
 
