@@ -8,6 +8,9 @@ testdir=$1
 cd $testdir
 
 inputfile=input.gz
-outputfile=output
+outputfile=output.gz
 
-$bin/quantize-lm $inputfile - /tmp/ppp 2> /dev/null
+$bin/quantize-lm $inputfile - /tmp/ppp | gzip -c > $outputfile
+gunzip -c $outputfile
+rm $outputfile
+
