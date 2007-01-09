@@ -11,7 +11,7 @@ inputfile=input.gz
 outputfile1=output1
 outputfile2=output2
 
-$bin/compile-lm $inputfile $outputfile1  > /dev/null
-$bin/compile-lm $outputfile1 $outputfile2 -mm=yes -t=yes > /dev/null
+$bin/compile-lm $inputfile $outputfile1 > /dev/null 2>&1 
+$bin/compile-lm $outputfile1 $outputfile2 -mm=yes -t=yes > /dev/null 2>&1
 cat $outputfile2
 rm $outputfile1 $outputfile2
