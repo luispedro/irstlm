@@ -14116,7 +14116,8 @@ STDERR_3=loaded
 STDERR_4=dict with frequency, sorted
 STDERR_5=dict:
 STDERR_6=loaded 
-STDERR_7=dict with frequency, no sorted
-STDERR_8=sorting dictionary ...done
+STDERR_7=sorting dictionary ...done
+STDERR_8=dict with frequency, no sorted
 STDERR_9=dict:
 STDERR_10=loaded 
+TOTAL_WALLTIME ~ 0.2 
