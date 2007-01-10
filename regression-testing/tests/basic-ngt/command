@@ -1,6 +1,7 @@
 #! /bin/sh -w
 
 cwd=`pwd`
+cwd=~/workspace/irstlm/regression-testing/
 
 bin=$cwd/../bin/$MACHTYPE
 

@@ -232,7 +232,10 @@ void dictionary::save(std::ostream& out){
 int cmpdictentry(const void *a,const void *b){
   dict_entry *ae=(dict_entry *)a;
   dict_entry *be=(dict_entry *)b;
-  return be->freq-ae->freq;
+  if (be->freq-ae->freq)
+		return be->freq-ae->freq;
+	else
+		return strcmp(ae->word,be->word);
 }
 
 dictionary::dictionary(dictionary* d, int sortflag){
@@ -340,7 +343,7 @@ void dictionary::save(char *filename,int freqflag){
       out << " " << tb[i].freq;
     out << "\n";
   }
-
+	
   out.close();
 }
 

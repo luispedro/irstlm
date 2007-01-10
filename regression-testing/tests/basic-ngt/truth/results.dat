@@ -37113,4 +37113,8 @@ STDOUT_37112=5:30 p.m. for	1
 STDOUT_37113=5:30 p.m. tomorrow	1
 STDOUT_37114=suspend the sitting	1
 STDOUT_37115=retain their position	1
-TOTAL_WALLTIME ~ 0.9
+STDERR_1=nGrAm 3 26007 ngram
+STDERR_2=nGrAm 3 5636 ngram
+STDERR_3=nGrAm 3 2652 ngram
+STDERR_4=nGrAm 3 1759 ngram
+STDERR_5=nGrAm 3 1061 ngram

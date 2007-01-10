@@ -7,10 +7,18 @@ testdir=$1
 cd $testdir
 
 inputfile=input
-outputfile=/dev/stdout
 
 echo "dict without frequency" > /dev/stderr
-$bin/dict -i=$inputfile -o=/dev/stdout
+($bin/dict -i=$inputfile -o=tmp$$) >>& /dev/stderr
+cat tmp$$ > /dev/stdout
 
-echo "dict with frequency" > /dev/stderr
-$bin/dict -i=$inputfile -o=/dev/stdout -f=y
+echo "dict with frequency, sorted" >> /dev/stderr
+($bin/dict -i=$inputfile -o=tmp$$ -f=y) >>& /dev/stderr
+cat tmp$$ >> /dev/stdout
+
+echo "dict with frequency, no sorted" >> /dev/stderr
+($bin/dict -i=$inputfile -o=tmp$$ -f=y -sort=n) >>& /dev/stderr
+cat tmp$$ >> /dev/stdout
+
+rm tmp$$
+
