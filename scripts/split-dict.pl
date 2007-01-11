@@ -50,9 +50,11 @@ print STDERR "Dictionary 0: (thr: $thr , $globf, $totf , $parts)\n";
 my $sfx=0;
 my $w;
 for (my $i=0;$i<=$#D;$i++){
-# if a new word cross over too much the threshold
-# do not insert in this subdict (but in the following
-	if (($totf+$F[$i])>($thr*(1+1/($parts-$sfx)))){
+	
+# if the remaining words are less than or equal to 
+# the number of remaining sub-dictionaries to create
+# put only one word per each sub-dictionary.
+	if (($totf>0) && ($#D+1-$i) <= ($parts-1-$sfx)){
 # recompute threshold on the remaining global frequency
 # according to the number of remaining parts
 		$sfx++;
@@ -61,8 +63,8 @@ for (my $i=0;$i<=$#D;$i++){
 		print STDERR "Dictionary $sfx: (thr: $thr , $globf , $totf , ",($parts-$sfx),")\n";
 		$totf=0;
 	}
-	
-  $totf+=$F[$i];
+
+	$totf+=$F[$i];
 	$w=$D[$i];
 	$S{$w}=$sfx;
 	$C[$sfx]++;
