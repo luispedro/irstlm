@@ -16,7 +16,7 @@ my $parts=$ARGV[0]; shift (@ARGV);
 die "Input $input does not exists!\n" if (! -e $input);
 
 my $freqflag=0;
-my ($w,$f,$totf,$thr);
+my ($w,$f,$globf,$thr);
 my (@D,@F,%S,@C);
 open(IN,"$input");
 
@@ -28,6 +28,7 @@ if (/^dictionary[ \t]+\d+[ \t]+\d+$/i){
   $freqflag=1 if /DICTIONARY/;
 }
 
+$globf=0;
 while(chomp($_=<IN>)){
 	if ($freqflag){
 		($w,$f)=split(/[ \t]+/,$_);
@@ -38,36 +39,52 @@ while(chomp($_=<IN>)){
 	}
 	push @D, $w;
 	push @F, $f;
-        $totf+=$f;
+  $globf+=$f;
 }
 close (IN);
 
-$thr=$totf/$parts;
-print STDERR "thr: $thr , $totf , $parts\n";
+$thr=$globf/$parts;
+my $totf=0;
+print STDERR "Dictionary 0: (thr: $thr , $globf, $totf , $parts)\n";
 
 my $sfx=0;
 my $w;
-$totf=0;
 for (my $i=0;$i<=$#D;$i++){
+# if a new word cross over too much the threshold
+# do not insert in this subdict (but in the following
+	if (($totf+$F[$i])>($thr*(1+1/($parts-$sfx)))){
+# recompute threshold on the remaining global frequency
+# according to the number of remaining parts
+		$sfx++;
+		$globf-=$totf;
+		$thr=($globf)/($parts-$sfx);
+		print STDERR "Dictionary $sfx: (thr: $thr , $globf , $totf , ",($parts-$sfx),")\n";
+		$totf=0;
+	}
+	
   $totf+=$F[$i];
 	$w=$D[$i];
 	$S{$w}=$sfx;
 	$C[$sfx]++;
-#	print STDERR "$w , $i, $F[$i] , $totf , $S{$w} , $C[$sfx]\n";
 	if ($totf>$thr){
-		$totf=0;
+# recompute threshold on the remaining global frequency
+# according to the number of remaining parts
 		$sfx++;
+		$globf-=$totf;
+		$thr=($globf)/($parts-$sfx);
+		print STDERR "Dictionary $sfx: (thr: $thr , $globf , $totf , ",($parts-$sfx),")\n";
+		$totf=0;
 	}
 }
+
 
 my $oldsfx=-1;
 for (my $i=0;$i<=$#D;$i++){
 	$w=$D[$i];
 	$sfx="0000$S{$w}";
 	$sfx=~s/.+(\d{3})/$1/;
-#	print STDERR "$w , $sfx , $S{$w}\n";
 	if ($sfx != $oldsfx){
-print STDERR "opening $output$sfx\n";
+#print STDERR "opening $output$sfx\n";
 		close (OUT) if $oldsfx!= -1;
 		open(OUT,">$output$sfx");
 		if ($freqflag){
@@ -87,4 +104,6 @@ print STDERR "opening $output$sfx\n";
 }
 close (OUT) if $oldsfx!= -1;
 
+my $numdict=$S{$D[$#D]}+1;
+die "Only $numdict dictionaries were crested instead of $parts!" if ($numdict != $parts);
 
