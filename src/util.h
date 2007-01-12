@@ -1,3 +1,5 @@
+
+
 #ifndef IRSTLM_UTIL_H
 #define IRSTLM_UTIL_H
 

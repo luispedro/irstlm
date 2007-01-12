@@ -1,0 +1,21 @@
+#! /bin/sh
+
+#set machine type for compilation
+if [ ! $MACHTYPE ];then
+	echo "Set environment variable MACHTYPE with architecture"
+	exit;
+fi
+
+echo CREATING DIRECTORIES
+mkdir bin bin/$MACHTYPE lib lib/$MACHTYPE > /dev/null 2>&1 
+
+if [ ! -d bin/$MACHTYPE -o ! -d lib/$MACHTYPE ]; then
+	echo "THERE WAS A PROBLEM WHILE CREATING bin/$MACHTYE and lib/$MACHTYPE"
+	exit;
+fi
+
+echo COMPILING CODE
+cd src
+make clean;make all
+cd ..
+
