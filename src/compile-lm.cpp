@@ -150,7 +150,7 @@ int main(int argc, const char **argv)
   
   lmtable lmt; 
   
-  std::cout << "Reading " << infile << "..." << std::endl;
+  std::cerr << "Reading " << infile << "..." << std::endl;
   inputfilestream inp(infile.c_str());
   if (!inp.good()) {
     std::cerr << "Failed to open " << infile << "!" << std::endl;
@@ -215,14 +215,14 @@ int main(int argc, const char **argv)
     //use caches to save time
     //lmt.init_probcache();
     //lmt.init_lmtcaches(lmt.maxlevel());
-
+    float log10=log(10.0);
 
     unsigned int n=0;
     while(std::cin >> ng){
       lmt.bo_state(0);
       if (ng.size>=lmt.maxlevel()){
         ++n;
-        std::cout << ng << " p= " << lmt.clprob(ng);
+        std::cout << ng << " p= " << lmt.clprob(ng) * log10;
         std::cout << " bo= " << lmt.bo_state() << std::endl;
         if ((n % 10000000)==0){ 
           std::cerr << "check cache levels" << std::endl;
