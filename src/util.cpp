@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <io.h>
 #else
+#include <iostream>
 #include <sys/types.h>
 #include <sys/mman.h>
 #endif
@@ -157,8 +158,14 @@ int Munmap(void	*p,size_t	len,int	sync)
 	UnmapViewOfFile(p);
 */  
 #else
+	cerr << "len  = " << len << endl;
+	cerr << "sync = " << sync << endl;
+	cerr << "running msync..." << endl;
 	if(sync) msync(p, len, MS_SYNC);
+	cerr << "done. Running munmap..." << endl;
 	if((r=munmap((void*)p, len))) perror("munmap() failed");
+	cerr << "done" << endl;
+
 #endif
 	return r;
 }

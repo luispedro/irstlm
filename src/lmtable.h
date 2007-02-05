@@ -136,7 +136,7 @@ public:
     for (int l=1;l<=maxlev;l++){
       if (table[l]){ 
           if (memmap)
-            Munmap(table[l]-tableGaps[l],cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
+            Munmap(table[l]-tableGaps[l],(long long)cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
         else
           delete [] table[l];            
       }
@@ -190,9 +190,9 @@ public:
     if (memmap>0 and memmap<=maxlev)
       for (int l=memmap;l<=maxlev;l++){
         std::cerr << "resetting mmap at level:" << l << "\n";
-        Munmap(table[l]-tableGaps[l],cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
+        Munmap(table[l]-tableGaps[l],(long long)cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
         table[l]=(char *)MMap(diskid,PROT_READ,
-                              tableOffs[l], cursize[l]*nodesize(tbltype[l]),
+                              tableOffs[l], (long long)cursize[l]*nodesize(tbltype[l]),
                                &tableGaps[l]);
         table[l]+=tableGaps[l];
       }
@@ -221,7 +221,7 @@ public:
   void savebin(const char *filename);
   void dumplm(std::fstream& out,ngram ng, int ilev, int elev, int ipos,int epos);
   
-  void load(std::istream& inp,const char* filename=NULL,const char* outfilename=NULL,int mmap=0);
+  void load(std::istream& inp,const char* filename=NULL,const char* outfilename=NULL,int mmap=0,bool txtout=false);
   void loadtxt(std::istream& inp,const char* header,const char* outfilename,int mmap);
   void loadtxt(std::istream& inp,const char* header);
   void loadtxtmmap(std::istream& inp,const char* header,const char* outfilename);
