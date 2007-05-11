@@ -9,7 +9,7 @@ cd $testdir
 
 mkdir sublmdir
 
-$bin/build-sublm.pl --ngrams input --sublm sublmdir/sublm --kneser-ney --size 4  --prune-singletons > /dev/null 2>&1
+$bin/build-sublm.pl --cross-sentence  --ngrams input --sublm sublmdir/sublm --kneser-ney --size 4  --prune-singletons > /dev/null 2>&1
 $bin/merge-sublm.pl --size 4 --sublm sublmdir/sublm --lm output > /dev/null 2>&1
 gunzip -c output.gz
 

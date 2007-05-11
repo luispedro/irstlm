@@ -19,7 +19,8 @@ my $gzip="/usr/bin/gzip";
 my $gunzip="/usr/bin/gunzip";
 
 
-my($help,$size,$freqshift,$ngrams,$sublm,$witten_bell,$kneser_ney,$prune_singletons)=();
+my $ngram;
+my($help,$size,$freqshift,$ngrams,$sublm,$witten_bell,$kneser_ney,$prune_singletons,$cross_sentence)=();
 
 $help=1 unless
 &GetOptions('size=i' => \$size,
@@ -29,6 +30,7 @@ $help=1 unless
              'witten-bell' => \$witten_bell,
              'kneser-ney' => \$kneser_ney,
              'prune-singletons' => \$prune_singletons,
+	     'cross-sentence' => \$cross_sentence,
              'help' => \$help,);
 
 
@@ -41,7 +43,9 @@ if ($help || !$size || !$ngrams || !$sublm){
         "--kneser-ney         use kneser-ney smoothing\n",
         "--witten-bell        (default)use witten bell smoothin\n",
         "--prune-singletons   remove n-grams occurring once, for n=3,4,5,... \n",
+        "--cross-sentence     (optional) include cross-sentence bounds\n",
         "--help              (optional) print these instructions\n";    
+
   exit(1);
 }
 
@@ -56,8 +60,9 @@ my $oldwrd="";      #variable to check if 1-gram changed
 
 my @cnt=();         #counter of n-grams
 my $totcnt=0;       #total counter of n-grams
-my ($ng,@ng);       #read ngrams
+my ($ng,@ng);      #read ngrams
 my $ngcnt=0;        #store ngram frequency
+my $n;
 
 warn "Collecting 1-gram counts\n";
 
@@ -81,15 +86,15 @@ printf GR "%s %s\n",$totcnt,$oldwrd;
 close(INP);
 close(GR);
 
-my (@h,$h,$hpr);    #n-gram history 
-my (@dict,$code);  #sorted dictionary of history successors
+my (@h,$h,$hpr);     #n-gram history 
+my (@dict,$code);   #sorted dictionary of history successors
 my $diff;           #different successors of history
 my $locfreq;        #accumulate frequency of n-grams of given size
 my ($N1,$N2,$beta); #Kneser-Ney Smoothing: n-grams occurring once or twice 
 
 warn "Computing n-gram probabilities:\n"; 
 
-foreach (my $n=2;$n<=$size;$n++){
+foreach ($n=2;$n<=$size;$n++){
   
   warn "$n-grams\n";
   open(HGR,"$gunzip -c ${sublm}.".($n-1)."gr.gz|") || die "cannot open ${sublm}.".($n-1)."gr.gz\n";
@@ -104,8 +109,7 @@ foreach (my $n=2;$n<=$size;$n++){
    
   do{
 
-    #load all n-grams with prefix of history h, and collect useful statistics
-  
+    #load all n-grams with prefix of history h, and collect useful statistics 
     while (join(" ",@h[0..$n-2]) eq join(" ",@ng[0..$n-2])) { #must be true the first time!   
       
       if ($oldwrd ne $ng[$n-1]) {
@@ -147,11 +151,15 @@ foreach (my $n=2;$n<=$size;$n++){
 	$prob=$cnt[$c]/($totcnt+$diff);
       }
 
-      if ($prune_singletons && $n>=3 && $cnt[$c]==1) {	
+      if (($prune_singletons && $n>=3 && $cnt[$c]==1)||
+	  (!$cross_sentence && $n >1 && &CrossSentence($size,$n,$ngram=join(" ",@h[0..$n-2],$dict[$c])))
+	 ){	
         $boprob+=$prob;
+	
 	if ($n<$size) {	     #output as it will be an history for n+1 
 	  printf GR "%f %s %s\n",-1,join(" ",@h[0..$n-2]),$dict[$c];
 	}
+        
       } else {
 	printf GR "%f %s %s\n",log($prob)/$log10,
 	  join(" ",@h[0..$n-2]),$dict[$c];     
@@ -183,3 +191,19 @@ foreach (my $n=2;$n<=$size;$n++){
 }   
 
 
+#check if n-gram contains cross-sentence boundaries
+#<s> must occur only in first place
+#</s> must only occur at last place
+
+
+sub CrossSentence($size,$n,$ngram){
+  
+# warn "check CrossSentence $size $n |$ngram|\n";
+  if (($ngram=~/ <s>/i) || 
+      ($ngram=~/<\/s> /i) || 
+      ($size<$n && $ngram=~/<\/s>$/i)){ 
+    warn "delete $ngram\n";
+    return 1;
+  }
+  return 0;
+}
