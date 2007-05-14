@@ -1,5 +1,25 @@
 #! /usr/bin/perl
 
+#*****************************************************************************
+# IrstLM: IRST Language Model Toolkit
+# Copyright (C) 2007 Marcello Federico, ITC-irst Trento, Italy
+
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+
+#******************************************************************************
+
 #usage:
 #split-dict.pl <input> <output> <parts>
 #It splits the <input> dictionary into <parts> dictionaries
@@ -8,12 +28,31 @@
 #if not available a frequency of 1 is considered
 
 use strict;
+use Getopt::Long "GetOptions";
 
-my $input=$ARGV[0]; shift (@ARGV);
-my $output=$ARGV[0]; shift (@ARGV);
-my $parts=$ARGV[0]; shift (@ARGV);
+my ($help,$input,$output,$parts)=();
 
-die "Input $input does not exists!\n" if (! -e $input);
+$help=1 unless
+&GetOptions('input=s' => \$input,
+            'output=s' => \$output, 
+             'parts=i' => \$parts,           
+             'help' => \$help,);
+
+if ($help || !$input || !$output || !$parts){
+
+  print "split-dict.pl <options>\n",
+        "--input <string>    input dictionary with frequencies\n",
+        "--prefix <string>   prefix of output dictionaries\n",
+        "--parts <int>       number of parts to split dictionary into \n",
+        "--help              (optional) print these instructions\n",
+        "Remarks: dictionary must be generated with IRSTLM command dict\n",
+        "         if dictionary does not contain frequencies, then a\n",
+        "         frequency 1 is assumed for all words.\n";
+
+  exit(1);
+}
+
+
 
 my $freqflag=0;
 my ($w,$f,$globf,$thr);
