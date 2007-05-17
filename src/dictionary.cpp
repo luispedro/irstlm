@@ -18,6 +18,7 @@
 
 ******************************************************************************/
 
+#include "mfstream.h"
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -55,7 +56,7 @@ dictionary::dictionary(char *filename,int size,char* isymb,char* oovlexfile){
 
   if (filename==NULL) return;
 
-  std::ifstream inp(filename,ios::in);
+  mfstream inp(filename,ios::in);
   
   if (!inp){
     cerr << "cannot open " << filename << "\n";
@@ -86,7 +87,7 @@ void dictionary::generate(char *filename){
   char buffer[MAX_WORD];
   int k;
 
-  ifstream inp(filename,ios::in);
+  mfstream inp(filename,ios::in);
   
   if (!inp){
     cerr << "cannot open " << filename << "\n";
@@ -130,7 +131,7 @@ void dictionary::load(char* filename){
   char *addr;
   int freqflag=0;
 
-  ifstream inp(filename,ios::in);
+  mfstream inp(filename,ios::in);
   
   if (!inp){
     cerr << "\ncannot open " << filename << "\n";
