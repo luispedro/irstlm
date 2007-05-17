@@ -6,18 +6,18 @@ bin=$cwd/../bin/$MACHTYPE
 testdir=$1
 cd $testdir
 
-inputfile=input.gz
+inputfile="gunzip -c input.gz"
 
 echo "dict without frequency" > tmperr$$
-($bin/dict -i=$inputfile -o=tmp$$) 2>> tmperr$$
+($bin/dict -i="$inputfile" -o=tmp$$) 2>> tmperr$$
 cat tmp$$ > /dev/stdout
 
 echo "dict with frequency, sorted" >> tmperr$$
-($bin/dict -i=$inputfile -o=tmp$$ -f=y) 2>> tmperr$$
+($bin/dict -i="$inputfile" -o=tmp$$ -f=y) 2>> tmperr$$
 cat tmp$$ >> /dev/stdout
 
 echo "dict with frequency, no sorted" >> tmperr$$
-($bin/dict -i=$inputfile -o=tmp$$ -f=y -sort=n) 2>> tmperr$$
+($bin/dict -i="$inputfile" -o=tmp$$ -f=y -sort=n) 2>> tmperr$$
 cat tmp$$ >> /dev/stdout
 cat tmperr$$ > /dev/stderr
 
