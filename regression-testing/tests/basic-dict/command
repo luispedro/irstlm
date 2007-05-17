@@ -6,7 +6,7 @@ bin=$cwd/../bin/$MACHTYPE
 testdir=$1
 cd $testdir
 
-inputfile=input
+inputfile=input.gz
 
 echo "dict without frequency" > tmperr$$
 ($bin/dict -i=$inputfile -o=tmp$$) 2>> tmperr$$
