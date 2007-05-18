@@ -120,8 +120,15 @@ int main(int argc, const char **argv)
   if (files.size() < 1) { usage("Please specify a LM file to read from"); exit(1); }
 
   bool textoutput = (stxt == "yes"? true : false);
-  OUTFILE_TYPE outtype=(stxt == "yes"? TEXT : BINARY);
-
+  
+  //Define output type of table
+  OUTFILE_TYPE outtype;
+  if (stxt == "yes") outtype=TEXT;
+  else
+    if (seval != "" || sscore == "yes") outtype=NONE;
+  else  outtype=BINARY;
+        
+  
   int debug = atoi(sdebug.c_str()); 
   int memmap = atoi(smemmap.c_str());
   
@@ -158,6 +165,7 @@ int main(int argc, const char **argv)
     exit(1);
   }
   
+    
   lmt.load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);       
 
   if (seval != ""){
