@@ -230,6 +230,7 @@ int main(int argc, const char **argv)
     while(std::cin >> ng){
       lmt.bo_state(0);
       if (ng.size>=lmt.maxlevel()){
+        ng.size=lmt.maxlevel();
         ++n;
         std::cout << ng << " p= " << lmt.clprob(ng) * log10;
         std::cout << " bo= " << lmt.bo_state() << std::endl;
