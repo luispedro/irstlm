@@ -42,7 +42,7 @@ if ($help || !$input || !$output || !$parts){
 
   print "split-dict.pl <options>\n",
         "--input <string>    input dictionary with frequencies\n",
-        "--prefix <string>   prefix of output dictionaries\n",
+        "--output <string>   prefix of output dictionaries\n",
         "--parts <int>       number of parts to split dictionary into \n",
         "--help              (optional) print these instructions\n",
         "Remarks: dictionary must be generated with IRSTLM command dict\n",
