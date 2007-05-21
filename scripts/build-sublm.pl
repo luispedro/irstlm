@@ -62,8 +62,8 @@ if ($help || !$size || !$ngrams || !$sublm){
         "--ngrams <string>   input file or command to read the ngram table\n",
         "--sublm <string>    output file prefix to write the sublm statistics \n",
         "--freq-shift <int>  (optional) value to be subtracted from all frequencies\n",
-        "--kneser-ney         use kneser-ney smoothing\n",
-        "--witten-bell        (default)use witten bell smoothin\n",
+        "--kneser-ney         use approximate kneser-ney smoothing\n",
+        "--witten-bell        (default) use witten bell smoothin\n",
         "--prune-singletons   remove n-grams occurring once, for n=3,4,5,... \n",
         "--cross-sentence     (optional) include cross-sentence bounds\n",
         "--help              (optional) print these instructions\n";    
