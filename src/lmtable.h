@@ -185,21 +185,9 @@ public:
         lmtcache[i]->reset(lmtcache[i]->cursize());
     };
     
-    
-    void reset_mmap(){
-#ifndef WIN32
-    if (memmap>0 and memmap<=maxlev)
-      for (int l=memmap;l<=maxlev;l++){
-        std::cerr << "resetting mmap at level:" << l << "\n";
-        Munmap(table[l]-tableGaps[l],(long long)cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
-        table[l]=(char *)MMap(diskid,PROT_READ,
-                              tableOffs[l], (long long)cursize[l]*nodesize(tbltype[l]),
-                               &tableGaps[l]);
-        table[l]+=tableGaps[l];
-      }
-#endif
-   }
-      
+  
+  void reset_mmap();
+       
   bool is_probcache_active(){return probcache!=NULL;}
   bool is_statecache_active(){return statecache!=NULL;}
   bool are_lmtcaches_active(){return lmtcache[2]!=NULL;}  
