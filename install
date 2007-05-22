@@ -7,7 +7,8 @@ if [ ! $MACHTYPE ];then
 fi
 
 echo CREATING DIRECTORIES
-mkdir bin bin/$MACHTYPE lib lib/$MACHTYPE > /dev/null 2>&1 
+mkdir bin bin/$MACHTYPE lib lib/$MACHTYPE include > /dev/null 2>&1 
+ln src/*.h include
 
 if [ ! -d bin/$MACHTYPE -o ! -d lib/$MACHTYPE ]; then
 	echo "THERE WAS A PROBLEM WHILE CREATING bin/$MACHTYE and lib/$MACHTYPE"

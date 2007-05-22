@@ -1,8 +1,11 @@
-#! /bin/sh -v
+#! /bin/sh 
 
 release=0.02
 cd ..
 tar  -czf irstlm-$release.tgz irstlm/src/*.cpp irstlm/src/*.c irstlm/src/*.h irstlm/src/makefile irstlm/scripts/*.sh irstlm/scripts/*.pl irstlm/readme irstlm/install irstlm/doc/*
 
-echo connecting to sourceforge server
-ftp anonymous@upload.sourceforge.net:/incoming -u irstlm-$release.tgz
+echo Add release to sourceforge server as follows:
+echo 1. cd ..
+echo 2. ftp anonymous@upload.sourceforge.net:
+echo 3. cd incoming 
+echo 4. put irstlm-$release.tgz
