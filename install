@@ -8,7 +8,11 @@ fi
 
 echo CREATING DIRECTORIES
 mkdir bin bin/$MACHTYPE lib lib/$MACHTYPE include > /dev/null 2>&1 
-ln src/*.h include
+
+cp scripts/*.sh bin > /dev/null 2>&1
+cp scripts/*.pl bin > /dev/null 2>&1
+
+ln src/*.h include > /dev/null 2>&1
 
 if [ ! -d bin/$MACHTYPE -o ! -d lib/$MACHTYPE ]; then
 	echo "THERE WAS A PROBLEM WHILE CREATING bin/$MACHTYE and lib/$MACHTYPE"
@@ -19,4 +23,5 @@ echo COMPILING CODE
 cd src
 make clean;make all
 cd ..
+
 
