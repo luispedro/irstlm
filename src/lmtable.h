@@ -63,11 +63,8 @@ typedef enum {LMT_FIND,    //!< search: find an entry
 } LMT_ACTION;
 
 
-
-typedef enum {LMMICRO, LMMACRO} LMT_TAG;
-
 class lmtable{
-
+  
   char*      table[LMTMAXLEV+1]; //storage of all levels
   LMT_TYPE tbltype[LMTMAXLEV+1]; //table type for each levels
   int      cursize[LMTMAXLEV+1]; //current size of levels
@@ -105,18 +102,17 @@ class lmtable{
   off_t tableGaps[LMTMAXLEV+1];
   
 public:
-  LMT_TAG type;
     
 #ifdef TRACE_CACHE
     std::fstream* cacheout;
   int sentence_id;
 #endif
   
-  dictionary     *dict; // dictionary (words - macro tags)
+  dictionary     *dict; // dictionary
   
   lmtable();
   
-  virtual ~lmtable(){
+  ~lmtable(){
     for (int i=2;i<=LMTMAXLEV;i++)        
     if (lmtcache[i]){
       std::cerr << i <<"-gram cache: "; lmtcache[i]->stat();
@@ -189,21 +185,9 @@ public:
         lmtcache[i]->reset(lmtcache[i]->cursize());
     };
     
-    
-    void reset_mmap(){
-#ifndef WIN32
-    if (memmap>0 and memmap<=maxlev)
-      for (int l=memmap;l<=maxlev;l++){
-        std::cerr << "resetting mmap at level:" << l << "\n";
-        Munmap(table[l]-tableGaps[l],(long long)cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
-        table[l]=(char *)MMap(diskid,PROT_READ,
-                              tableOffs[l], (long long)cursize[l]*nodesize(tbltype[l]),
-                               &tableGaps[l]);
-        table[l]+=tableGaps[l];
-      }
-#endif
-   }
-      
+  
+  void reset_mmap();
+       
   bool is_probcache_active(){return probcache!=NULL;}
   bool is_statecache_active(){return statecache!=NULL;}
   bool are_lmtcaches_active(){return lmtcache[2]!=NULL;}  
@@ -243,8 +227,8 @@ public:
   
   void loadcenters(std::istream& inp,int Order);
 	
-  virtual double lprob(ngram ng); 
-  virtual double clprob(ngram ng); 
+  double lprob(ngram ng); 
+  double clprob(ngram ng); 
 
   
   void *search(int lev,int offs,int n,int sz,int *w,
@@ -358,9 +342,6 @@ public:
 
   void printTable(int level);
 
-  virtual inline dictionary* getDict() {
-    return dict;
-  };
   
 };
 
