@@ -43,7 +43,7 @@ inline void error(char* message){
 
 //instantiate an empty lm table
 lmtable::lmtable(){
-  
+  type = LMMICRO;
   configure(1,false);
   
   dict=new dictionary((char *)NULL,1000000,(char*)NULL,(char*)NULL);
@@ -80,7 +80,7 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
 
   //give a look at the header to select loading method
   char header[MAX_LINE];	
-  inp >> header; cerr << header << "\n";
+  inp >> header; cerr << "header = " << header << "\n";
 
   if (strncmp(header,"Qblmt",5)==0 || strncmp(header,"blmt",4)==0){        
     if (outtype==BINARY) {
@@ -97,8 +97,6 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
     loadtxt(inp,header,outfilename,keep_on_disk);  
   }
 
-  cerr << "OOV code is " << dict->oovcode() << "\n";
-  
 }
 
 
@@ -198,7 +196,7 @@ void lmtable::loadtxt(istream& inp,const char* header,const char* outfilename,in
       loadtxtmmap(inp,header,outfilename);
     else {
       loadtxt(inp,header);
-      dict->genoovcode();
+      lmtable::getDict()->genoovcode();
     }
 }
 
@@ -220,10 +218,10 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
   
   //prepare word dictionary
   //dict=(dictionary*) new dictionary(NULL,1000000,NULL,NULL); 
-  dict->incflag(1);
+  lmtable::getDict()->incflag(1);
 	
   //put here ngrams, log10 probabilities or their codes
-  ngram ng(dict); 
+  ngram ng(lmtable::getDict()); 
   float pb,bow;;
   
   //check the header to decide if the LM is quantized or not
@@ -375,8 +373,8 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
   fclose(fd);
   cerr << "done\n";
   
-  dict->incflag(0);  
-  dict->genoovcode();
+  lmtable::getDict()->incflag(0);  
+  lmtable::getDict()->genoovcode();
   
   // saving header + dictionary
   
@@ -399,7 +397,7 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
     out << "\n";
   }
 	
-  dict->save(out);
+  lmtable::getDict()->save(out);
   
   out.close();
   cerr << "done\n";
@@ -430,10 +428,10 @@ void lmtable::loadtxt(istream& inp,const char* header){
   
   //prepare word dictionary
   //dict=(dictionary*) new dictionary(NULL,1000000,NULL,NULL); 
-  dict->incflag(1);
+  lmtable::getDict()->incflag(1);
 	
   //put here ngrams, log10 probabilities or their codes
-  ngram ng(dict); 
+  ngram ng(lmtable::getDict()); 
   float prob,bow;;
   
   //check the header to decide if the LM is quantized or not
@@ -499,7 +497,7 @@ void lmtable::loadtxt(istream& inp,const char* header){
     }
   }
 	
-  dict->incflag(0);  
+  lmtable::getDict()->incflag(0);  
   cerr << "done\n";
 	
 }
@@ -746,7 +744,7 @@ void lmtable::savetxt(const char *filename){
     out << endl;
   }
   
-  ngram ng(dict,0);
+  ngram ng(lmtable::getDict(),0);
   
   cerr << "savetxt: " << filename << "\n";
   
@@ -797,7 +795,7 @@ void lmtable::savebin(const char *filename){
     out << "\n";
   }
 	
-  dict->save(out);
+  lmtable::getDict()->save(out);
   
   for (int i=1;i<=maxlev;i++){
     cerr << "saving " << cursize[i] << " " << i << "-grams\n";
@@ -861,7 +859,7 @@ void lmtable::loadbin(istream& inp, const char* header,const char* filename,int 
     
   cerr << "loadbin()\n";
   loadbinheader(inp,header);
-  dict->load(inp);  
+  lmtable::getDict()->load(inp);  
    
   //if MMAP is used, then open the file
   if (filename && mmap>0){
@@ -1018,7 +1016,7 @@ void lmtable::dumplm(fstream& out,ngram ng, int ilev, int elev, int ipos,int epo
       out << (isQtable?ipr:*(float *)&ipr) <<"\t";
       for (int k=ng.size;k>=1;k--){
         if (k<ng.size) out << " ";
-        out << dict->decode(*ng.wordp(k));				
+        out << lmtable::getDict()->decode(*ng.wordp(k));				
       }     
       
       if (ilev<maxlev){
@@ -1123,7 +1121,7 @@ const char *lmtable::cmaxsuffptr(ngram ong){
 //return log10 probs
 
 double lmtable::lprob(ngram ong){
-	
+
   if (ong.size==0) return 0.0;
   if (ong.size>maxlev) ong.size=maxlev;
   
@@ -1151,7 +1149,7 @@ double lmtable::lprob(ngram ong){
       }
       //prepare recursion step
       ong.size--;      
-      return rbow + lprob(ong);
+      return rbow + lmtable::lprob(ong);
     }
   }
 }
@@ -1178,7 +1176,7 @@ double lmtable::clprob(ngram ong){
   }
  
   //cache miss
-  logpr=lprob(ong);
+  logpr=lmtable::lprob(ong);
   
   if (probcache && ong.size==maxlev){
      probcache->add(ong.wordp(maxlev),(char *)&logpr);    
@@ -1214,20 +1212,6 @@ void lmtable::stat(int level){
     cout << "level " << l << " get: " << totget[l] << " bsearch: " << totbsearch[l] << "\n";
   }
   
-  if (level >1 ) dict->stat();
+  if (level >1 ) lmtable::getDict()->stat();
   
-}
-
-void lmtable::reset_mmap(){
-#ifndef WIN32
-  if (memmap>0 and memmap<=maxlev)
-    for (int l=memmap;l<=maxlev;l++){
-      std::cerr << "resetting mmap at level:" << l << "\n";
-      Munmap(table[l]-tableGaps[l],(long long)cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
-      table[l]=(char *)MMap(diskid,PROT_READ,
-                            tableOffs[l], (long long)cursize[l]*nodesize(tbltype[l]),
-                            &tableGaps[l]);
-      table[l]+=tableGaps[l];
-    }
-#endif
 }
