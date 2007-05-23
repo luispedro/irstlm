@@ -224,7 +224,7 @@ sub CrossSentence($size,$n,$ngram){
   if (($ngram=~/ <s>/i) || 
       ($ngram=~/<\/s> /i) || 
       ($size<$n && $ngram=~/<\/s>$/i)){ 
-    warn "delete $ngram\n";
+    #warn "delete $ngram\n";
     return 1;
   }
   return 0;
