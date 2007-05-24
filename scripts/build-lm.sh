@@ -22,7 +22,7 @@ EOF
 }
 
 if [ ! $IRSTLM ]; then
-   echo "Set IRSTLM environment variable to path of irstlm"
+   echo "Set IRSTLM environment variable with path to irstlm"
    exit;
 fi
 
@@ -41,14 +41,14 @@ logfile=/dev/null
 tmpdir=stat
 order=3
 parts=3
-inpfile="gunzip -c train.gz"
-outfile="lm.gz"
+inpfile="";
+outfile=""
 verbose="";
 smoothing="--witten-bell";
 prune="";
 boundaries="";
 
-while getopts “hi:o:n:p:t:vk:ps:b” OPTION
+while getopts “hvi:o:n:k:t:s:pbl:” OPTION
 do
      case $OPTION in
          h)
@@ -88,10 +88,13 @@ do
 	     esac
              ;;
          p)
-             prune='--prunesingletons';
+             prune='--prune-singletons';
              ;;
          b)
              boundaries='--cross-sentence';
+             ;;
+	 l)
+             logfile=$OPTARG
              ;;
          ?)
              usage
@@ -103,10 +106,20 @@ done
 
 if [ $verbose ];then
 echo inpfile=\"$inpfile\" outfile=$outfile order=$order parts=$parts tmpdir=$tmpdir prune=$prune smooth=$smoothing
-fi;
+fi
 
+if [ ! "$inpfile" -o ! "$outfile" ]; then
+    usage
+    exit 
+fi
+ 
 if [ -e $outfile ]; then
    echo "Output file $outfile already exists! either remove or rename it."
+   exit;
+fi
+
+if [ -e $logfile -a $logfile!="/dev/null" ]; then
+   echo "Logfile $logfile already exists! either remove or rename it."
    exit;
 fi
 
@@ -127,27 +140,27 @@ echo "Extracting dictionary from training corpus"
 $bin/dict -i="$inpfile" -o=$tmpdir/dictionary -f=y >& $logfile
 
 echo "Splitting dictionary into $parts lists"
-$scr/split-dict.pl --input $tmpdir/dictionary --output $tmpdir/dict. --parts $parts >& $logfile
+$scr/split-dict.pl --input $tmpdir/dictionary --output $tmpdir/dict. --parts $parts >> $logfile 2>&1
 
 echo "Extracting n-gram statistics for each word list"
 for sdict in $tmpdir/dict.*;do
 sdict=`basename $sdict $tmpdir`
 echo $sdict;
-$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.${sdict}.gz" -fd="$tmpdir/$sdict" >& $logfile
+$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.${sdict}.gz" -fd="$tmpdir/$sdict"  >> $logfile 2>&1
 done
 
 echo "Estimating language models for each word list"
 for sdict in $tmpdir/dict.*;do
 sdict=`basename $sdict $tmpdir`
 echo $sdict;
-$scr/build-sublm.pl $prune $smooth --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict >& $logfile
+$scr/build-sublm.pl $prune $smooth --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict  >> $logfile 2>&1
 done
 
 echo "Merging language models into $outfile"
-$scr/merge-sublm.pl --size $order --sublm $tmpdir/lm.$sdict -lm $outfile >& $logfile
+$scr/merge-sublm.pl --size $order --sublm $tmpdir/lm.$sdict -lm $outfile  >> $logfile 2>&1
 
 echo "Cleaning temporary directory $tmpdir";
-rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* >& /dev/null
+#rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* >& /dev/null
 
 exit
 

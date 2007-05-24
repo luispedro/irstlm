@@ -80,7 +80,11 @@ warn "Write LM Header\n";
 
 printf LM "ARPA\n\n\\data\\\n";
 for (my $n=1;$n<=$size;$n++){
-  printf LM "ngram $n= $size[$n]\n";
+  if ($n==1){ #add <unk>
+    printf LM "ngram $n= ".($size[$n]+1)."\n";
+  }else{
+    printf LM "ngram $n= $size[$n]\n";
+  }
 }
 
 warn "Writing LM Tables\n";
@@ -97,14 +101,19 @@ for (my $n=1;$n<=$size;$n++){
     
     if ($n==1){         
       split(" ",$_);
-      $pr=(log($_[0])-log($tot1gr))/log(10.0);shift @_;
+      #apply witten-bell smoothing on 1-grams
+      $pr=(log($_[0])-log($tot1gr+$size[1]))/log(10.0);shift @_;
       printf LM "%f %s\n",$pr,join(" ",@_);
     }
     else{
       printf LM "%s",$_;
     }
   }
-  
+  if ($n==1){
+    warn "add <unk>\n";
+    $pr=(log($size[1])-log($tot1gr+$size[1]))/log(10.0);
+    printf LM "%f <unk>\n",$pr;
+  }
   close(INP);
 }
 
