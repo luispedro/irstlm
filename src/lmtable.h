@@ -65,6 +65,7 @@ typedef enum {LMT_FIND,    //!< search: find an entry
 
 class lmtable{
   
+ protected:
   char*      table[LMTMAXLEV+1]; //storage of all levels
   LMT_TYPE tbltype[LMTMAXLEV+1]; //table type for each levels
   int      cursize[LMTMAXLEV+1]; //current size of levels

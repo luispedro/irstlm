@@ -121,30 +121,12 @@ bool lmmacro::loadmap(string lmfilename, istream& inp, istream& inpMap) {
 
 double lmmacro::lprob(ngram micro_ng) {
 
-  int microsize = micro_ng.size;
-
   ngram macro_ng(lmtable::getDict());
 
-  // map microtag sequence into the corresponding sequence of macrotags (possibly shorter)
-
-  for (int i=microsize; i>0; i--) {
-
-    char *prev_microtag = 
-      (i<microsize)?getDict()->decode(*(micro_ng.wordp(i+1))):NULL;
-    char *curr_microtag = getDict()->decode(*(micro_ng.wordp(i)));
-    char *prev_macrotag =
-      (i<microsize)?lmtable::getDict()->decode(microMacroMap[*(micro_ng.wordp(i+1))]):NULL;
-    char *curr_macrotag = lmtable::getDict()->decode(microMacroMap[*(micro_ng.wordp(i))]);
-
-    if (prev_macrotag == NULL ||
-	strcmp(curr_macrotag,prev_macrotag) != 0 ||
-	!((prev_microtag[strlen(prev_microtag)-1]== '(' &&  curr_microtag[strlen(curr_microtag)-1]==')' ) ||
-	  (prev_microtag[strlen(prev_microtag)-1]== '(' &&  curr_microtag[strlen(curr_microtag)-1]=='+' ) ||
-	  (prev_microtag[strlen(prev_microtag)-1]== '+' &&  curr_microtag[strlen(curr_microtag)-1]=='+' ) ||
-	  (prev_microtag[strlen(prev_microtag)-1]== '+' &&  curr_microtag[strlen(curr_microtag)-1]==')' )))
-      macro_ng.pushw(curr_macrotag);
-  }
-
+  if (micro_ng.dict ==  macro_ng.dict)
+    macro_ng.trans(micro_ng);  // micro to macro mapping already done
+  else
+    map(&micro_ng, &macro_ng); // mapping required
 
   //  cout <<  "micro_ng = " << micro_ng << "\n";
   //  cout <<  "macro_ng = " << macro_ng << "\n";
@@ -159,5 +141,57 @@ double lmmacro::lprob(ngram micro_ng) {
 
 
 double lmmacro::clprob(ngram micro_ng) {
-  return lmmacro::lprob(micro_ng);
+
+  double logpr;
+  ngram macro_ng(lmtable::getDict());
+
+  map(&micro_ng, &macro_ng);
+
+  if (macro_ng.size==0) return 0.0;
+
+  if (macro_ng.size>maxlev) macro_ng.size=maxlev;
+
+
+  //cache hit
+  if (probcache && macro_ng.size==maxlev && probcache->get(macro_ng.wordp(maxlev),(char *)&logpr)){
+    return logpr;
+  }
+
+  //cache miss
+  logpr=lmmacro::lprob(macro_ng);
+
+  if (probcache && macro_ng.size==maxlev){
+     probcache->add(macro_ng.wordp(maxlev),(char *)&logpr);
+  };
+
+  return logpr;
 }; 
+
+
+
+void lmmacro::map(ngram *in, ngram *out)
+{
+
+  int microsize = in->size;
+
+  // map microtag sequence (in) into the corresponding sequence of macrotags (possibly shorter) (out)
+
+  for (int i=microsize; i>0; i--) {
+
+    char *prev_microtag = 
+      (i<microsize)?getDict()->decode(*(in->wordp(i+1))):NULL;
+    char *curr_microtag = getDict()->decode(*(in->wordp(i)));
+    char *prev_macrotag =
+      (i<microsize)?lmtable::getDict()->decode(microMacroMap[*(in->wordp(i+1))]):NULL;
+    char *curr_macrotag = lmtable::getDict()->decode(microMacroMap[*(in->wordp(i))]);
+
+    if (prev_macrotag == NULL ||
+	strcmp(curr_macrotag,prev_macrotag) != 0 ||
+	!((prev_microtag[strlen(prev_microtag)-1]== '(' &&  curr_microtag[strlen(curr_microtag)-1]==')' ) ||
+	  (prev_microtag[strlen(prev_microtag)-1]== '(' &&  curr_microtag[strlen(curr_microtag)-1]=='+' ) ||
+	  (prev_microtag[strlen(prev_microtag)-1]== '+' &&  curr_microtag[strlen(curr_microtag)-1]=='+' ) ||
+	  (prev_microtag[strlen(prev_microtag)-1]== '+' &&  curr_microtag[strlen(curr_microtag)-1]==')' )))
+      out->pushw(curr_macrotag);
+  }
+  return;
+}

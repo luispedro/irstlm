@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #define MAX_TOKEN_N_MAP 3
 
 class lmmacro: public lmtable {
-  
+
 public:
 
   dictionary     *dict;
@@ -49,6 +49,7 @@ public:
   bool loadmap(std::string lmfilename, std::istream& inp, std::istream& inpMap);
   double lprob(ngram ng); 
   double clprob(ngram ng); 
+  void map(ngram *in, ngram *out);
 
   inline dictionary* getDict() {
     return dict;
