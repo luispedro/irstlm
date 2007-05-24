@@ -108,11 +108,11 @@ public:
   int sentence_id;
 #endif
   
-  dictionary     *dict; // dictionary
+  dictionary     *dict; // dictionary (words - macro tags)
   
   lmtable();
   
-  ~lmtable(){
+  virtual ~lmtable(){
     for (int i=2;i<=LMTMAXLEV;i++)        
     if (lmtcache[i]){
       std::cerr << i <<"-gram cache: "; lmtcache[i]->stat();
@@ -227,8 +227,8 @@ public:
   
   void loadcenters(std::istream& inp,int Order);
 	
-  double lprob(ngram ng); 
-  double clprob(ngram ng); 
+  virtual double lprob(ngram ng); 
+  virtual double clprob(ngram ng); 
 
   
   void *search(int lev,int offs,int n,int sz,int *w,
@@ -342,7 +342,11 @@ public:
 
   void printTable(int level);
 
-  
+  virtual inline dictionary* getDict() {
+    return dict;
+  };
+
+
 };
 
 

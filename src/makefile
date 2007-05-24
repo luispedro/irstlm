@@ -19,7 +19,7 @@ ifeq ($(OSTYPE),darwin)
 CPPFLAGS = -O3 -DMYCODESIZE=3  -Wall
 
 #IRSTLM LIBRARY
-LIBOBJ = cmd.o util.o mempool.o htable.o dictionary.o n_gram.o ngramcache.o lmtable.o mfstream.o ngramtable.o
+LIBOBJ = cmd.o util.o mempool.o htable.o dictionary.o n_gram.o ngramcache.o lmtable.o lmmacro.o mfstream.o ngramtable.o
 LIBDIR = ../lib/$(MACHTYPE)
 LIB = $(LIBDIR)/libirstlm.a
 
