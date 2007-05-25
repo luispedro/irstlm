@@ -16,6 +16,7 @@ OPTIONS:
    -t      Directory for temporary files (default ./stat)
    -p      Prune singleton n-grams (default false)
    -s      Smoothing methods: witten-bell (default), kneser-ney (approximated kneser-ney)
+   -b      Include sentence boundary n-grams (optional)
    -v      Verbose
 
 EOF
@@ -118,7 +119,7 @@ if [ -e $outfile ]; then
    exit;
 fi
 
-if [ -e $logfile -a $logfile!="/dev/null" ]; then
+if [ -e $logfile -a $logfile != "/dev/null" ]; then
    echo "Logfile $logfile already exists! either remove or rename it."
    exit;
 fi
@@ -157,7 +158,7 @@ $scr/build-sublm.pl $prune $smooth --size $order --ngrams "gunzip -c $tmpdir/ngr
 done
 
 echo "Merging language models into $outfile"
-$scr/merge-sublm.pl --size $order --sublm $tmpdir/lm.$sdict -lm $outfile  >> $logfile 2>&1
+$scr/merge-sublm.pl --size $order --sublm $tmpdir/lm.dict -lm $outfile  >> $logfile 2>&1
 
 echo "Cleaning temporary directory $tmpdir";
 #rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* >& /dev/null

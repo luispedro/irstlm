@@ -64,6 +64,8 @@ for (my $n=1;$n<=$size;$n++){
     $size[$n]++;
     if ($n==1){
       chop;split(" ",$_);
+      #cut down counts for sentence initial
+      $_[0]=1 if $_[1]=~/<s>/;
       $tot1gr+=$_[0];
     }
   }
@@ -78,7 +80,7 @@ open(LM,"|$gzip -c > $lm") || die "Cannot open $lm\n";
 
 warn "Write LM Header\n";
 
-printf LM "ARPA\n\n\\data\\\n";
+printf LM "\n\\data\\\n";
 for (my $n=1;$n<=$size;$n++){
   if ($n==1){ #add <unk>
     printf LM "ngram $n= ".($size[$n]+1)."\n";
@@ -86,7 +88,7 @@ for (my $n=1;$n<=$size;$n++){
     printf LM "ngram $n= $size[$n]\n";
   }
 }
-
+printf LM "\n\n";
 warn "Writing LM Tables\n";
 for (my $n=1;$n<=$size;$n++){
   
@@ -95,14 +97,15 @@ for (my $n=1;$n<=$size;$n++){
   @files=map { glob($_) } "${sublm}*.${n}gr*";
   $files=join(" ",@files);
   open(INP,"$gunzip -c $files|") || die "cannot open $files\n";
-
+  warn "input from: $files\n";
   printf LM "\\$n-grams:\n";
   while(<INP>){   
     
     if ($n==1){         
       split(" ",$_);
       #apply witten-bell smoothing on 1-grams
-      $pr=(log($_[0])-log($tot1gr+$size[1]))/log(10.0);shift @_;
+      $_[0]=1 if $_[1]=~/<s>/;
+      $pr=(log($_[0]+1)-log($tot1gr+$size[1]+$size[1]+1))/log(10.0);shift @_;
       printf LM "%f %s\n",$pr,join(" ",@_);
     }
     else{
@@ -111,7 +114,7 @@ for (my $n=1;$n<=$size;$n++){
   }
   if ($n==1){
     warn "add <unk>\n";
-    $pr=(log($size[1])-log($tot1gr+$size[1]))/log(10.0);
+    $pr=(log($size[1]+1)-log($tot1gr+$size[1]+$size[1]+1))/log(10.0);
     printf LM "%f <unk>\n",$pr;
   }
   close(INP);

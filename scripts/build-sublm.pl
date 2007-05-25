@@ -22,7 +22,7 @@
 
 
 
-#first pass: read full input and generate 1-grams
+#first pass: read dictionary and generate 1-grams
 #second pass: 
 #for n=2 to N
 #  foreach n-1-grams
@@ -174,11 +174,12 @@ foreach ($n=2;$n<=$size;$n++){
       }
 
       if (($prune_singletons && $n>=3 && $cnt[$c]==1)||
-	  (!$cross_sentence && $n >1 && &CrossSentence($size,$n,$ngram=join(" ",@h[0..$n-2],$dict[$c])))
+	  (!$cross_sentence && $n >1 && 
+	   &CrossSentence($size,$n,$ngram=join(" ",@h[0..$n-2],$dict[$c])))
 	 ){	
         $boprob+=$prob;
 	
-	if ($n<$size) {	     #output as it will be an history for n+1 
+	if ($n<$size) {	#output as it will be an history for n+1 
 	  printf GR "%f %s %s\n",-1,join(" ",@h[0..$n-2]),$dict[$c];
 	}
         
