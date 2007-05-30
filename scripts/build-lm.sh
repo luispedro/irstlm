@@ -135,8 +135,6 @@ else
 fi
 
 
-
-
 echo "Extracting dictionary from training corpus"
 $bin/dict -i="$inpfile" -o=$tmpdir/dictionary -f=y >& $logfile
 

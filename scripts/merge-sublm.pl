@@ -49,8 +49,9 @@ warn "merge-sublm.pl --size $size --sublm $sublm --lm $lm\n";
 
 warn "Compute total sizes of n-grams\n";
 my @size=();         #number of n-grams for each level
-my $tot1gr=0;        #total frequency of 1-grams
-my $pr;              #probability of 1-grams
+my $tot1gr=0;         #total frequency of 1-grams
+my $unk=0;            #frequency of <unk>
+my $pr;               #probability of 1-grams
 my (@files,$files);  #sublm files for a given n-gram size  
 
 for (my $n=1;$n<=$size;$n++){
@@ -66,11 +67,18 @@ for (my $n=1;$n<=$size;$n++){
       chop;split(" ",$_);
       #cut down counts for sentence initial
       $_[0]=1 if $_[1]=~/<s>/;
+      $unk=$_[0] if $_[1]=~/<unk>/;
       $tot1gr+=$_[0];
     }
   }
+  if ($n==1 && $unk==0){
+    #implicitely add <unk> word to counters
+    $tot1gr+=$size[$n]; #equivalent to WB smoothing
+    $size[$n]++; 
+  }
   close(INP);
 }
+
 
 
 warn "Merge all sub LMs\n";
@@ -79,14 +87,11 @@ $lm.=".gz" if $lm!~/.gz$/;
 open(LM,"|$gzip -c > $lm") || die "Cannot open $lm\n";
 
 warn "Write LM Header\n";
+printf LM "iARPA\n";
 
 printf LM "\n\\data\\\n";
 for (my $n=1;$n<=$size;$n++){
-  if ($n==1){ #add <unk>
-    printf LM "ngram $n= ".($size[$n]+1)."\n";
-  }else{
     printf LM "ngram $n= $size[$n]\n";
-  }
 }
 printf LM "\n\n";
 warn "Writing LM Tables\n";
@@ -103,18 +108,19 @@ for (my $n=1;$n<=$size;$n++){
     
     if ($n==1){         
       split(" ",$_);
-      #apply witten-bell smoothing on 1-grams
+      #cut down counts for sentence initial
       $_[0]=1 if $_[1]=~/<s>/;
-      $pr=(log($_[0]+1)-log($tot1gr+$size[1]+$size[1]+1))/log(10.0);shift @_;
+      #apply witten-bell smoothing on 1-grams
+      $pr=(log($_[0]+1)-log($tot1gr+$size[1]))/log(10.0);shift @_;
       printf LM "%f %s\n",$pr,join(" ",@_);
     }
     else{
       printf LM "%s",$_;
     }
   }
-  if ($n==1){
-    warn "add <unk>\n";
-    $pr=(log($size[1]+1)-log($tot1gr+$size[1]+$size[1]+1))/log(10.0);
+  if ($n==1 && $unk==0){
+    warn "eventually add <unk>\n";
+    $pr=(log($size[1]-1+1)-log($tot1gr+$size[1]))/log(10.0);
     printf LM "%f <unk>\n",$pr;
   }
   close(INP);
