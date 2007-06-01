@@ -89,8 +89,8 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
     }
     loadbin(inp,header,filename,keep_on_disk);
   }
-  else {
-    if (outtype==TEXT) {
+  else{
+    if (strncmp(header,"ARPA",4)==0 && outtype==TEXT) {
       cerr << "Error: nothing to do. Passed input file: textual. Specified output format: textual.\n";
       exit(0);
     }
@@ -229,6 +229,9 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
   //check the header to decide if the LM is quantized or not
   isQtable=(strncmp(header,"qARPA",5)==0?true:false);
   
+  //check the header to decide if the LM table is incomplete
+  isItable=(strncmp(header,"iARPA",5)==0?true:false);
+  
   if (isQtable){
     //check if header contains other infos  
     inp >> line;
@@ -345,11 +348,27 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
       //WE ASSUME A WELL STRUCTURED FILE!!!
       for (int c=0;c<maxsize[Order];c++){
 				
-        if (parseline(inp,Order,ng,pb,bow))
+        if (parseline(inp,Order,ng,pb,bow)){
+          //if table is in incomplete ARPA format pb is just the 
+          //discounted frequency, so we need to add bow * Pr(n-1 gram)
+          if (isItable & Order>1){
+            //get bow of lower of context
+            get(ng,ng.size,ng.size-1); 
+            float rbow=0.0;
+            if (ng.lev==ng.size-1){ //found context
+              int ibow=ng.bow; rbow=*((float *)&ibow);
+            }                
+            
+            int tmp=maxlev;
+            maxlev=Order-1;
+            //cerr << ng << "rbow: " << rbow << "prob: " << pb << "low-prob: " << lprob(ng) << "\n"; 
+            pb= log(exp(pb * log(10.0)) +  exp((rbow + lprob(ng)) * log(10.0)))/log(10.0);
+            maxlev=tmp;
+          }
           add(ng,
               (int)(isQtable?pb:*((int *)&pb)),
               (int)(isQtable?bow:*((int *)&bow)));
-        
+        }
       }
       // To avoid huge memory write concentrated at the end of the program
       msync(table[0],filesize,MS_SYNC);
@@ -434,11 +453,14 @@ void lmtable::loadtxt(istream& inp,const char* header){
 	
   //put here ngrams, log10 probabilities or their codes
   ngram ng(lmtable::getDict()); 
-  float prob,bow;;
+  float prob,bow;
   
   //check the header to decide if the LM is quantized or not
   isQtable=(strncmp(header,"qARPA",5)==0?true:false);
 	
+  //check the header to decide if the LM table is incomplete
+  isItable=(strncmp(header,"iARPA",5)==0?true:false);
+
   //we will configure the table later we we know the maxlev;
   bool yetconfigured=false;
 	
@@ -489,10 +511,31 @@ void lmtable::loadtxt(istream& inp,const char* header){
       
       for (int c=0;c<maxsize[Order];c++){
 				
-        if (parseline(inp,Order,ng,prob,bow))
+        if (parseline(inp,Order,ng,prob,bow)){
+          
+          //if table is in incomplete ARPA format pb is just the 
+          //discounted frequency, so we need to add bow * Pr(n-1 gram)
+          if (isItable & Order>1){
+            //get bow of lower of context
+            get(ng,ng.size,ng.size-1); 
+            float rbow=0.0;
+            if (ng.lev==ng.size-1){ //found context
+              int ibow=ng.bow; rbow=*((float *)&ibow);
+            }                
+            
+            int tmp=maxlev;
+            maxlev=Order-1;
+            //cerr << ng << "rbow: " << rbow << "prob: " << prob << "low-prob: " << lprob(ng) << "\n"; 
+            prob= log(exp(prob * log(10.0)) +  exp((rbow + lprob(ng)) * log(10.0)))/log(10.0);
+            //cerr << "new prob: " << prob << "\n"; 
+            
+            maxlev=tmp;
+          }
+          
           add(ng,
               (int)(isQtable?prob:*((int *)&prob)),
               (int)(isQtable?bow:*((int *)&bow)));
+        }
       }
       // now we can fix table at level Order -1
       if (maxlev>1 && Order>1) checkbounds(Order-1);			
@@ -1132,8 +1175,7 @@ double lmtable::lprob(ngram ong){
   //ng.trans(ong);
 	
   double rbow;
-  int ibow,iprob;
-  
+  int ibow,iprob;  
 	
   if (get(ng,ng.size,ng.size)){
     iprob=ng.prob;		

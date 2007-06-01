@@ -136,7 +136,7 @@ fi
 
 
 echo "Extracting dictionary from training corpus"
-$bin/dict -i="$inpfile" -o=$tmpdir/dictionary -f=y >& $logfile
+$bin/dict -i="$inpfile" -o=$tmpdir/dictionary -f=y -sort=no >& $logfile
 
 echo "Splitting dictionary into $parts lists"
 $scr/split-dict.pl --input $tmpdir/dictionary --output $tmpdir/dict. --parts $parts >> $logfile 2>&1

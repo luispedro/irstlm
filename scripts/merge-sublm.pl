@@ -59,6 +59,7 @@ for (my $n=1;$n<=$size;$n++){
   @files=map { glob($_) } "${sublm}*.${n}gr*";
   $files=join(" ",@files);
   $files || die "cannot find sublm files\n";
+  warn "join files $files\n";
   
   open(INP,"$gunzip -c $files|") || die "cannot open $files\n";
   while(<INP>){

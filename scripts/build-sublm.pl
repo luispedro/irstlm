@@ -130,84 +130,89 @@ foreach ($n=2;$n<=$size;$n++){
   $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0; $oldwrd="";$N1=0;$N2=0;$locfreq=0;
    
   do{
-
-    #load all n-grams with prefix of history h, and collect useful statistics 
+    
+#load all n-grams with prefix of history h, and collect useful statistics 
+    
     while (join(" ",@h[0..$n-2]) eq join(" ",@ng[0..$n-2])) { #must be true the first time!   
       
       if ($oldwrd ne $ng[$n-1]) {
         $dict[++$code]=$oldwrd=$ng[$n-1];
         $diff++;
         $N1++ if $locfreq==1;
-	$N2++ if $locfreq==2;
-	$locfreq=$ngcnt;
+          $N2++ if $locfreq==2;
+          $locfreq=$ngcnt;
       } else {
-	$locfreq+=$ngcnt;
+        $locfreq+=$ngcnt;
       }
-            
-      $cnt[$code]+=$ngcnt; $totcnt+=$ngcnt;           
-            
-      chop($ng=<INP>); @ng=split(/[ \t]/,$ng);$ngcnt=(pop @ng) - $freqshift;	
-    }
-     
-    #compute smothing statistics         
-      
-    if ($kneser_ney) {
-      if ($N1==0 || $N2==0) {
-	warn "Error in Kneser-Ney smoothing N1 $N1 N2 $N2 diff $diff: resorting to Witten-Bell\n";
-	$beta=0;  
-      } else {
-	$beta=$N1/($N1 + 2 * $N2); 
-      }
-    }
-      
-    #print smoothed probabilities
-
-    my $boprob=0; #accumulate pruned probabilities 
-    my $prob=0;
-   
-    for (my $c=0;$c<=$code;$c++) {
- 
-      if ($kneser_ney && $beta>0) {
-	$prob=($cnt[$c]-$beta)/$totcnt;
-      } else {
-	$prob=$cnt[$c]/($totcnt+$diff);
-      }
-
-      if (($prune_singletons && $n>=3 && $cnt[$c]==1)||
-	  (!$cross_sentence && $n >1 && 
-	   &CrossSentence($size,$n,$ngram=join(" ",@h[0..$n-2],$dict[$c])))
-	 ){	
-        $boprob+=$prob;
-	
-	if ($n<$size) {	#output as it will be an history for n+1 
-	  printf GR "%f %s %s\n",-1,join(" ",@h[0..$n-2]),$dict[$c];
-	}
         
-      } else {
-	printf GR "%f %s %s\n",log($prob)/$log10,
-	  join(" ",@h[0..$n-2]),$dict[$c];     
-      }
+        $cnt[$code]+=$ngcnt; $totcnt+=$ngcnt;           
+        
+        chop($ng=<INP>); @ng=split(/[ \t]/,$ng);$ngcnt=(pop @ng) - $freqshift;	
     }
       
-  #rewrite history including back-off weight      
-  print "$h - $ng - $totcnt $diff \n" if $totcnt+$diff==0;
-
-  #check if history has to be pruned out
-  if ($prune_singletons && $hpr==-1) {
-    warn "skip this history\n";
-  } elsif ($kneser_ney && $beta>0) {
-    printf NHGR "%s %f\n",$h,log($boprob+($beta * ($diff-$N1)/$totcnt))/$log10;
-  } else {
-    printf NHGR "%s %f\n",$h,log($boprob+($diff/($totcnt+$diff)))/$log10;
-  }     
-
-  #reset smoothing statistics
-  $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0;$oldwrd="";$N1=0;$N2=0;$locfreq=0;
-  
-  #read next history
-  chop($h=<HGR>);  @h=split(/ /,$h); $hpr=shift @h;
-  
-}until ($ng eq "");		#n-grams are over
+#compute smothing statistics         
+      
+      if ($kneser_ney) {
+        if ($N1==0 || $N2==0) {
+          warn "Error in Kneser-Ney smoothing N1 $N1 N2 $N2 diff $diff: resorting to Witten-Bell\n";
+          $beta=0;  
+        } else {
+          $beta=$N1/($N1 + 2 * $N2); 
+        }
+      }
+      
+#print smoothed probabilities
+      
+      my $boprob=0; #accumulate pruned probabilities 
+      my $prob=0;
+      
+      for (my $c=0;$c<=$code;$c++) {
+        
+        if ($kneser_ney && $beta>0) {
+          $prob=($cnt[$c]-$beta)/$totcnt;
+        } else {
+          $prob=$cnt[$c]/($totcnt+$diff);
+        }
+        
+        if (($prune_singletons && $n>=3 && $cnt[$c]==1)||
+            (!$cross_sentence && $n >1 && 
+             &CrossSentence($size,$n,$ngram=join(" ",@h[0..$n-2],$dict[$c])))
+            ){	
+         
+          $boprob+=$prob;
+          
+          if ($n<$size) {	#output as it will be an history for n+1 
+            printf GR "%f %s %s\n",-1,join(" ",@h[0..$n-2]),$dict[$c];
+          }
+          
+        } else {
+          printf GR "%f %s %s\n",log($prob)/$log10,
+          join(" ",@h[0..$n-2]),$dict[$c];     
+        }
+      }
+      
+#rewrite history including back-off weight      
+      
+      print "$h - $ng - $totcnt $diff \n" if $totcnt+$diff==0;
+        
+#check if history has to be pruned out
+        if ($prune_singletons && $hpr==-1) {
+          warn "skip this history\n";
+        } elsif ($kneser_ney && $beta>0) {
+          printf NHGR "%s %f\n",$h,log($boprob+($beta * ($diff-$N1)/$totcnt))/$log10;
+        } else {
+          printf NHGR "%s %f\n",$h,log($boprob+($diff/($totcnt+$diff)))/$log10;
+        }     
+      
+#reset smoothing statistics
+      
+      $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0;$oldwrd="";$N1=0;$N2=0;$locfreq=0;
+      
+#read next history
+      
+      chop($h=<HGR>);  @h=split(/ /,$h); $hpr=shift @h;
+      
+  }until ($ng eq "");		#n-grams are over
 
  close(HGR); close(INP);close(GR);close(NGR);
  rename("${sublm}.".($n-1)."ngr.gz","${sublm}.".($n-1)."gr.gz");

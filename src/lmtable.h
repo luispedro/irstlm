@@ -82,6 +82,9 @@ class lmtable{
   //probability quantization
   bool      isQtable;
   
+  //Incomplete LM table from distributed training
+  bool      isItable;
+
   int       NumCenters[LMTMAXLEV+1];
   float*    Pcenters[LMTMAXLEV+1];
   float*    Bcenters[LMTMAXLEV+1];

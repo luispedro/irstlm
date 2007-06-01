@@ -127,6 +127,7 @@
 		D78A91200B43C07800D631F9 /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "compile-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D78A91220B43C07800D631F9 /* quantize-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "quantize-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7A9858D0B3D10F9008279E6 /* ngt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngt; sourceTree = BUILT_PRODUCTS_DIR; };
+		D7BE45CE0C104DD400B95F19 /* build-lm.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "build-lm.sh"; sourceTree = "<group>"; };
 		D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirstlm.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7F00B530B382B8900A1FF7A /* build-sublm.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "build-sublm.pl"; sourceTree = "<group>"; };
 		D7F00B540B382B8900A1FF7A /* merge-sublm.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "merge-sublm.pl"; sourceTree = "<group>"; };
@@ -380,6 +381,7 @@
 		D7F00B520B382B8900A1FF7A /* scripts */ = {
 			isa = PBXGroup;
 			children = (
+				D7BE45CE0C104DD400B95F19 /* build-lm.sh */,
 				D7FFAE140BFC935500F7F904 /* add-start-end.sh */,
 				D7FFAE150BFC935500F7F904 /* rm-start-end.sh */,
 				D7F00B530B382B8900A1FF7A /* build-sublm.pl */,
