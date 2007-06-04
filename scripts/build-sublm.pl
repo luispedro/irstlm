@@ -42,7 +42,7 @@ my $gunzip="/usr/bin/gunzip";
 
 
 my $ngram;
-my($help,$size,$freqshift,$ngrams,$sublm,$witten_bell,$kneser_ney,$prune_singletons,$cross_sentence)=();
+my($help,$verbose,$size,$freqshift,$ngrams,$sublm,$witten_bell,$kneser_ney,$prune_singletons,$cross_sentence)=();
 
 $help=1 unless
 &GetOptions('size=i' => \$size,
@@ -52,8 +52,9 @@ $help=1 unless
              'witten-bell' => \$witten_bell,
              'kneser-ney' => \$kneser_ney,
              'prune-singletons' => \$prune_singletons,
-	     'cross-sentence' => \$cross_sentence,
-             'help' => \$help,);
+	           'cross-sentence' => \$cross_sentence,
+             'help' => \$help,
+             'verbose' => \$verbose);
 
 
 if ($help || !$size || !$ngrams || !$sublm){
@@ -72,6 +73,10 @@ if ($help || !$size || !$ngrams || !$sublm){
 }
 
 $witten_bell++ if !$witten_bell && !$kneser_ney;
+
+warn "build-sublm: size $size ngrams $ngrams sublm $sublm witten-bell $witten_bell kneser-ney $kneser_ney cross-sentence $cross_sentence\n"
+if $verbose;
+
 
 die "build-sublm: value of --size must be larger than 0\n" if $size<1;
 die "build-sublm: choose one smoothing method\n" if $witten_bell && $kneser_ney;

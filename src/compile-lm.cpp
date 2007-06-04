@@ -47,11 +47,11 @@ void usage(const char *msg = 0) {
             << "  a compiled representation that the IRST LM toolkit can quickly" << std::endl
             << "  read and process. LM file can be compressed with gzip." << std::endl << std::endl;
   std::cerr << "Options:\n"
-    << "--text=[yes|no] -t=[yes|no] (output is again in text format)" << std::endl
-            << "--eval=text-file -e=text-file (computes perplexity of text-file and returns)"<< std::endl
-            << "--score=[yes|no] -s=[yes|no] (computes log-prob scores from standard input)"<< std::endl
-            << "--debug=1 -d=1 (verbose output for --eval option)"<< std::endl
-            << "--memmap=1 --mm=1 (uses memory map to read a binary LM)\n" ;
+    << "--text [yes|no] -t=[yes|no] (output is again in text format)" << std::endl
+            << "--eval text-file -e=text-file (computes perplexity of text-file and returns)"<< std::endl
+            << "--score [yes|no] -s=[yes|no] (computes log-prob scores from standard input)"<< std::endl
+            << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
+            << "--memmap 1 --mm 1 (uses memory map to read a binary LM)\n" ;
 }
 
 bool starts_with(const std::string &s, const std::string &pre) {
@@ -160,11 +160,11 @@ int main(int argc, const char **argv)
   
   std::cerr << "Reading " << infile << "..." << std::endl;
   inputfilestream inp(infile.c_str());
+  
   if (!inp.good()) {
     std::cerr << "Failed to open " << infile << "!" << std::endl;
     exit(1);
-  }
-  
+  }  
     
   lmt.load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);       
 

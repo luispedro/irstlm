@@ -14,7 +14,7 @@ OPTIONS:
    -k      Number of splits (default 5)
    -n      Order of language model (default 3)
    -t      Directory for temporary files (default ./stat)
-   -p      Prune singleton n-grams (default false)
+   -p      Prune singletons n-grams (default false)
    -s      Smoothing methods: witten-bell (default), kneser-ney (approximated kneser-ney)
    -b      Include sentence boundary n-grams (optional)
    -v      Verbose
@@ -57,7 +57,7 @@ do
              exit 1
              ;;
          v)
-             verbose=1;
+             verbose="--verbose";
              ;;
          i)
              inpfile=$OPTARG
@@ -106,7 +106,7 @@ done
 
 
 if [ $verbose ];then
-echo inpfile=\"$inpfile\" outfile=$outfile order=$order parts=$parts tmpdir=$tmpdir prune=$prune smooth=$smoothing
+echo inpfile=\"$inpfile\" outfile=$outfile order=$order parts=$parts tmpdir=$tmpdir prune=$prune smoothing=$smoothing
 fi
 
 if [ ! "$inpfile" -o ! "$outfile" ]; then
@@ -152,7 +152,8 @@ echo "Estimating language models for each word list"
 for sdict in $tmpdir/dict.*;do
 sdict=`basename $sdict $tmpdir`
 echo $sdict;
-$scr/build-sublm.pl $prune $smooth --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict  >> $logfile 2>&1
+
+$scr/build-sublm.pl $verbose $prune $smoothing --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict  >> $logfile 2>&1
 done
 
 echo "Merging language models into $outfile"
