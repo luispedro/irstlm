@@ -1,6 +1,6 @@
 #! /bin/sh 
 
-release=5.01.00
+release=5.02.00
 cd ..
 tar  -czf irstlm-$release.tgz irstlm/src/*.cpp irstlm/src/*.c irstlm/src/*.h irstlm/src/makefile irstlm/scripts/*.sh irstlm/scripts/*.pl irstlm/readme irstlm/install irstlm/doc/* irstlm/example/train.gz irstlm/example/test
 
