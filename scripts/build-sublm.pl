@@ -113,7 +113,7 @@ printf GR "%s %s\n",$totcnt,$oldwrd;
 close(INP);
 close(GR);
 
-my (@h,$h,$hpr);     #n-gram history 
+my (@h,$h,$hpr);    #n-gram history 
 my (@dict,$code);   #sorted dictionary of history successors
 my $diff;           #different successors of history
 my $locfreq;        #accumulate frequency of n-grams of given size
@@ -178,21 +178,25 @@ foreach ($n=2;$n<=$size;$n++){
         } else {
           $prob=$cnt[$c]/($totcnt+$diff);
         }
+
+        $ngram=join(" ",@h[0..$n-2],$dict[$c]);
         
-        if (($prune_singletons && $n>=3 && $cnt[$c]==1)||
-            (!$cross_sentence && $n >1 && 
-             &CrossSentence($size,$n,$ngram=join(" ",@h[0..$n-2],$dict[$c])))
+        #rm singleton n-grams 
+        #rm n-grams containing cross-sentence boundaries
+        #rm n-grams containing <unk> except for 1-grams
+        if (($prune_singletons && $n>=3 && $cnt[$c]==1) ||
+            (!$cross_sentence && $n >1 && &CrossSentence($size,$n,$ngram)) ||
+            (($dict[$c]  eq '<unk>') || ($n>=2 && $h=~/<unk>/)) 
             ){	
          
           $boprob+=$prob;
           
           if ($n<$size) {	#output as it will be an history for n+1 
-            printf GR "%f %s %s\n",-1,join(" ",@h[0..$n-2]),$dict[$c];
+            printf GR "%f %s %s\n",-10000,join(" ",@h[0..$n-2]),$dict[$c];
           }
           
-        } else {
-          printf GR "%f %s %s\n",log($prob)/$log10,
-          join(" ",@h[0..$n-2]),$dict[$c];     
+        } else { # print ngrams of highest level
+          printf(GR "%f %s %s\n",log($prob)/$log10,join(" ",@h[0..$n-2]),$dict[$c]);
         }
       }
       
@@ -201,8 +205,8 @@ foreach ($n=2;$n<=$size;$n++){
       print "$h - $ng - $totcnt $diff \n" if $totcnt+$diff==0;
         
 #check if history has to be pruned out
-        if ($prune_singletons && $hpr==-1) {
-          warn "skip this history\n";
+        if ($hpr==-10000) {
+        #skip this history
         } elsif ($kneser_ney && $beta>0) {
           printf NHGR "%s %f\n",$h,log($boprob+($beta * ($diff-$N1)/$totcnt))/$log10;
         } else {

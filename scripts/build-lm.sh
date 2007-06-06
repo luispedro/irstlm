@@ -14,9 +14,10 @@ OPTIONS:
    -k      Number of splits (default 5)
    -n      Order of language model (default 3)
    -t      Directory for temporary files (default ./stat)
-   -p      Prune singletons n-grams (default false)
+   -p      Prune singleton n-grams (default false)
    -s      Smoothing methods: witten-bell (default), kneser-ney (approximated kneser-ney)
    -b      Include sentence boundary n-grams (optional)
+   -d      Define subdictionary for n-grams (optional)
    -v      Verbose
 
 EOF
@@ -48,8 +49,9 @@ verbose="";
 smoothing="--witten-bell";
 prune="";
 boundaries="";
+dictionary="";
 
-while getopts “hvi:o:n:k:t:s:pbl:” OPTION
+while getopts “hvi:o:n:k:t:s:pbl:d:” OPTION
 do
      case $OPTION in
          h)
@@ -62,6 +64,10 @@ do
          i)
              inpfile=$OPTARG
              ;;
+         d)
+             dictionary="-sd=$OPTARG"
+             ;;
+
          o)
              outfile=$OPTARG
              ;;
@@ -106,7 +112,7 @@ done
 
 
 if [ $verbose ];then
-echo inpfile=\"$inpfile\" outfile=$outfile order=$order parts=$parts tmpdir=$tmpdir prune=$prune smoothing=$smoothing
+echo inpfile=\"$inpfile\" outfile=$outfile order=$order parts=$parts tmpdir=$tmpdir prune=$prune smoothing=$smoothing dictionary=$dictionary
 fi
 
 if [ ! "$inpfile" -o ! "$outfile" ]; then
@@ -145,7 +151,7 @@ echo "Extracting n-gram statistics for each word list"
 for sdict in $tmpdir/dict.*;do
 sdict=`basename $sdict $tmpdir`
 echo $sdict;
-$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.${sdict}.gz" -fd="$tmpdir/$sdict"  >> $logfile 2>&1
+$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.${sdict}.gz" -fd="$tmpdir/$sdict" $dictionary  >> $logfile 2>&1
 done
 
 echo "Estimating language models for each word list"

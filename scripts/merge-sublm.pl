@@ -68,12 +68,12 @@ for (my $n=1;$n<=$size;$n++){
       chop;split(" ",$_);
       #cut down counts for sentence initial
       $_[0]=1 if $_[1]=~/<s>/;
-      $unk=$_[0] if $_[1]=~/<unk>/;
+      $unk=$_[0] if $_[1] eq "<unk>";
       $tot1gr+=$_[0];
     }
   }
   if ($n==1 && $unk==0){
-    #implicitely add <unk> word to counters
+    warn "implicitely add <unk> word to counters\n";
     $tot1gr+=$size[$n]; #equivalent to WB smoothing
     $size[$n]++; 
   }
@@ -110,9 +110,10 @@ for (my $n=1;$n<=$size;$n++){
     if ($n==1){         
       split(" ",$_);
       #cut down counts for sentence initial
-      $_[0]=1 if $_[1]=~/<s>/;
+      $_[0]=1 if $_[1] eq "<s>";
       #apply witten-bell smoothing on 1-grams
-      $pr=(log($_[0]+1)-log($tot1gr+$size[1]))/log(10.0);shift @_;
+      $pr=(log($_[0]+1)-log($tot1gr+$size[1]))/log(10.0);
+      shift @_;
       printf LM "%f %s\n",$pr,join(" ",@_);
     }
     else{
