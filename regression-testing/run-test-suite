@@ -10,7 +10,7 @@ my @tests = qw (
   basic-ngt
   quantize-lm
   compile-lm
-  build-sublm
+  build-lm
 );
 ############################################################
 

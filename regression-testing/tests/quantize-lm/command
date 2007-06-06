@@ -1,8 +1,6 @@
 #! /bin/sh -w
 
-cwd=`pwd`
-
-bin=$cwd/../bin/$MACHTYPE
+bin=$IRSTLM/bin/$MACHTYPE
 
 testdir=$1
 cd $testdir
