@@ -121,7 +121,7 @@ int main(int argc, char **argv)
     int c=0;
     //dictionary sd(subdic,500000,isym,NULL);
 		
-		//    ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,0,NULL,0,table_type);
+		//ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,0,NULL,0,table_type);
     ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,NULL,0,0,NULL,0,table_type);
 		ngt2->dict->load(subdic);
     ngt2->dict->cleanfreq();

@@ -48,7 +48,7 @@
 
 //Out-Of-Vocabulary symbol
 #ifndef OOV_ 
-#define OOV_ "_unk_"
+#define OOV_ "<unk>"
 #endif
 
 typedef struct{
