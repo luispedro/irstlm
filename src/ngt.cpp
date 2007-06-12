@@ -122,8 +122,10 @@ int main(int argc, char **argv)
     //output entries made of n-grams contained in filtertable
     ngram ng(ngt.dict), ng2(ng.dict);
     bool is_included=true;
+    long c=0;
     while(inpstream >> ng){
       if (ng.size==ngsz){
+         if (!(++c % 1000000)) cerr << ".";
         //cerr << ng << " -> " << is_included << "\n";
         //you reached the last word before freq
         inpstream >> ng.freq;
