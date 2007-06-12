@@ -118,14 +118,26 @@ int main(int argc, char **argv)
     cerr << "Filtering table " << inp << " assumed to be in Google Format with size " << ngsz << "\n"; 
     cerr << "with table " << filtertable <<  " of size " << ngt.maxlevel() << "\n";
     
+    
     //read input googletable of ngrams of size ngsz
     //output entries made of n-grams contained in filtertable
     ngram ng(ngt.dict), ng2(ng.dict);
     bool is_included=true;
     long c=0;
     while(inpstream >> ng){
-      if (ng.size==ngsz){
-         if (!(++c % 1000000)) cerr << ".";
+      
+      if (ng.size>= ngt.maxlevel()){
+        //need to make a copy
+        ng2=ng; ng2.size=ngt.maxlevel();  
+        //cerr << "check if " << ng2 << " is contained: ";
+        is_included=is_included && ngt.get(ng2)!=0;
+        //cerr << (is_included?"yes":"no") << "\n";
+      }
+      else
+        is_included=true;
+
+      if (ng.size==ngsz){       
+        if (!(++c % 1000000)) cerr << ".";
         //cerr << ng << " -> " << is_included << "\n";
         //you reached the last word before freq
         inpstream >> ng.freq;
@@ -134,21 +146,7 @@ int main(int argc, char **argv)
         is_included=true;
         ng.size=0;
       }
-      else{
-        assert(ng.size<ngsz);
-        if (ng.size>= ngt.maxlevel()){
-          //need to make a copy
-          ng2=ng; ng2.size=ngt.maxlevel();          
-          is_included=is_included && ngt.get(ng2)!=0;
-        }
-        else
-          is_included=true;
-
-        //cerr << "check if " << ng2 << " is contained: ";
-        //cerr << (is_included?"yes":"no") << "\n";
-        
-      }      
-    }      
+    }
     
     exit(1);
   }
