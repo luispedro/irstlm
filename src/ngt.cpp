@@ -31,7 +31,8 @@ int main(int argc, char **argv)
   char *out=NULL;
   char *dic=NULL;       // dictionary filename 
   char *subdic=NULL;    // subdictionary filename 
-  char *filterdict=NULL;    // subdictionary filename 
+  char *filterdict=NULL;    // subdictionary filename
+  char *filtertable=NULL;    // subdictionary filename 
   char *isym=NULL;      // interruption symbol
   char *aug=NULL;       // augmentation data
   char *hmask=NULL;        // historymask
@@ -78,6 +79,8 @@ int main(int argc, char **argv)
 								"fd", CMDSTRINGTYPE, &filterdict,
 								"ConvDict", CMDSTRINGTYPE, &subdic,
 								"cd", CMDSTRINGTYPE, &subdic,
+                "FilterTable", CMDSTRINGTYPE, &filtertable,
+								"ft", CMDSTRINGTYPE, &filtertable,
 								"HistoMask",CMDSTRINGTYPE, &hmask,
 								"hm",CMDSTRINGTYPE, &hmask,
 								"InpLen",CMDINTTYPE, &inplen,
@@ -106,6 +109,50 @@ int main(int argc, char **argv)
     table_type=LEAFPROB;
   }
 	
+  if (filtertable){
+    
+    ngramtable ngt(filtertable,1,isym,NULL,NULL,0,0,NULL,0,table_type);
+    mfstream inpstream(inp,ios::in); //google input table
+    mfstream outstream(out,ios::out); //google output table
+    
+    cerr << "Filtering table " << inp << " assumed to be in Google Format with size " << ngsz << "\n"; 
+    cerr << "with table " << filtertable <<  " of size " << ngt.maxlevel() << "\n";
+    
+    //read input googletable of ngrams of size ngsz
+    //output entries made of n-grams contained in filtertable
+    ngram ng(ngt.dict), ng2(ng.dict);
+    bool is_included=true;
+    while(inpstream >> ng){
+      if (ng.size==ngsz){
+        //cerr << ng << " -> " << is_included << "\n";
+        //you reached the last word before freq
+        inpstream >> ng.freq;
+        //consistency check of n-gram
+        if (is_included)   outstream << ng << "\n";
+        is_included=true;
+        ng.size=0;
+      }
+      else{
+        assert(ng.size<ngsz);
+        if (ng.size>= ngt.maxlevel()){
+          //need to make a copy
+          ng2=ng; ng2.size=ngt.maxlevel();          
+          is_included=is_included && ngt.get(ng2)!=0;
+        }
+        else
+          is_included=true;
+
+        //cerr << "check if " << ng2 << " is contained: ";
+        //cerr << (is_included?"yes":"no") << "\n";
+        
+      }      
+    }      
+    
+    exit(1);
+  }
+  
+  
+  
 	//ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,dstco,hmask,inplen,table_type);
 	ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,filterdict,inputgoogleformat,dstco,hmask,inplen,table_type);
 		
@@ -117,6 +164,8 @@ int main(int argc, char **argv)
     ngt->dict->incflag(0);
   }
 	
+  
+  
   if (subdic){
     int c=0;
     //dictionary sd(subdic,500000,isym,NULL);
@@ -186,7 +235,7 @@ int main(int argc, char **argv)
       exit(1);
     }
 		
-		//    ngramtable* ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,NULL,0,table_type);
+		//ngramtable* ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,NULL,0,table_type);
     ngramtable* ngt2=new ngramtable(NULL,ngsz,NULL,NULL,NULL,0,0,NULL,0,table_type);
 		
     ngt2->dict->incflag(1);
