@@ -1,6 +1,3 @@
-To intall the irstlm package make sure that you have properly set
-the MACHTYPE environment variable that defines your architecture.
-
 To install the package just run
 > ./install
 
