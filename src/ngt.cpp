@@ -111,43 +111,48 @@ int main(int argc, char **argv)
 	
   if (filtertable){
     
-    ngramtable ngt(filtertable,1,isym,NULL,NULL,0,0,NULL,0,table_type);
-    mfstream inpstream(inp,ios::in); //google input table
-    mfstream outstream(out,ios::out); //google output table
+    {
+      ngramtable ngt(filtertable,1,isym,NULL,NULL,0,0,NULL,0,table_type);
+      mfstream inpstream(inp,ios::in); //google input table
+      mfstream outstream(out,ios::out); //google output table
     
-    cerr << "Filtering table " << inp << " assumed to be in Google Format with size " << ngsz << "\n"; 
-    cerr << "with table " << filtertable <<  " of size " << ngt.maxlevel() << "\n";
+      cerr << "Filtering table " << inp << " assumed to be in Google Format with size " << ngsz << "\n"; 
+      cerr << "with table " << filtertable <<  " of size " << ngt.maxlevel() << "\n";
     
     
-    //read input googletable of ngrams of size ngsz
-    //output entries made of n-grams contained in filtertable
-    ngram ng(ngt.dict), ng2(ng.dict);
-    bool is_included=true;
-    long c=0;
-    while(inpstream >> ng){
+      //read input googletable of ngrams of size ngsz
+      //output entries made of n-grams contained in filtertable
+      ngram ng(ngt.dict), ng2(ng.dict);
+      bool is_included=true;
+      long c=0;
+      while(inpstream >> ng){
       
-      if (ng.size>= ngt.maxlevel()){
-        //need to make a copy
-        ng2=ng; ng2.size=ngt.maxlevel();  
-        //cerr << "check if " << ng2 << " is contained: ";
-        is_included=is_included && ngt.get(ng2)!=0;
-        //cerr << (is_included?"yes":"no") << "\n";
-      }
-      else
-        is_included=true;
+	if (ng.size>= ngt.maxlevel()){
+	  //need to make a copy
+	  ng2=ng; ng2.size=ngt.maxlevel();  
+	  //cerr << "check if " << ng2 << " is contained: ";
+	  is_included=is_included && ngt.get(ng2)!=0;
+	  //cerr << (is_included?"yes":"no") << "\n";
+	}
+	else
+	  is_included=true;
 
-      if (ng.size==ngsz){       
-        if (!(++c % 1000000)) cerr << ".";
-        //cerr << ng << " -> " << is_included << "\n";
-        //you reached the last word before freq
-        inpstream >> ng.freq;
-        //consistency check of n-gram
-        if (is_included)   outstream << ng << "\n";
-        is_included=true;
-        ng.size=0;
+	if (ng.size==ngsz){       
+	  if (!(++c % 1000000)) cerr << ".";
+	  //cerr << ng << " -> " << is_included << "\n";
+	  //you reached the last word before freq
+	  inpstream >> ng.freq;
+	  //consistency check of n-gram
+	  if (is_included)   outstream << ng << "\n";
+	  is_included=true;
+	  ng.size=0;
+	}
       }
+      
+      outstream.flush();
+      inpstream.flush();
     }
-    
+
     exit(1);
   }
   
