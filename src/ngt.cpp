@@ -32,11 +32,12 @@ int main(int argc, char **argv)
   char *dic=NULL;       // dictionary filename 
   char *subdic=NULL;    // subdictionary filename 
   char *filterdict=NULL;    // subdictionary filename
-  char *filtertable=NULL;    // subdictionary filename 
+  char *filtertable=NULL;   // ngramtable filename 
+  double filter_hit_rate=1.0;  // minimum hit rate of filter
   char *isym=NULL;      // interruption symbol
   char *aug=NULL;       // augmentation data
   char *hmask=NULL;        // historymask
-	int inputgoogleformat=0;    //reads ngrams in Google format
+  int inputgoogleformat=0;    //reads ngrams in Google format
   int outputgoogleformat=0;    //print ngrams in Google format
   int ngsz=0;           // n-gram default size 
   int dstco=0;          // compute distance co-occurrences 
@@ -49,47 +50,49 @@ int main(int argc, char **argv)
   int memuse=NO;
 	
   DeclareParams(
-								"Dictionary", CMDSTRINGTYPE, &dic,
-								"d", CMDSTRINGTYPE, &dic,
-								"IntSymb", CMDSTRINGTYPE, &isym,
-								"is", CMDSTRINGTYPE, &isym,
-								"NgramSize", CMDSUBRANGETYPE, &ngsz, 1 , MAX_NGRAM,
-								"n", CMDSUBRANGETYPE, &ngsz, 1 , MAX_NGRAM,
-								"InputFile", CMDSTRINGTYPE, &inp,
-								"i", CMDSTRINGTYPE, &inp,
-								"OutputFile", CMDSTRINGTYPE, &out,
-								"o", CMDSTRINGTYPE, &out,
+		"Dictionary", CMDSTRINGTYPE, &dic,
+		"d", CMDSTRINGTYPE, &dic,
+		"IntSymb", CMDSTRINGTYPE, &isym,
+		"is", CMDSTRINGTYPE, &isym,
+		"NgramSize", CMDSUBRANGETYPE, &ngsz, 1 , MAX_NGRAM,
+		"n", CMDSUBRANGETYPE, &ngsz, 1 , MAX_NGRAM,
+		"InputFile", CMDSTRINGTYPE, &inp,
+		"i", CMDSTRINGTYPE, &inp,
+		"OutputFile", CMDSTRINGTYPE, &out,
+		"o", CMDSTRINGTYPE, &out,
                 "InputGoogleFormat", CMDENUMTYPE, &inputgoogleformat, BooleanEnum,
                 "gooinp", CMDENUMTYPE, &inputgoogleformat, BooleanEnum,
-								"OutputGoogleFormat", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
-								"gooout", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
-								"SaveBinaryTable", CMDENUMTYPE, &bin, BooleanEnum,
-								"b", CMDENUMTYPE, &bin, BooleanEnum,
-								"LmTable", CMDENUMTYPE, &LMflag, BooleanEnum,
-								"lm", CMDENUMTYPE, &LMflag, BooleanEnum,
-								"DistCo", CMDINTTYPE, &dstco, 
-								"dc", CMDINTTYPE, &dstco, 
-								"AugmentFile", CMDSTRINGTYPE, &aug,
-								"aug", CMDSTRINGTYPE, &aug,
-								"SaveSingle", CMDENUMTYPE, &ss, BooleanEnum,
-								"ss", CMDENUMTYPE, &ss, BooleanEnum,
-								"SubDict", CMDSTRINGTYPE, &subdic,
-								"sd", CMDSTRINGTYPE, &subdic,
-								"FilterDict", CMDSTRINGTYPE, &filterdict,
-								"fd", CMDSTRINGTYPE, &filterdict,
-								"ConvDict", CMDSTRINGTYPE, &subdic,
-								"cd", CMDSTRINGTYPE, &subdic,
+		"OutputGoogleFormat", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
+		"gooout", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
+		"SaveBinaryTable", CMDENUMTYPE, &bin, BooleanEnum,
+		"b", CMDENUMTYPE, &bin, BooleanEnum,
+		"LmTable", CMDENUMTYPE, &LMflag, BooleanEnum,
+		"lm", CMDENUMTYPE, &LMflag, BooleanEnum,
+		"DistCo", CMDINTTYPE, &dstco, 
+		"dc", CMDINTTYPE, &dstco, 
+		"AugmentFile", CMDSTRINGTYPE, &aug,
+		"aug", CMDSTRINGTYPE, &aug,
+		"SaveSingle", CMDENUMTYPE, &ss, BooleanEnum,
+		"ss", CMDENUMTYPE, &ss, BooleanEnum,
+		"SubDict", CMDSTRINGTYPE, &subdic,
+		"sd", CMDSTRINGTYPE, &subdic,
+		"FilterDict", CMDSTRINGTYPE, &filterdict,
+		"fd", CMDSTRINGTYPE, &filterdict,
+		"ConvDict", CMDSTRINGTYPE, &subdic,
+		"cd", CMDSTRINGTYPE, &subdic,
                 "FilterTable", CMDSTRINGTYPE, &filtertable,
-								"ft", CMDSTRINGTYPE, &filtertable,
-								"HistoMask",CMDSTRINGTYPE, &hmask,
-								"hm",CMDSTRINGTYPE, &hmask,
-								"InpLen",CMDINTTYPE, &inplen,
-								"il",CMDINTTYPE, &inplen,
-								"tlm", CMDENUMTYPE, &tlm, BooleanEnum,
-								"ftlm", CMDSTRINGTYPE, &ftlm,
-								"memuse", CMDENUMTYPE, &memuse, BooleanEnum,
-								(char *)NULL
-								);
+		"ftr", CMDDOUBLETYPE, &filter_hit_rate,
+                "FilterTableRate", CMDDOUBLETYPE, &filter_hit_rate,
+		"ft", CMDSTRINGTYPE, &filtertable,
+		"HistoMask",CMDSTRINGTYPE, &hmask,
+		"hm",CMDSTRINGTYPE, &hmask,
+		"InpLen",CMDINTTYPE, &inplen,
+		"il",CMDINTTYPE, &inplen,
+		"tlm", CMDENUMTYPE, &tlm, BooleanEnum,
+		"ftlm", CMDSTRINGTYPE, &ftlm,
+		"memuse", CMDENUMTYPE, &memuse, BooleanEnum,
+		(char *)NULL
+		);
   
   GetParams(&argc, &argv, (char*) NULL);
   
@@ -118,12 +121,19 @@ int main(int argc, char **argv)
     
       cerr << "Filtering table " << inp << " assumed to be in Google Format with size " << ngsz << "\n"; 
       cerr << "with table " << filtertable <<  " of size " << ngt.maxlevel() << "\n";
-    
-    
+      cerr << "with hit rate " << filter_hit_rate << "\n";
+
+      //order of filter table must be smaller than that of input n-grams
+      assert(ngt.maxlevel() <= ngsz);
+
       //read input googletable of ngrams of size ngsz
-      //output entries made of n-grams contained in filtertable
+      //output entries made of at least X% n-grams contained in filtertable
+      //<unk> words are not accepted
+
       ngram ng(ngt.dict), ng2(ng.dict);
-      bool is_included=true;
+      double hits=0;
+      double maxhits=(double)(ngsz-ngt.maxlevel()+1);
+
       long c=0;
       while(inpstream >> ng){
       
@@ -131,11 +141,8 @@ int main(int argc, char **argv)
 	  //need to make a copy
 	  ng2=ng; ng2.size=ngt.maxlevel();  
 	  //cerr << "check if " << ng2 << " is contained: ";
-	  is_included=is_included && ngt.get(ng2)!=0;
-	  //cerr << (is_included?"yes":"no") << "\n";
+	  hits+=(ngt.get(ng2)?1:0);
 	}
-	else
-	  is_included=true;
 
 	if (ng.size==ngsz){       
 	  if (!(++c % 1000000)) cerr << ".";
@@ -143,8 +150,11 @@ int main(int argc, char **argv)
 	  //you reached the last word before freq
 	  inpstream >> ng.freq;
 	  //consistency check of n-gram
-	  if (is_included)   outstream << ng << "\n";
-	  is_included=true;
+	  if (((hits/maxhits)>=filter_hit_rate) &&
+	      (!ng.containsWord(ngt.dict->OOV(),ng.size))
+	      )
+	    outstream << ng << "\n";
+	  hits=0;
 	  ng.size=0;
 	}
       }
@@ -158,12 +168,12 @@ int main(int argc, char **argv)
   
   
   
-	//ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,dstco,hmask,inplen,table_type);
-	ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,filterdict,inputgoogleformat,dstco,hmask,inplen,table_type);
+  //ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,dstco,hmask,inplen,table_type);
+  ngramtable* ngt=new ngramtable(inp,ngsz,isym,dic,filterdict,inputgoogleformat,dstco,hmask,inplen,table_type);
 		
   if (aug){
     ngt->dict->incflag(1);
-		//    ngramtable ngt2(aug,ngsz,isym,NULL,0,NULL,0,table_type);
+    //    ngramtable ngt2(aug,ngsz,isym,NULL,0,NULL,0,table_type);
     ngramtable ngt2(aug,ngsz,isym,NULL,NULL,0,0,NULL,0,table_type);
     ngt->augment(&ngt2);
     ngt->dict->incflag(0);
@@ -175,9 +185,9 @@ int main(int argc, char **argv)
     int c=0;
     //dictionary sd(subdic,500000,isym,NULL);
 		
-		//ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,0,NULL,0,table_type);
+    //ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,0,NULL,0,table_type);
     ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,NULL,0,0,NULL,0,table_type);
-		ngt2->dict->load(subdic);
+    ngt2->dict->load(subdic);
     ngt2->dict->cleanfreq();
 		
     //possibly include standard symbols
@@ -204,7 +214,7 @@ int main(int argc, char **argv)
 		
     for (int i=0;i<ngt->dict->size();i++){
       ngt2->dict->incfreq(ngt2->dict->encode(ngt->dict->decode(i)),
-													ngt->dict->freq(i));
+			  ngt->dict->freq(i));
     }
 		
     cerr <<" oov: " << ngt2->dict->freq(ngt2->dict->oovcode()) << "\n";
@@ -216,7 +226,7 @@ int main(int argc, char **argv)
   
   if (ngsz < ngt->maxlevel() && hmask){
     cerr << "start projection of ngramtable " << inp 
-		<< " according to hmask\n"; 
+	 << " according to hmask\n"; 
 		
     int i,c;
     int selmask[MAX_NGRAM];
@@ -226,7 +236,7 @@ int main(int argc, char **argv)
     for (c=0;c< (int)strlen(hmask);c++){
       cerr << hmask[c] << "\n";
       if (hmask[c] == '1')
-				selmask[i++]=c+2;
+	selmask[i++]=c+2;
     }
 		
     if (i!= ngsz){
@@ -236,11 +246,11 @@ int main(int argc, char **argv)
 		
     if (selmask[ngsz-1] >  ngt->maxlevel()){
       cerr << "wrong mask: farest bits=" << selmask[ngsz-1] 
-			<< " maxlev=" << ngt->maxlevel() << "\n";
+	   << " maxlev=" << ngt->maxlevel() << "\n";
       exit(1);
     }
 		
-		//ngramtable* ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,NULL,0,table_type);
+    //ngramtable* ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,NULL,0,table_type);
     ngramtable* ngt2=new ngramtable(NULL,ngsz,NULL,NULL,NULL,0,0,NULL,0,table_type);
 		
     ngt2->dict->incflag(1);
@@ -253,7 +263,7 @@ int main(int argc, char **argv)
     while (ngt->scan(ng,CONT,ngt->maxlevel())){
       //projection
       for (i=0;i<ngsz;i++)
-				*png.wordp(i+1)=*ng.wordp(selmask[i]);
+	*png.wordp(i+1)=*ng.wordp(selmask[i]);
       png.freq=ng.freq;
       //transfer
       ng2.trans(png);      
@@ -271,7 +281,7 @@ int main(int argc, char **argv)
 		
     for (int i=0;i<ngt->dict->size();i++){
       ngt2->dict->incfreq(ngt2->dict->encode(ngt->dict->decode(i)),
-													ngt->dict->freq(i));
+			  ngt->dict->freq(i));
     }
     
     cerr <<" oov: " << ngt2->dict->freq(ngt2->dict->oovcode()) << "\n";
@@ -282,18 +292,18 @@ int main(int argc, char **argv)
 	
 	
   if (tlm && table_type==LEAFPROB){
-		ngram ng(ngt->dict);
-		cout.setf(ios::scientific);
+    ngram ng(ngt->dict);
+    cout.setf(ios::scientific);
     
     cout << "> ";
     while(cin >> ng){
       ngt->bo_state(0);
       if (ng.size>=ngsz){
-				cout << ng << " p= " << log(ngt->prob(ng));
-				cout << " bo= " << ngt->bo_state() << "\n";
+	cout << ng << " p= " << log(ngt->prob(ng));
+	cout << " bo= " << ngt->bo_state() << "\n";
       }
       else
-				cout << ng << " p= NULL\n";
+	cout << ng << " p= NULL\n";
       
       cout << "> ";
     }
@@ -317,17 +327,17 @@ int main(int argc, char **argv)
 			
       // reset ngram at begin of sentence
       if (*ng.wordp(1)==bos){
-				ng.size=1;
-				continue;
+	ng.size=1;
+	continue;
       }
 			
       ngt->bo_state(0);
       if (ng.size>=1){
-				logPr+=log(ngt->prob(ng));
-				if (*ng.wordp(1) == ngt->dict->oovcode())
-					Noov++;
+	logPr+=log(ngt->prob(ng));
+	if (*ng.wordp(1) == ngt->dict->oovcode())
+	  Noov++;
 				
-				Nw++; if (ngt->bo_state()) Nbo++;
+	Nw++; if (ngt->bo_state()) Nbo++;
       }	
     }
     
@@ -341,8 +351,8 @@ int main(int argc, char **argv)
     
     
     cout << "%% Nw=" << Nw << " PP=" << PP << " PPwp=" << PPwp
-			<< " Nbo=" << Nbo << " Noov=" << Noov 
-			<< " OOV=" << (float)Noov/Nw * 100.0 << "%\n";
+	 << " Nbo=" << Nbo << " Noov=" << Noov 
+	 << " OOV=" << (float)Noov/Nw * 100.0 << "%\n";
     
   }
 	
@@ -350,7 +360,7 @@ int main(int argc, char **argv)
   if (memuse)  ngt->stat(0);
 	
   if (out)
-		bin?ngt->savebin(out,ngsz): ngt->savetxt(out,ngsz,outputgoogleformat);
+    bin?ngt->savebin(out,ngsz): ngt->savetxt(out,ngsz,outputgoogleformat);
 	
 	
 }
