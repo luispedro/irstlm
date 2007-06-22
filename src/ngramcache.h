@@ -38,10 +38,11 @@ private:
 public:
     
   int cursize(){return entries;};
+  int maxsize(){return maxn;};
   ngramcache(int n,int size,int maxentries);  
+  char* get(const int* ngp,char* info=NULL);  
   ~ngramcache();  
   void reset(int n=0);  
-  char* get(const int* ngp,char* info=NULL);  
   int add(const int* ngp,const char* info);  
   int isfull(){return (entries >= maxn);};  
   void stat();

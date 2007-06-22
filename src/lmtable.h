@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #include "dictionary.h"
 #include "n_gram.h"
 
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 //#undef TRACE_CACHE
 
 #define LMTMAXLEV  20
@@ -182,14 +184,14 @@ public:
       if (lmtcache[i]->isfull()) lmtcache[i]->reset(lmtcache[i]->cursize());
   };
     
-    void reset_caches(){
-      if (probcache) probcache->reset(probcache->cursize());
-      if (statecache) statecache->reset(statecache->cursize());
+    void reset_caches(){ 
+      if (probcache) probcache->reset(MAX(probcache->cursize(),probcache->maxsize()));
+      if (statecache) statecache->reset(MAX(statecache->cursize(),statecache->maxsize()));
       for (int i=2;i<=max_cache_lev;i++)
-        lmtcache[i]->reset(lmtcache[i]->cursize());
+        lmtcache[i]->reset(MAX(lmtcache[i]->cursize(),lmtcache[i]->maxsize()));
     };
     
-  
+ 
   void reset_mmap();
        
   bool is_probcache_active(){return probcache!=NULL;}
