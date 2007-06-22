@@ -19,7 +19,7 @@ mkdir bin bin/$UNAME_MACHTYPE lib lib/$UNAME_MACHTYPE include > /dev/null 2>&1
 cp scripts/*.sh bin > /dev/null 2>&1
 cp scripts/*.pl bin > /dev/null 2>&1
 
-ln src/*.h include > /dev/null 2>&1
+cp src/*.h include > /dev/null 2>&1
 
 if [ ! -d bin/$UNAME_MACHTYPE -o ! -d lib/$UNAME_MACHTYPE ]; then
 	echo "THERE WAS A PROBLEM WHILE CREATING bin/$UNAME_MACHTYPE and lib/$UNAME_MACHTYPE"

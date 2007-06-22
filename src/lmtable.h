@@ -183,14 +183,13 @@ public:
     for (int i=2;i<=max_cache_lev;i++)
       if (lmtcache[i]->isfull()) lmtcache[i]->reset(lmtcache[i]->cursize());
   };
-    
+   
     void reset_caches(){ 
       if (probcache) probcache->reset(MAX(probcache->cursize(),probcache->maxsize()));
       if (statecache) statecache->reset(MAX(statecache->cursize(),statecache->maxsize()));
       for (int i=2;i<=max_cache_lev;i++)
         lmtcache[i]->reset(MAX(lmtcache[i]->cursize(),lmtcache[i]->maxsize()));
     };
-    
  
   void reset_mmap();
        
