@@ -29,6 +29,8 @@ if [ ! $IRSTLM ]; then
 fi
 
 #paths to scripts and commands in irstlm
+MACHTYPE=`uname -m`
+
 scr=$IRSTLM/bin/
 bin=$IRSTLM/bin/$MACHTYPE
 

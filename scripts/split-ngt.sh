@@ -6,8 +6,8 @@
 #containing ngram statistics (of <order> length) in Google format
 #These files are a partition of the whole set of ngrams
 
-basedir=~/workspace/irstlm/
-basedir=/voxgate/ssi/cettolo/irstlm/
+MACHTYPE=`uname -m`
+basedir=$IRSTLM
 bindir=$basedir/bin/$MACHTYPE
 scriptdir=$basedir/scripts
 
