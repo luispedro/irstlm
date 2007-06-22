@@ -1,5 +1,7 @@
 #! /bin/sh -w
 
+MACHTYPE=`uname -m`
+
 bin=$IRSTLM/bin/$MACHTYPE
 
 testdir=$1
