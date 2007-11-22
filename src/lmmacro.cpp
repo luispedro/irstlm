@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #include "lmmacro.h"
 #include "util.h"
 
+
 using namespace std;
 
 // local utilities: start
@@ -78,6 +79,19 @@ bool lmmacro::loadmap(string lmfilename, istream& inp, istream& inpMap) {
     lmtable::load(inp,lmfilename.c_str(),NULL,0);
 #endif  
 
+  // get header (selection field):
+  inpMap.getline(line,MAX_LINE,'\n');
+  tokenN = parseWords(line,words,MAX_TOKEN_N_MAP);
+  if (tokenN != 2 || strcmp(words[0],"FIELD")!=0)
+    error("ERROR: wrong header format of map file\n[correct: FIELD <int>]\n");
+  selectedField = atoi(words[1]);
+  if (selectedField==-1 || selectedField==-2)
+    cerr << "no selected field: the whole string is used\n";
+  else if (selectedField>=0 && selectedField<10)
+    cerr << "selected field n. " << selectedField << "\n";
+  else
+    error("ERROR: wrong header format of map file\n[correct: FIELD <int>]\n");
+
   // Load the dictionary of micro tags (to be put in "dict" of lmmacro class):
   getDict()->incflag(1);
   while (inpMap.getline(line,MAX_LINE,'\n')){
@@ -100,7 +114,7 @@ bool lmmacro::loadmap(string lmfilename, istream& inp, istream& inpMap) {
       microMacroMap = (int *)realloc(microMacroMap, sizeof(int)*(microMacroMapN+BUFSIZ));
     microMacroMap[microMacroMapN++] = lmtable::getDict()->getcode(macroW);
   }
-  getDict()->incflag(0);
+  //  getDict()->incflag(0);
   getDict()->genoovcode();
 
 #ifdef DEBUG
@@ -121,6 +135,10 @@ bool lmmacro::loadmap(string lmfilename, istream& inp, istream& inpMap) {
 
 double lmmacro::lprob(ngram micro_ng) {
 
+#ifdef DEBUG
+  cout << " lmmacro::lprob, parameter = <" <<  micro_ng << ">\n";
+#endif
+
   ngram macro_ng(lmtable::getDict());
 
   if (micro_ng.dict ==  macro_ng.dict)
@@ -128,13 +146,17 @@ double lmmacro::lprob(ngram micro_ng) {
   else
     map(&micro_ng, &macro_ng); // mapping required
 
-  //  cout <<  "micro_ng = " << micro_ng << "\n";
-  //  cout <<  "macro_ng = " << macro_ng << "\n";
+#ifdef DEBUG
+  cout <<  "lmmacro::lprob: micro_ng = " << micro_ng << "\n";
+  cout <<  "lmmacro::lprob: macro_ng = " << macro_ng << "\n";
+#endif
 
   // ask LM with macro 
   double prob;
   prob = lmtable::lprob(macro_ng);
-  //  cout << "prob = " << prob << "\n";
+#ifdef DEBUG
+  cout << "prob = " << prob << "\n";
+#endif
 
   return prob; 
 }; 
@@ -142,10 +164,32 @@ double lmmacro::lprob(ngram micro_ng) {
 
 double lmmacro::clprob(ngram micro_ng) {
 
+#ifdef DEBUG
+  cout << " lmmacro::clprob, parameter = <" <<  micro_ng << ">\n";
+#endif
+
   double logpr;
   ngram macro_ng(lmtable::getDict());
 
   map(&micro_ng, &macro_ng);
+  cout <<  "\n";
+  cout <<  "lmmacro::clprob: micro_ng = " << micro_ng << "\n";
+  cout <<  "lmmacro::clprob: macro_ng = " << macro_ng << "\n";
+
+  ngram prevMicro_ng(micro_ng);
+  ngram prevMacro_ng(lmtable::getDict());
+  prevMicro_ng.shift();
+
+  map(&prevMicro_ng, &prevMacro_ng);
+  cout <<  "lmmacro::clprob: prevMicro_ng = " << prevMicro_ng << "\n";
+  cout <<  "lmmacro::clprob: prevMacro_ng = " << prevMacro_ng << "\n";
+
+
+
+#ifdef DEBUG
+  cout <<  "lmmacro::clprob: micro_ng = " << micro_ng << "\n";
+  cout <<  "lmmacro::clprob: macro_ng = " << macro_ng << "\n";
+#endif
 
   if (macro_ng.size==0) return 0.0;
 
@@ -162,14 +206,70 @@ double lmmacro::clprob(ngram micro_ng) {
 
   if (probcache && macro_ng.size==maxlev){
      probcache->add(macro_ng.wordp(maxlev),(char *)&logpr);
-  };
+  }
 
   return logpr;
 }; 
 
 
-
 void lmmacro::map(ngram *in, ngram *out)
+{
+
+  if (selectedField==-2) // the whole token is compatible with the LM words
+    One2OneMapping(in, out);
+
+  else if (selectedField==-1) // the whole token is compatible with the LM words
+    Micro2MacroMapping(in, out);
+
+  else { // select the field "selectedField" from tokens (separator is assumed to be "#")
+    ngram field_ng(getDict());
+
+    int microsize = in->size;
+    for (int i=microsize; i>0; i--) {
+      char curr_token[BUFSIZ];
+      strcpy(curr_token, getDict()->decode(*(in->wordp(i))));
+      char *field;
+      if (strcmp(curr_token,"<s>") &&
+	  strcmp(curr_token,"</s>") &&
+	  strcmp(curr_token,"_unk_")) {
+	field = strtok(curr_token, "#");
+	for (int j=0; j<selectedField; j++)
+	  field = strtok(0, "#");
+      } else
+	field = curr_token;
+      if (field)
+	field_ng.pushw(field);
+      else {
+	field_ng.pushw("_unk_");
+	//      cerr << *in << "\n";
+	//	error("ERROR: no separator # in token\n");
+      }
+    }
+    if (microMacroMapN>0) 
+      Micro2MacroMapping(&field_ng, out);
+    else
+      out->trans(field_ng);
+  }
+}
+
+void lmmacro::One2OneMapping(ngram *in, ngram *out)
+{
+
+  int insize = in->size;
+
+  // map each token of the sequence "in" into the same-length sequence "out" through the map
+
+  for (int i=insize; i>0; i--) {
+
+    char *outtoken = 
+      lmtable::getDict()->decode((*(in->wordp(i))<microMacroMapN)?microMacroMap[*(in->wordp(i))]:lmtable::getDict()->oovcode());
+    out->pushw(outtoken);
+  }
+  return;
+}
+
+
+void lmmacro::Micro2MacroMapping(ngram *in, ngram *out)
 {
 
   int microsize = in->size;
@@ -182,8 +282,8 @@ void lmmacro::map(ngram *in, ngram *out)
       (i<microsize)?getDict()->decode(*(in->wordp(i+1))):NULL;
     char *curr_microtag = getDict()->decode(*(in->wordp(i)));
     char *prev_macrotag =
-      (i<microsize)?lmtable::getDict()->decode(microMacroMap[*(in->wordp(i+1))]):NULL;
-    char *curr_macrotag = lmtable::getDict()->decode(microMacroMap[*(in->wordp(i))]);
+      (i<microsize)?lmtable::getDict()->decode((*(in->wordp(i+1))<microMacroMapN)?microMacroMap[*(in->wordp(i+1))]:lmtable::getDict()->oovcode()):NULL;
+    char *curr_macrotag = lmtable::getDict()->decode((*(in->wordp(i))<microMacroMapN)?microMacroMap[*(in->wordp(i))]:lmtable::getDict()->oovcode());
 
     if (prev_macrotag == NULL ||
 	strcmp(curr_macrotag,prev_macrotag) != 0 ||

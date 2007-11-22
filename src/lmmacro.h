@@ -42,6 +42,7 @@ public:
   dictionary     *dict;
   int            *microMacroMap;
   int             microMacroMapN;
+  int             selectedField;
 
   lmmacro(std::string lmfilename, std::istream& inp, std::istream& inpMap);
   ~lmmacro() {};
@@ -50,6 +51,8 @@ public:
   double lprob(ngram ng); 
   double clprob(ngram ng); 
   void map(ngram *in, ngram *out);
+  void One2OneMapping(ngram *in, ngram *out);
+  void Micro2MacroMapping(ngram *in, ngram *out);
 
   inline dictionary* getDict() {
     return dict;
