@@ -97,6 +97,18 @@ class ngram{
   friend std::istream& operator>> (std::istream& fi,ngram& ng);
   friend std::ostream& operator<< (std::ostream& fi,ngram& ng);
 
+  inline bool operator==(const ngram &compare) const
+        {
+	  if ( size != compare.size || dict != compare.dict)
+	    return false;
+	  else
+	    for (int i=size;i>0;i--)
+	      if (word[i] != compare.word[i])
+		return false;
+	  return true;
+        };
+
+
   inline int ckhisto(int sz){
     
     for (int i=sz;i>1;i--) 

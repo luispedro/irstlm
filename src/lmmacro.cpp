@@ -170,26 +170,23 @@ double lmmacro::clprob(ngram micro_ng) {
 
   double logpr;
   ngram macro_ng(lmtable::getDict());
-
   map(&micro_ng, &macro_ng);
-  cout <<  "\n";
-  cout <<  "lmmacro::clprob: micro_ng = " << micro_ng << "\n";
-  cout <<  "lmmacro::clprob: macro_ng = " << macro_ng << "\n";
 
   ngram prevMicro_ng(micro_ng);
   ngram prevMacro_ng(lmtable::getDict());
   prevMicro_ng.shift();
-
   map(&prevMicro_ng, &prevMacro_ng);
-  cout <<  "lmmacro::clprob: prevMicro_ng = " << prevMicro_ng << "\n";
-  cout <<  "lmmacro::clprob: prevMacro_ng = " << prevMacro_ng << "\n";
-
-
 
 #ifdef DEBUG
   cout <<  "lmmacro::clprob: micro_ng = " << micro_ng << "\n";
   cout <<  "lmmacro::clprob: macro_ng = " << macro_ng << "\n";
+  cout <<  "lmmacro::clprob: prevMicro_ng = " << prevMicro_ng << "\n";
+  cout <<  "lmmacro::clprob: prevMacro_ng = " << prevMacro_ng << "\n";
 #endif
+
+  // check if we are inside a chunk: in this case, no prob is computed
+  if (prevMacro_ng == macro_ng)
+    return 0.0;
 
   if (macro_ng.size==0) return 0.0;
 
