@@ -175,7 +175,9 @@ double lmmacro::clprob(ngram micro_ng) {
   ngram prevMicro_ng(micro_ng);
   ngram prevMacro_ng(lmtable::getDict());
   prevMicro_ng.shift();
-  map(&prevMicro_ng, &prevMacro_ng);
+
+  map(&prevMicro_ng, &prevMacro_ng); // for saving time, prevMacro_ng could be extracted directly 
+                                     // during the mapping from micro_ng to macro_ng
 
 #ifdef DEBUG
   cout <<  "lmmacro::clprob: micro_ng = " << micro_ng << "\n";
