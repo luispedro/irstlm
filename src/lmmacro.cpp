@@ -210,6 +210,88 @@ double lmmacro::clprob(ngram micro_ng) {
   return logpr;
 }; 
 
+//maxsuffptr returns the largest suffix of an n-gram that is contained 
+//in the LM table. This can be used as a compact representation of the 
+//(n-1)-gram state of a n-gram LM. if the input k-gram has k>=n then it 
+//is trimmed to its n-1 suffix.
+
+const char *lmmacro::maxsuffptr(ngram micro_ng){  
+//cerr << "lmmacro::maxsuffptr\n";
+//cerr << "micro_ng: " << micro_ng	
+//	<< " -> micro_ng.size: " << micro_ng.size << "\n";
+
+//the LM working on the selected field = 0
+//contributes to the LM state
+//  if (selectedField>0)    return NULL;
+
+  ngram macro_ng(lmtable::getDict());
+
+  if (micro_ng.dict ==  macro_ng.dict)
+    macro_ng.trans(micro_ng);  // micro to macro mapping already done
+  else
+    map(&micro_ng, &macro_ng); // mapping required
+
+#ifdef DEBUG
+  cout <<  "lmmacro::lprob: micro_ng = " << micro_ng << "\n";
+  cout <<  "lmmacro::lprob: macro_ng = " << macro_ng << "\n";
+#endif
+
+  if (macro_ng.size==0) return (char*) NULL;
+  if (macro_ng.size>=maxlev) macro_ng.size=maxlev-1;
+  
+  ngram ng=macro_ng;
+  //ngram ng(lmtable::getDict()); //eventually use the <unk> word
+  //ng.trans(macro_ng);
+  
+  if (get(ng,ng.size,ng.size))
+    return ng.link;
+  else{ 
+    macro_ng.size--;
+    return maxsuffptr(macro_ng);
+  }
+}
+
+const char *lmmacro::cmaxsuffptr(ngram micro_ng){
+//cerr << "lmmacro::CMAXsuffptr\n";
+//cerr << "micro_ng: " << micro_ng	
+//	<< " -> micro_ng.size: " << micro_ng.size << "\n";
+
+//the LM working on the selected field = 0
+//contributes to the LM state
+//  if (selectedField>0)    return NULL;
+
+  ngram macro_ng(lmtable::getDict());
+
+  if (micro_ng.dict ==  macro_ng.dict)
+    macro_ng.trans(micro_ng);  // micro to macro mapping already done
+  else
+    map(&micro_ng, &macro_ng); // mapping required
+
+#ifdef DEBUG
+  cout <<  "lmmacro::lprob: micro_ng = " << micro_ng << "\n";
+  cout <<  "lmmacro::lprob: macro_ng = " << macro_ng << "\n";
+#endif
+
+  if (macro_ng.size==0) return (char*) NULL;
+  if (macro_ng.size>=maxlev) macro_ng.size=maxlev-1;
+
+  char* found;
+  
+  if (statecache && (macro_ng.size==maxlev-1) && statecache->get(macro_ng.wordp(maxlev-1),(char *)&found))
+    return found;
+  
+  found=(char *)maxsuffptr(macro_ng);
+  
+  if (statecache && macro_ng.size==maxlev-1){
+    //if (statecache->isfull()) statecache->reset();
+    statecache->add(macro_ng.wordp(maxlev-1),(char *)&found);    
+  }; 
+  
+  return found;
+}
+
+
+
 
 void lmmacro::map(ngram *in, ngram *out)
 {

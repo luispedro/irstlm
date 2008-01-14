@@ -50,6 +50,10 @@ public:
   bool loadmap(std::string lmfilename, std::istream& inp, std::istream& inpMap);
   double lprob(ngram ng); 
   double clprob(ngram ng); 
+
+  const char *maxsuffptr(ngram ong);
+  const char *cmaxsuffptr(ngram ong);
+
   void map(ngram *in, ngram *out);
   void One2OneMapping(ngram *in, ngram *out);
   void Micro2MacroMapping(ngram *in, ngram *out);

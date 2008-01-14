@@ -249,8 +249,8 @@ public:
   
   int succscan(ngram& h,ngram& ng,LMT_ACTION action,int lev);
   
-  const char *maxsuffptr(ngram ong);
-  const char *cmaxsuffptr(ngram ong);
+  virtual const char *maxsuffptr(ngram ong);
+  virtual const char *cmaxsuffptr(ngram ong);
   
   inline int putmem(char* ptr,int value,int offs,int size){
     assert(ptr!=NULL);

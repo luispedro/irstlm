@@ -1123,7 +1123,10 @@ int lmtable::succscan(ngram& h,ngram& ng,LMT_ACTION action,int lev){
 //is trimmed to its n-1 suffix.
 
 const char *lmtable::maxsuffptr(ngram ong){  
-  
+//cerr << "lmtable::maxsuffptr\n";
+//cerr << "ong: " << ong	
+//	<< " -> ong.size: " << ong.size << "\n";
+
   if (ong.size==0) return (char*) NULL;
   if (ong.size>=maxlev) ong.size=maxlev-1;
   
@@ -1141,7 +1144,10 @@ const char *lmtable::maxsuffptr(ngram ong){
 
 
 const char *lmtable::cmaxsuffptr(ngram ong){  
-  
+//cerr << "lmtable::CMAXsuffptr\n";
+//cerr << "ong: " << ong 
+//	<< " -> ong.size: " << ong.size << "\n";
+
   if (ong.size==0) return (char*) NULL;
   if (ong.size>=maxlev) ong.size=maxlev-1;
   
@@ -1158,7 +1164,6 @@ const char *lmtable::cmaxsuffptr(ngram ong){
   }; 
   
   return found;
-  
 }
 
 
