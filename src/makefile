@@ -10,23 +10,20 @@
 
 #MAC OS X cannot handle -static compilation
 
-UNAME_OSTYPE=$(shell uname -s)
-UNAME_MACHTYPE=$(shell uname -m)
-
-ifeq ($(UNAME_OSTYPE),Darwin)
+ifeq ($(OSTYPE),darwin)
        CPP=g++ -g 
      else
        CPP=g++ -g -static
-		 endif
+endif
 
 CPPFLAGS = -O3 -DMYCODESIZE=3  -Wall
 
 #IRSTLM LIBRARY
 LIBOBJ = cmd.o util.o mempool.o htable.o dictionary.o n_gram.o ngramcache.o lmtable.o lmmacro.o mfstream.o ngramtable.o
-LIBDIR = ../lib/$(UNAME_MACHTYPE)
+LIBDIR = ../lib/$(MACHTYPE)
 LIB = $(LIBDIR)/libirstlm.a
 
-BINDIR = ../bin/$(UNAME_MACHTYPE)
+BINDIR = ../bin/$(MACHTYPE)
 
 %.o : %.cpp %.h
 	$(CPP) -c $(CFLAGS) $(CPPFLAGS) $< -o $@

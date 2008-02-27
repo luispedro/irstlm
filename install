@@ -1,34 +1,33 @@
 #! /bin/sh
 
-UNAME_MACHTYPE=`uname -m`;
-
-if [ ! $UNAME_MACHTYPE ]; then
-    $UNAME_MACHTYPE = $MACHTYPE
-    exit;
+#set machine type for compilation
+if [ ! $MACHTYPE ];then
+	echo "MACHTYPE is actually undefined"
+	echo "Set environment variable MACHTYPE with \"uname -m\""
+	MACHTYPE=`uname -m`
 fi
 
-#set machine type for compilation
-if [ ! $UNAME_MACHTYPE ];then
-	echo "Set environment variable MACHTYPE with architecture"
-	exit;
+#set operating system for compilation
+if [ ! $OSTYPE ];then
+        echo "OSTYPE is actually undefined"
+        echo "Set environment variable OSTYPE with \"uname -s\""
+        OSTYPE=`uname -s`
 fi
 
 echo CREATING DIRECTORIES
-mkdir bin bin/$UNAME_MACHTYPE lib lib/$UNAME_MACHTYPE include > /dev/null 2>&1 
+mkdir -p bin/$MACHTYPE lib/$MACHTYPE > /dev/null 2>&1 
 
-cp scripts/*.sh bin > /dev/null 2>&1
-cp scripts/*.pl bin > /dev/null 2>&1
-
-cp src/*.h include > /dev/null 2>&1
-
-if [ ! -d bin/$UNAME_MACHTYPE -o ! -d lib/$UNAME_MACHTYPE ]; then
-	echo "THERE WAS A PROBLEM WHILE CREATING bin/$UNAME_MACHTYPE and lib/$UNAME_MACHTYPE"
+if [ ! -d bin/$MACHTYPE -o ! -d lib/$MACHTYPE ]; then
+	echo "THERE WAS A PROBLEM WHILE CREATING bin/$MACHTYE and lib/$MACHTYPE"
 	exit;
 fi
 
 echo COMPILING CODE
-cd src
+pushd src
 make clean;make all
-cd ..
+popd 
 
-
+if [ ! -d include ] ; then
+mkdir -p include
+cp src/*.h include
+fi
