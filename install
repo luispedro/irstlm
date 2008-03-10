@@ -7,6 +7,8 @@ if [ ! $MACHTYPE ];then
 	MACHTYPE=`uname -m`
 fi
 
+echo "$MACHTYPE"
+
 #set operating system for compilation
 if [ ! $OSTYPE ];then
         echo "OSTYPE is actually undefined"
@@ -31,3 +33,8 @@ if [ ! -d include ] ; then
 mkdir -p include
 cp src/*.h include
 fi
+
+#installing wrappers
+for file in dict ngt compile-lm quantize-lm ; do
+cp scripts/wrapper bin/$file
+done
