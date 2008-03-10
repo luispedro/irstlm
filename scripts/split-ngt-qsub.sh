@@ -31,24 +31,27 @@ pwdcmd="pwd"
 cmd=`which pawd | head -1 | awk '{print $1}'`
 if [ $cmd -a -e $cmd ] ; then pwdcmd=$cmd ; fi
 workingdir=`$pwdcmd`
+cd `pwd`
 
 qsubout=`pwd`"/OUT$$"
 qsuberr=`pwd`"/ERR$$"
 qsublog=`pwd`"/LOG$$"
-qsubname="NAME"
+qsubname="NGT"
+
+dictfile=dict$$
 
 qsub $queue_parameters -b no -j yes -sync yes -o /dev/null -e /dev/null -N dict << EOF
 cd $workingdir
 $bindir/dict -i="$inputfile" -o=$dictfile -f=y -sort=n >& log_dict
-$scriptdir/split-dict.pl --input $dictfile --output ${dictfile}. --parts $jobs >& log_split-dict
+$scriptdir/split-dict.pl --input $dictfile --output ${dictfile}. --parts $parts >& log_split-dict
 EOF
 
 
 unset suffix
 unset getpids
 #getting list of suffixes
-for file in `ls ${dictfile}.` ; do
-sfx=`echo $file | perl -pe 's/^.+split\-(\S+)$/$1/'`
+for file in `ls ${dictfile}.*` ; do
+sfx=`echo $file | perl -pe 's/^.+\.(\d+)$/$1/'`
 suffix[${#suffix[@]}]=$sfx
 done
 

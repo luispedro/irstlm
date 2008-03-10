@@ -16,6 +16,8 @@ ifeq ($(OSTYPE),darwin)
        CPP=g++ -g -static
 endif
 
+CPP=g++ -static
+
 CPPFLAGS = -O3 -DMYCODESIZE=3  -Wall
 
 #IRSTLM LIBRARY
