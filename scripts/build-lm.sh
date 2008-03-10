@@ -29,10 +29,8 @@ if [ ! $IRSTLM ]; then
 fi
 
 #paths to scripts and commands in irstlm
-MACHTYPE=`uname -m`
-
 scr=$IRSTLM/bin/
-bin=$IRSTLM/bin/$MACHTYPE
+bin=$IRSTLM/bin
 
 #check irstlm installation
 if [ ! -e $bin/dict -o  ! -e $scr/split-dict.pl ]; then
@@ -135,11 +133,11 @@ fi
 #check tmpdir
 if [ ! -d $tmpdir ]; then
    echo "Temporary directory $tmpdir not found";
-   exit;
+   echo "creating $tmpdir";
+   mkdir -p $tmpdir;
 else
     echo "Cleaning temporary directory $tmpdir";
     rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* >& /dev/null
-
 fi
 
 
@@ -157,7 +155,7 @@ $bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.${sdict}.
 done
 
 echo "Estimating language models for each word list"
-for sdict in $tmpdir/dict.*;do
+for sdict in `ls $tmpdir/dict.*` ; do
 sdict=`basename $sdict $tmpdir`
 echo $sdict;
 

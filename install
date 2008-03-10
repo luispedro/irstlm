@@ -37,4 +37,5 @@ fi
 #installing wrappers
 for file in dict ngt compile-lm quantize-lm ; do
 cp scripts/wrapper bin/$file
+chmod 755 bin/$file
 done
