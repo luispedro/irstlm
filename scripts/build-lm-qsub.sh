@@ -15,6 +15,7 @@ OPTIONS:
    -n      Order of language model (default 3)
    -t      Directory for temporary files (default ./stat)
    -p      Prune singleton n-grams (default false)
+   -q      parameters for qsub ("-q <queue>", and any other)
    -s      Smoothing methods: witten-bell (default), kneser-ney (approximated kneser-ney)
    -b      Include sentence boundary n-grams (optional)
    -d      Define subdictionary for n-grams (optional)
@@ -164,8 +165,6 @@ workingdir=`$pwdcmd`
 cd $workingdir
 
 qsub $queueparameters -b no -sync yes -o /dev/null -e /dev/null -N dict << EOF
-export MACHTYPE=$MACHTYPE
-echo exit status $?
 cd $workingdir
 echo exit status $?
 echo "Extracting dictionary from training corpus"
@@ -194,8 +193,6 @@ for sfx in ${suffix[@]} ; do
 
 (\
 qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
-export MACHTYPE=$MACHTYPE
-echo exit status $?
 cd $workingdir
 echo exit status $?
 $bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.dict.${sfx}.gz" -fd="$tmpdir/dict.${sfx}" >& log_ngt-$sfx
@@ -213,7 +210,7 @@ waiting=""
 for id in ${sgepid[@]} ; do waiting="$waiting -hold_jid $id" ; done
 
 qsub $queueparameters -sync yes $waiting -j y -o /dev/null -e /dev/null -N $qsubname.W -b y /bin/ls >& $qsubname.W.log
-
+rm $qsubname.W.log
 
 qsubout="$workingdir/OUT$$"
 qsuberr="$workingdir/ERR$$"
@@ -225,8 +222,6 @@ echo "Estimating language models for each word list"
 for sfx in ${suffix[@]} ; do
 (\
 qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
-export MACHTYPE=$MACHTYPE
-echo exit status $?
 cd $workingdir
 echo exit status $?
 $scr/build-sublm.pl $verbose $prune $smoothing --size $order --ngrams "gunzip -c $tmpdir/ngram.dict.${sfx}.gz" -sublm $tmpdir/lm.dict.${sfx}  >> $logfile 2>&1
@@ -244,19 +239,18 @@ waiting=""
 for id in ${sgepid[@]} ; do waiting="$waiting -hold_jid $id" ; done
 
 qsub $queueparameters -sync yes $waiting -o /dev/null -e /dev/null -N $qsubname.W -b yes /bin/ls >& $qsubname.W.log
-
+rm $qsubname.W.log
 
 echo "Merging language models into $outfile"
 qsub $queueparameters -b no -j yes -sync yes -o /dev/null -e /dev/null -N merge << EOF
-export MACHTYPE=$MACHTYPE
-echo exit status $?
 cd $workingdir
 $scr/merge-sublm.pl --size $order --sublm $tmpdir/lm.dict -lm $outfile  >& log_merge
 EOF
 
 echo "Cleaning temporary directory $tmpdir";
-#rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* >& /dev/null
-rm $qsubout* $qsuberr* $qsublog*
+rm -r $tmpdir >& /dev/null
+rm $qsubout* $qsuberr* $qsublog* >& /dev/null
+rm log_dict log_split-dict log_ngt-* log_merge >& /dev/null
 
 exit
 
