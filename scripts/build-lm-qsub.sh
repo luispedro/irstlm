@@ -23,13 +23,20 @@ OPTIONS:
 EOF
 }
 
+hostname=`uname -n`
+if [ $hostname == "voxgate" ] ; then
+echo "voxgate can not be used as submission host"
+echo "use any other cluster machine"
+exit
+fi
+
 if [ ! $IRSTLM ]; then
    echo "Set IRSTLM environment variable with path to irstlm"
    exit;
 fi
 
 #paths to scripts and commands in irstlm
-scr=$IRSTLM/bin/
+scr=$IRSTLM/bin
 bin=$IRSTLM/bin
 
 #check irstlm installation
@@ -50,8 +57,9 @@ smoothing="--witten-bell";
 prune="";
 boundaries="";
 dictionary="";
+queueparameters=""
 
-while getopts “hvi:o:n:k:t:s:pbl:d:” OPTION
+while getopts “hvi:o:n:k:t:s:q:pbl:d:” OPTION
 do
      case $OPTION in
          h)
@@ -97,6 +105,9 @@ do
          p)
              prune='--prune-singletons';
              ;;
+         q)
+             queueparameters=$OPTARG;
+             ;;
          b)
              boundaries='--cross-sentence';
              ;;
@@ -141,15 +152,18 @@ else
 fi
 
 
-queue_parameters="-q 64bit-8gb.q -l mem_free=2G"
 
-pwdcmd="pwd"
+getPwdCmd() {
+pwdcmd='pwd'
 cmd=`which pawd | head -1 | awk '{print $1}'`
 if [ $cmd -a -e $cmd ] ; then pwdcmd=$cmd ; fi
-workingdir=`$pwdcmd`
-cd `pwd`
+}
 
-qsub $queue_parameters -b no -j yes -sync yes -o /dev/null -e /dev/null -N dict << EOF
+getPwdCmd
+workingdir=`$pwdcmd`
+cd $workingdir
+
+qsub $queueparameters -b no -sync yes -o /dev/null -e /dev/null -N dict << EOF
 export MACHTYPE=$MACHTYPE
 echo exit status $?
 cd $workingdir
@@ -169,9 +183,9 @@ sfx=`echo $file | perl -pe 's/^.+\.(\d+)$/$1/'`
 suffix[${#suffix[@]}]=$sfx
 done
 
-qsubout=`pwd`"/OUT$$"
-qsuberr=`pwd`"/ERR$$"
-qsublog=`pwd`"/LOG$$"
+qsubout="$workingdir/OUT$$"
+qsuberr="$workingdir/ERR$$"
+qsublog="$workingdir/LOG$$"
 qsubname="NGT"
 
 unset getpids
@@ -179,7 +193,7 @@ echo "Extracting n-gram statistics for each word list"
 for sfx in ${suffix[@]} ; do
 
 (\
-qsub $queue_parameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
+qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
 export MACHTYPE=$MACHTYPE
 echo exit status $?
 cd $workingdir
@@ -198,19 +212,19 @@ done
 waiting=""
 for id in ${sgepid[@]} ; do waiting="$waiting -hold_jid $id" ; done
 
-qsub $queue_parameters -sync yes $waiting -j y -o /dev/null -e /dev/null -N $qsubname.W -b y /bin/ls >& $qsubname.W.log
+qsub $queueparameters -sync yes $waiting -j y -o /dev/null -e /dev/null -N $qsubname.W -b y /bin/ls >& $qsubname.W.log
 
 
-qsubout=`pwd`"/OUT$$"
-qsuberr=`pwd`"/ERR$$"
-qsublog=`pwd`"/LOG$$"
+qsubout="$workingdir/OUT$$"
+qsuberr="$workingdir/ERR$$"
+qsublog="$workingdir/LOG$$"
 qsubname="SUBLM"
 
 unset getpids
 echo "Estimating language models for each word list"
 for sfx in ${suffix[@]} ; do
 (\
-qsub $queue_parameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
+qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
 export MACHTYPE=$MACHTYPE
 echo exit status $?
 cd $workingdir
@@ -229,11 +243,11 @@ done
 waiting=""
 for id in ${sgepid[@]} ; do waiting="$waiting -hold_jid $id" ; done
 
-qsub $queue_parameters -sync yes $waiting -j y -o /dev/null -e /dev/null -N $qsubname.W -b y /bin/ls >& $qsubname.W.log
+qsub $queueparameters -sync yes $waiting -o /dev/null -e /dev/null -N $qsubname.W -b yes /bin/ls >& $qsubname.W.log
 
 
 echo "Merging language models into $outfile"
-qsub $queue_parameters -b no -j yes -sync yes -o /dev/null -e /dev/null -N merge << EOF
+qsub $queueparameters -b no -j yes -sync yes -o /dev/null -e /dev/null -N merge << EOF
 export MACHTYPE=$MACHTYPE
 echo exit status $?
 cd $workingdir
