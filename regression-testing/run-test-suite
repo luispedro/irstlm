@@ -12,6 +12,7 @@ my @tests = qw (
   compile-lm
   build-lm
   build-lm-sublm
+  build-lm-qsub
 );
 ############################################################
 
