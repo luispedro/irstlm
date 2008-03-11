@@ -11,13 +11,13 @@
 #MAC OS X cannot handle -static compilation
 
 ifeq ($(OSTYPE),darwin)
-       CPP=g++ -g 
+       CPP=g++ 
      else
-       CPP=g++ -g -static
+       CPP=g++ -static
 endif
 
-CPP=g++ -static
 
+#CPPFLAGS = -g -DMYCODESIZE=3  -Wall
 CPPFLAGS = -O3 -DMYCODESIZE=3  -Wall
 
 #IRSTLM LIBRARY

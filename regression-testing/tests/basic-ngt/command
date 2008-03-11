@@ -1,8 +1,6 @@
 #! /bin/sh -w
 
-MACHTYPE=`uname -m`
-
-bin=$IRSTLM/bin/$MACHTYPE
+bin=$IRSTLM/bin
 
 testdir=$1
 cd $testdir
