@@ -1,16 +1,26 @@
 #! /bin/sh 
 
 release=5.03.00
-cd ..
-tar  -czf irstlm-$release.tgz \
-irstlm/src/*.cpp irstlm/src/*.c \
-irstlm/src/*.h irstlm/src/makefile \
-irstlm/scripts/*.sh irstlm/scripts/*.pl \
-irstlm/readme irstlm/install irstlm/doc/* \
-irstlm/example/train.gz irstlm/example/test
+release=pippo
 
-echo Add release to sourceforge server as follows:
-echo 1. cd ..
-echo 2. ftp anonymous@upload.sourceforge.net:
-echo 3. cd incoming 
-echo 4. put irstlm-$release.tgz
+echo "This is the release $release of the Open Source IRSTLM Toolkit." > release.txt
+
+cd ..
+tar  -czf irstlm-$release.tgz --exclude '.*' --exclude '*.o' \
+irstlm/src \
+irstlm/scripts \
+irstlm/doc \
+irstlm/example/train.gz irstlm/example/test \
+irstlm/readme irstlm/install \
+irstlm/release.txt
+
+cat << EOF
+Add release to sourceforge server as follows:
+1. cd ..
+2. ftp upload.sourceforge.net (connect with anonymous user and password)
+3. cd incoming 
+4. put irstlm-$release.tgz
+5. quit
+6. After that go the Sourceforge website
+   and follow the instructions to add a new release
+EOF

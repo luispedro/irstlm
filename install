@@ -43,11 +43,6 @@ pushd src
 make clean;make all
 popd 
 
-if [ ! -d include ] ; then
-mkdir -p include
-cp src/*.h include
-fi
-
 #instaaling scripts
 cp scripts/*.sh bin
 cp scripts/*.pl bin
