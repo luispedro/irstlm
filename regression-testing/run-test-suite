@@ -12,9 +12,23 @@ my @tests = qw (
   compile-lm
   build-lm
   build-lm-sublm
+);
+
+my @qsubtests = qw (
   build-lm-qsub
 );
-############################################################
+
+if (@qsubtests){
+my $cmd=&getQsubCmd();
+
+if (!defined($cmd)){
+	print STDERR "Regression tests (@qsubtests) can not run on $ENV{HOST}\nbecause SGE is not installed\n\n"; 
+}else{
+	push @tests, @qsubtests;
+}
+}
+
+###########################################################
 
 use IrstLMRegressionTesting;
 use File::Temp qw ( tempfile );
@@ -81,5 +95,12 @@ sub do_test {
     $o =~ s/^RESULTS AVAIL.*$//mo;
   }
   return ($res, $o, $od);
+}
+
+sub getQsubCmd {
+        my $a =`which qsub | head -1 | awk '{print \$1}'`;
+        chomp($a);
+        if ($a && -e $a){ return $a; }
+        else{ return undef; }
 }
 
