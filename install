@@ -1,14 +1,14 @@
 #! /bin/sh
 
 #set machine type for compilation
-if [ ! $MACHTYPE ];then
+if [ -z $MACHTYPE ];then
 	echo "MACHTYPE is actually undefined"
 	echo "Set environment variable MACHTYPE with \"uname -m\""
 	MACHTYPE=`uname -m`
 fi
 
 #set operating system for compilation
-if [ ! $OSTYPE ];then
+if [ -z $OSTYPE ];then
         echo "OSTYPE is actually undefined"
         echo "Set environment variable OSTYPE with \"uname -s\""
         OSTYPE=`uname -s`
@@ -37,6 +37,9 @@ ln -s i386 i386-redhat-linux-gnu
 popd
 done
 fi
+
+export MACHTYPE
+export OSTYPE
 
 echo COMPILING CODE
 pushd src
