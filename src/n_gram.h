@@ -103,10 +103,22 @@ class ngram{
 	    return false;
 	  else
 	    for (int i=size;i>0;i--)
-	      if (word[i] != compare.word[i])
+	      if (word[MAX_NGRAM-i] != compare.word[MAX_NGRAM-i])
 		return false;
 	  return true;
         };
+
+  inline bool operator!=(const ngram &compare) const
+        {
+          if ( size != compare.size || dict != compare.dict)
+            return true;
+          else
+            for (int i=size;i>0;i--)
+              if (word[MAX_NGRAM-i] != compare.word[MAX_NGRAM-i])
+                return true;
+          return false;
+        };
+
 
 
   inline int ckhisto(int sz){
