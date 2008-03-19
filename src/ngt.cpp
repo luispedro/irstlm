@@ -1,3 +1,27 @@
+/******************************************************************************
+IrstLM: IRST Language Model Toolkit
+Copyright (C) 2006 Marcello Federico, ITC-irst Trento, Italy
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+
+******************************************************************************/
+
+// ngt  
+// by M. Federico
+// Copyright Marcello Federico, ITC-irst, 1998
+
 using namespace std;
 
 #include <cmath>
@@ -50,49 +74,49 @@ int main(int argc, char **argv)
   int memuse=NO;
 	
   DeclareParams(
-		"Dictionary", CMDSTRINGTYPE, &dic,
-		"d", CMDSTRINGTYPE, &dic,
-		"IntSymb", CMDSTRINGTYPE, &isym,
-		"is", CMDSTRINGTYPE, &isym,
-		"NgramSize", CMDSUBRANGETYPE, &ngsz, 1 , MAX_NGRAM,
-		"n", CMDSUBRANGETYPE, &ngsz, 1 , MAX_NGRAM,
-		"InputFile", CMDSTRINGTYPE, &inp,
-		"i", CMDSTRINGTYPE, &inp,
-		"OutputFile", CMDSTRINGTYPE, &out,
-		"o", CMDSTRINGTYPE, &out,
+                "Dictionary", CMDSTRINGTYPE, &dic,
+                "d", CMDSTRINGTYPE, &dic,
+                "IntSymb", CMDSTRINGTYPE, &isym,
+                "is", CMDSTRINGTYPE, &isym,
+                "NgramSize", CMDSUBRANGETYPE, &ngsz, 1 , MAX_NGRAM,
+                "n", CMDSUBRANGETYPE, &ngsz, 1 , MAX_NGRAM,
+                "InputFile", CMDSTRINGTYPE, &inp,
+                "i", CMDSTRINGTYPE, &inp,
+                "OutputFile", CMDSTRINGTYPE, &out,
+                "o", CMDSTRINGTYPE, &out,
                 "InputGoogleFormat", CMDENUMTYPE, &inputgoogleformat, BooleanEnum,
                 "gooinp", CMDENUMTYPE, &inputgoogleformat, BooleanEnum,
-		"OutputGoogleFormat", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
-		"gooout", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
-		"SaveBinaryTable", CMDENUMTYPE, &bin, BooleanEnum,
-		"b", CMDENUMTYPE, &bin, BooleanEnum,
-		"LmTable", CMDENUMTYPE, &LMflag, BooleanEnum,
-		"lm", CMDENUMTYPE, &LMflag, BooleanEnum,
-		"DistCo", CMDINTTYPE, &dstco, 
-		"dc", CMDINTTYPE, &dstco, 
-		"AugmentFile", CMDSTRINGTYPE, &aug,
-		"aug", CMDSTRINGTYPE, &aug,
-		"SaveSingle", CMDENUMTYPE, &ss, BooleanEnum,
-		"ss", CMDENUMTYPE, &ss, BooleanEnum,
-		"SubDict", CMDSTRINGTYPE, &subdic,
-		"sd", CMDSTRINGTYPE, &subdic,
-		"FilterDict", CMDSTRINGTYPE, &filterdict,
-		"fd", CMDSTRINGTYPE, &filterdict,
-		"ConvDict", CMDSTRINGTYPE, &subdic,
-		"cd", CMDSTRINGTYPE, &subdic,
+                "OutputGoogleFormat", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
+                "gooout", CMDENUMTYPE, &outputgoogleformat, BooleanEnum,
+                "SaveBinaryTable", CMDENUMTYPE, &bin, BooleanEnum,
+                "b", CMDENUMTYPE, &bin, BooleanEnum,
+                "LmTable", CMDENUMTYPE, &LMflag, BooleanEnum,
+                "lm", CMDENUMTYPE, &LMflag, BooleanEnum,
+                "DistCo", CMDINTTYPE, &dstco, 
+                "dc", CMDINTTYPE, &dstco, 
+                "AugmentFile", CMDSTRINGTYPE, &aug,
+                "aug", CMDSTRINGTYPE, &aug,
+                "SaveSingle", CMDENUMTYPE, &ss, BooleanEnum,
+                "ss", CMDENUMTYPE, &ss, BooleanEnum,
+                "SubDict", CMDSTRINGTYPE, &subdic,
+                "sd", CMDSTRINGTYPE, &subdic,
+                "FilterDict", CMDSTRINGTYPE, &filterdict,
+                "fd", CMDSTRINGTYPE, &filterdict,
+                "ConvDict", CMDSTRINGTYPE, &subdic,
+                "cd", CMDSTRINGTYPE, &subdic,
                 "FilterTable", CMDSTRINGTYPE, &filtertable,
-		"ftr", CMDDOUBLETYPE, &filter_hit_rate,
+                "ftr", CMDDOUBLETYPE, &filter_hit_rate,
                 "FilterTableRate", CMDDOUBLETYPE, &filter_hit_rate,
-		"ft", CMDSTRINGTYPE, &filtertable,
-		"HistoMask",CMDSTRINGTYPE, &hmask,
-		"hm",CMDSTRINGTYPE, &hmask,
-		"InpLen",CMDINTTYPE, &inplen,
-		"il",CMDINTTYPE, &inplen,
-		"tlm", CMDENUMTYPE, &tlm, BooleanEnum,
-		"ftlm", CMDSTRINGTYPE, &ftlm,
-		"memuse", CMDENUMTYPE, &memuse, BooleanEnum,
-		(char *)NULL
-		);
+                "ft", CMDSTRINGTYPE, &filtertable,
+                "HistoMask",CMDSTRINGTYPE, &hmask,
+                "hm",CMDSTRINGTYPE, &hmask,
+                "InpLen",CMDINTTYPE, &inplen,
+                "il",CMDINTTYPE, &inplen,
+                "tlm", CMDENUMTYPE, &tlm, BooleanEnum,
+                "ftlm", CMDSTRINGTYPE, &ftlm,
+                "memuse", CMDENUMTYPE, &memuse, BooleanEnum,
+                (char *)NULL
+                );
   
   GetParams(&argc, &argv, (char*) NULL);
   
@@ -112,6 +136,9 @@ int main(int argc, char **argv)
     table_type=LEAFPROB;
   }
 	
+  
+  // check word order of subdictionary 
+  
   if (filtertable){
     
     {
@@ -178,18 +205,25 @@ int main(int argc, char **argv)
     ngt->augment(&ngt2);
     ngt->dict->incflag(0);
   }
-	
-  
+	  
   
   if (subdic){
     int c=0;
-    //dictionary sd(subdic,500000,isym,NULL);
-		
-    //ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,0,0,NULL,0,table_type);
+  
     ngramtable *ngt2=new ngramtable(NULL,ngsz,NULL,NULL,NULL,0,0,NULL,0,table_type);
-    ngt2->dict->load(subdic);
+
+    // enforce the subdict to follow the same word order of the main dictionary   
+    dictionary tmpdict(subdic);
+    ngt2->dict->incflag(1);
+    for (int i=0;i<ngt->dict->size();i++){
+      if (tmpdict.encode(ngt->dict->decode(i)) != tmpdict.oovcode()){
+        ngt2->dict->encode(ngt->dict->decode(i)); 
+      }
+    }
+    ngt2->dict->incflag(0);
+   
     ngt2->dict->cleanfreq();
-		
+    
     //possibly include standard symbols
     if (ngt->dict->encode(ngt->dict->EoS())!=ngt->dict->oovcode()){
       ngt2->dict->incflag(1);
@@ -198,6 +232,7 @@ int main(int argc, char **argv)
       ngt2->dict->incflag(0);
     }
 		
+    
     ngram ng(ngt->dict);
     ngram ng2(ngt2->dict);
     
@@ -214,7 +249,7 @@ int main(int argc, char **argv)
 		
     for (int i=0;i<ngt->dict->size();i++){
       ngt2->dict->incfreq(ngt2->dict->encode(ngt->dict->decode(i)),
-			  ngt->dict->freq(i));
+                          ngt->dict->freq(i));
     }
 		
     cerr <<" oov: " << ngt2->dict->freq(ngt2->dict->oovcode()) << "\n";
