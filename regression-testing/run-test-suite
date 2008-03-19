@@ -12,6 +12,7 @@ my @tests = qw (
   compile-lm
   build-lm
   build-lm-sublm
+  build-lm-sublm2
 );
 
 my @qsubtests = qw (
