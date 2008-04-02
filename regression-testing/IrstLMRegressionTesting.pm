@@ -2,8 +2,11 @@ package IrstLMRegressionTesting;
 
 use strict;
 
-die "Cannot find variable IRSTLM in environment\n"
+die "*** Cannot find variable IRSTLM in environment ***\n"
 if !$ENV{IRSTLM};
+
+die "*** Cannot find directory IRSTLM: $ENV{IRSTLM} ***\n"
+if ! -d $ENV{IRSTLM};
 
 # if your tests need a new version of the test data, increment this
 # and make sure that a irstlm-regression-tests-vX.Y is available

@@ -91,9 +91,9 @@ class lmtable{
   float*    Pcenters[LMTMAXLEV+1];
   float*    Bcenters[LMTMAXLEV+1];
   
-  int     lmt_oov_code;
-  int     lmt_oov_size;
-  int    backoff_state; 
+  double  logOOVpenalty; //penalty for OOV words (default 0)
+  int     dictionary_upperbound; //set by user
+  int     backoff_state; 
   
   //improve access speed
   ngramcache* lmtcache[LMTMAXLEV+1];
@@ -207,6 +207,24 @@ public:
     }
 	};
 	
+    
+ //set penalty for OOV words  
+  void set_dictionary_upperbound(int dub){
+    assert (dict->size()>0);
+    if (dict->size()>dub) dub=dict->size()+1;
+    dictionary_upperbound=dub; //set by user
+    logOOVpenalty=log((double)(dub - dict->size()))/log(10.0); 
+    
+    std::cerr << "Set dictionary_upperbound to: " << dictionary_upperbound << "\n";
+    std::cerr << "Set logOOVpenalty to: " << logOOVpenalty << "\n";
+    
+  }
+  
+  double getlogOOVpenalty(){
+    return logOOVpenalty;
+  }
+
+  
   int maxlevel(){return maxlev;};
 	bool isQuantized(){return isQtable;}
   

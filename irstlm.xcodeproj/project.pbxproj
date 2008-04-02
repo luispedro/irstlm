@@ -6,21 +6,6 @@
 	objectVersion = 42;
 	objects = {
 
-/* Begin PBXBuildStyle section */
-		014CEA460018CE2711CA2923 /* Debug */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-			};
-			name = Debug;
-		};
-		014CEA470018CE2711CA2923 /* Release */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-			};
-			name = Release;
-		};
-/* End PBXBuildStyle section */
-
 /* Begin PBXFileReference section */
 		3DE109020D22A69100F2ADEC /* cmd.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = cmd.c; path = src/cmd.c; sourceTree = "<group>"; };
 		3DE109030D22A69100F2ADEC /* cmd.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = cmd.h; path = src/cmd.h; sourceTree = "<group>"; };
@@ -117,13 +102,7 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "IRSTLM" */;
-			buildSettings = {
-			};
-			buildStyles = (
-				014CEA460018CE2711CA2923 /* Debug */,
-				014CEA470018CE2711CA2923 /* Release */,
-			);
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "irstlm" */;
 			hasScannedForEncodings = 1;
 			mainGroup = 08FB7794FE84155DC02AAC07 /* IRSTLM */;
 			projectDirPath = "";
@@ -156,7 +135,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "IRSTLM" */ = {
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "irstlm" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,

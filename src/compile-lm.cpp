@@ -37,6 +37,7 @@ std::string sscore = "no";
 std::string seval = "";
 std::string sdebug = "0";
 std::string smemmap = "0";
+std::string sdub = "0";
 /********************************/
 
 void usage(const char *msg = 0) {
@@ -49,6 +50,7 @@ void usage(const char *msg = 0) {
   std::cerr << "Options:\n"
     << "--text [yes|no] -t=[yes|no] (output is again in text format)" << std::endl
             << "--eval text-file -e=text-file (computes perplexity of text-file and returns)"<< std::endl
+            << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 0)"<< std::endl
             << "--score [yes|no] -s=[yes|no] (computes log-prob scores from standard input)"<< std::endl
             << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
             << "--memmap 1 --mm 1 (uses memory map to read a binary LM)\n" ;
@@ -99,6 +101,10 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
     if (starts_with(opt, "--memmap") || starts_with(opt, "-mm"))
       smemmap = get_param(opt, argc, argv, argi);     
   
+  else
+    if (starts_with(opt, "--dub") || starts_with(opt, "-dub"))
+      sdub = get_param(opt, argc, argv, argi);     
+  
   else {
     usage(("Don't understand option " + opt).c_str());
     exit(1);
@@ -131,7 +137,8 @@ int main(int argc, const char **argv)
   
   int debug = atoi(sdebug.c_str()); 
   int memmap = atoi(smemmap.c_str());
-  
+  int dub = atoi(sdub.c_str());
+    
   std::string infile = files[0];
   std::string outfile="";
   
@@ -181,6 +188,8 @@ int main(int argc, const char **argv)
     int Nbo=0,Nw=0,Noov=0;
     double logPr=0,PP=0,PPwp=0,Pr;
     
+    lmt.set_dictionary_upperbound(dub);
+     
     int bos=ng.dict->encode(ng.dict->BoS());
 
 #ifdef TRACE_CACHE
@@ -193,6 +202,7 @@ int main(int argc, const char **argv)
       
       // reset ngram at begin of sentence
       if (*ng.wordp(1)==bos) continue;
+      
      
       lmt.bo_state(0);
       if (ng.size>=1){ 
@@ -204,8 +214,10 @@ int main(int argc, const char **argv)
         Nw++; if (lmt.bo_state()) Nbo++;                   
       }
     } 
+    
     PP=exp((-logPr * log(10.0)) /Nw);
-    PPwp= PP * exp(Noov * log(10000000.0-lmt.dict->size())/Nw);
+
+    PPwp= PP-exp((-logPr - Noov * lmt.getlogOOVpenalty()) * log(10.0) /Nw);
     
     std::cout << "%% Nw=" << Nw << " PP=" << PP << " PPwp=" << PPwp
       << " Nbo=" << Nbo << " Noov=" << Noov 

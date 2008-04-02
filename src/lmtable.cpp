@@ -64,6 +64,10 @@ lmtable::lmtable(){
 
   //statistics
   for (int i=0;i<=LMTMAXLEV+1;i++) totget[i]=totbsearch[i]=0;
+  
+  logOOVpenalty=0.0; //penalty for OOV words (default 0)
+  dictionary_upperbound=0; //set by user
+
 };
 
  
@@ -1184,7 +1188,12 @@ double lmtable::lprob(ngram ong){
 	
   if (get(ng,ng.size,ng.size)){
     iprob=ng.prob;		
-    return (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob));
+    if (*ng.wordp(1)==dict->oovcode())
+      return (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob))-logOOVpenalty;
+    else
+      return (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob));
+      
+
   }
   else{ //size==1 means an OOV word 
     if (ng.size==1)    
