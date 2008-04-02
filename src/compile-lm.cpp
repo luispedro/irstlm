@@ -174,7 +174,9 @@ int main(int argc, const char **argv)
   }  
     
   lmt.load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);       
-
+  
+  lmt.set_dictionary_upperbound(dub);
+ 
   if (seval != ""){
     std::cerr << "Start Eval" << std::endl;
     std::cerr << "OOV code: " << lmt.dict->oovcode() << std::endl;
@@ -188,8 +190,6 @@ int main(int argc, const char **argv)
     int Nbo=0,Nw=0,Noov=0;
     double logPr=0,PP=0,PPwp=0,Pr;
     
-    lmt.set_dictionary_upperbound(dub);
-     
     int bos=ng.dict->encode(ng.dict->BoS());
 
 #ifdef TRACE_CACHE
