@@ -1,6 +1,6 @@
 #! /bin/sh 
 
-release=5.03.01
+release=5.05.00
 
 echo "This is the release $release of the Open Source IRSTLM Toolkit." > release.txt
 

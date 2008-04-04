@@ -46,11 +46,18 @@ pushd src
 make clean;make all
 popd 
 
-#instaaling scripts
+#installing include dir
+echo INSTALLING INCLUDE DIR
+mkdir -p include
+cp ./src/*.h include/
+
+#installing scripts
+echo INSTALLING SCRIPTS
 cp scripts/*.sh bin
 cp scripts/*.pl bin
 
 #installing wrappers
+echo INSTALLING ARCHITECTURE-INDEPENDENT WRAPPERS
 for file in dict ngt compile-lm quantize-lm ; do
 cp scripts/wrapper bin/$file
 chmod 755 bin/$file
