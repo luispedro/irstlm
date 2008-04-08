@@ -119,12 +119,12 @@ public:
   lmtable();
   
   virtual ~lmtable(){
-    for (int i=2;i<=LMTMAXLEV;i++)        
+    for (int i=2;i<=LMTMAXLEV;i++)
     if (lmtcache[i]){
       std::cerr << i <<"-gram cache: "; lmtcache[i]->stat();
-      delete lmtcache[i]; 
+      delete lmtcache[i];
     }
-    
+
     if (probcache){
       std::cerr << "Prob Cache: "; probcache->stat();
       delete probcache;
@@ -132,64 +132,36 @@ public:
       cacheout->close();
       delete cacheout;
 #endif
-      
-    } 
+
+    }
     if (statecache){
       std::cerr << "State Cache: "; statecache->stat();
       delete statecache;
-    } 
-    
-    
+    }
+
+
     for (int l=1;l<=maxlev;l++){
-      if (table[l]){ 
+      if (table[l]){
           if (memmap)
             Munmap(table[l]-tableGaps[l],(long long)cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
         else
-          delete [] table[l];            
+          delete [] table[l];
       }
       if (isQtable){
         if (Pcenters[l]) delete [] Pcenters[l];
-				if (l<maxlev) 
+                                if (l<maxlev)
           if (Bcenters[l]) delete [] Bcenters[l];
       }
     }
-  }
-    
-  void init_probcache(){
-    assert(probcache==NULL);
-    probcache=new ngramcache(maxlev,sizeof(double),400000);
-#ifdef TRACE_CACHE
-    cacheout=new std::fstream("/tmp/tracecache",std::ios::out);
-    sentence_id=0;
-#endif 
-  }
-  
-  void init_statecache(){
-    assert(statecache==NULL);
-    statecache=new ngramcache(maxlev-1,sizeof(char *),200000);
-  }
-  
-  void init_lmtcaches(int uptolev){
-    max_cache_lev=uptolev;
-    for (int i=2;i<=max_cache_lev;i++){
-    assert(lmtcache[i]==NULL);
-    lmtcache[i]=new ngramcache(i,sizeof(char *),200000);
-    }
-  }
-  
-  void check_cache_levels(){
-    if (probcache && probcache->isfull()) probcache->reset(probcache->cursize());
-    if (statecache && statecache->isfull()) statecache->reset(statecache->cursize());
-    for (int i=2;i<=max_cache_lev;i++)
-      if (lmtcache[i]->isfull()) lmtcache[i]->reset(lmtcache[i]->cursize());
   };
-   
-    void reset_caches(){ 
-      if (probcache) probcache->reset(MAX(probcache->cursize(),probcache->maxsize()));
-      if (statecache) statecache->reset(MAX(statecache->cursize(),statecache->maxsize()));
-      for (int i=2;i<=max_cache_lev;i++)
-        lmtcache[i]->reset(MAX(lmtcache[i]->cursize(),lmtcache[i]->maxsize()));
-    };
+
+
+  void init_probcache();
+  void init_statecache();
+  void init_lmtcaches(int uptolev);
+  
+  void check_cache_levels();
+  void reset_caches();
  
   void reset_mmap();
        
@@ -197,36 +169,16 @@ public:
   bool is_statecache_active(){return statecache!=NULL;}
   bool are_lmtcaches_active(){return lmtcache[2]!=NULL;}  
   
-	void configure(int n,bool quantized){
-		maxlev=n;
-		if (n==1)
-			tbltype[1]=(quantized?QLEAF:LEAF);
-		else{
-			for (int i=1;i<n;i++) tbltype[i]=(quantized?QINTERNAL:INTERNAL);
-			tbltype[n]=(quantized?QLEAF:LEAF);
-    }
-	};
-	
+  void configure(int n,bool quantized);
     
  //set penalty for OOV words  
-  void set_dictionary_upperbound(int dub){
-    assert (dict->size()>0);
-    if (dict->size()>dub) dub=dict->size()+1;
-    dictionary_upperbound=dub; //set by user
-    logOOVpenalty=log((double)(dub - dict->size()))/log(10.0); 
-    
-    std::cerr << "Set dictionary_upperbound to: " << dictionary_upperbound << "\n";
-    std::cerr << "Set logOOVpenalty to: " << logOOVpenalty << "\n";
-    
-  }
+  void set_dictionary_upperbound(int dub);
   
-  double getlogOOVpenalty(){
-    return logOOVpenalty;
-  }
+  double getlogOOVpenalty(){ return logOOVpenalty; }
 
   
   int maxlevel(){return maxlev;};
-	bool isQuantized(){return isQtable;}
+  bool isQuantized(){return isQtable;}
   
   
   void savetxt(const char *filename);
