@@ -89,11 +89,15 @@ do
 	     kneser-ney)
 		     smoothing="--kneser-ney"
 		     ;;
+	     improved-kneser-ney)
+		     smoothing="--improved-kneser-ney"
+		     ;;
 	     *) 
 		 echo "wrong smoothing setting";
 		 exit;
 	     esac
              ;;
+  
          p)
              prune='--prune-singletons';
              ;;
@@ -112,7 +116,7 @@ done
 
 
 if [ $verbose ];then
-echo inpfile=\"$inpfile\" outfile=$outfile order=$order parts=$parts tmpdir=$tmpdir prune=$prune smoothing=$smoothing dictionary=$dictionary
+echo inpfile=\"$inpfile\" outfile=$outfile order=$order parts=$parts tmpdir=$tmpdir prune=$prune smoothing=$smoothing dictionary=$dictionary verbose=$verbose
 fi
 
 if [ ! "$inpfile" -o ! "$outfile" ]; then
@@ -137,7 +141,7 @@ if [ ! -d $tmpdir ]; then
    mkdir -p $tmpdir;
 else
     echo "Cleaning temporary directory $tmpdir";
-    rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* >& /dev/null
+    rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* $tmpdir/ikn.stat.* >& /dev/null
 fi
 
 
@@ -151,15 +155,21 @@ echo "Extracting n-gram statistics for each word list"
 for sdict in $tmpdir/dict.*;do
 sdict=`basename $sdict $tmpdir`
 echo $sdict;
-$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.${sdict}.gz" -fd="$tmpdir/$sdict" $dictionary  >> $logfile 2>&1
+$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.${sdict}.gz" -fd="$tmpdir/$sdict" $dictionary  -iknstat="$tmpdir/ikn.stat.$sdict" >> $logfile 2>&1
 done
+
 
 echo "Estimating language models for each word list"
 for sdict in `ls $tmpdir/dict.*` ; do
 sdict=`basename $sdict $tmpdir`
 echo $sdict;
 
-$scr/build-sublm.pl $verbose $prune $smoothing --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict  >> $logfile 2>&1
+if [ $smoothing = "--kneser-ney" -o $smoothing = "--improved-kneser-ney" ]; then
+$scr/build-sublm.pl $verbose $prune $smoothing "cat $tmpdir/ikn.stat.$sdict*" --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict  >> $logfile #2>&1
+else
+$scr/build-sublm.pl $verbose $prune $smoothing  --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict  >> $logfile #2>&1
+fi
+
 done
 
 echo "Merging language models into $outfile"

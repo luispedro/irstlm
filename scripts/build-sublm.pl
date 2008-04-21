@@ -42,7 +42,7 @@ my $gunzip="/usr/bin/gunzip";
 
 
 my $ngram;
-my($help,$verbose,$size,$freqshift,$ngrams,$sublm,$witten_bell,$kneser_ney,$prune_singletons,$cross_sentence)=();
+my($help,$verbose,$size,$freqshift,$ngrams,$sublm,$witten_bell,$kneser_ney,$improved_kneser_ney,$prune_singletons,$cross_sentence)=();
 
 $help=1 unless
 &GetOptions('size=i' => \$size,
@@ -50,21 +50,23 @@ $help=1 unless
              'ngrams=s' => \$ngrams,
              'sublm=s' => \$sublm,
              'witten-bell' => \$witten_bell,
-             'kneser-ney' => \$kneser_ney,
+             'kneser-ney=s' => \$kneser_ney,
+             'improved-kneser-ney=s' => \$improved_kneser_ney,
              'prune-singletons' => \$prune_singletons,
-	           'cross-sentence' => \$cross_sentence,
+	     'cross-sentence' => \$cross_sentence,
              'help' => \$help,
              'verbose' => \$verbose);
 
 
 if ($help || !$size || !$ngrams || !$sublm){
   print "build-sublm.pl <options>\n",
-        "--size <int>        maximum n-gram size for the language model\n",
-        "--ngrams <string>   input file or command to read the ngram table\n",
-        "--sublm <string>    output file prefix to write the sublm statistics \n",
-        "--freq-shift <int>  (optional) value to be subtracted from all frequencies\n",
-        "--kneser-ney         use approximate kneser-ney smoothing\n",
-        "--witten-bell        (default) use witten bell smoothin\n",
+        "--size <int>          maximum n-gram size for the language model\n",
+        "--ngrams <string>     input file or command to read the ngram table\n",
+        "--sublm <string>      output file prefix to write the sublm statistics \n",
+        "--freq-shift <int>    (optional) value to be subtracted from all frequencies\n",
+        "--kneser-ney <string> use kneser-ney smoothing with statistics in <string> \n",
+        "--improved-kneser-ney <string> use    improved kneser-ney smoothing with statistics in <string> \n",
+        "--witten-bell        (default) use witten bell smoothing\n",
         "--prune-singletons   remove n-grams occurring once, for n=3,4,5,... \n",
         "--cross-sentence     (optional) include cross-sentence bounds\n",
         "--help              (optional) print these instructions\n";    
@@ -72,7 +74,7 @@ if ($help || !$size || !$ngrams || !$sublm){
   exit(1);
 }
 
-$witten_bell++ if !$witten_bell && !$kneser_ney;
+$witten_bell++ if !$witten_bell && !$kneser_ney  && !$improved_kneser_ney;
 
 warn "build-sublm: size $size ngrams $ngrams sublm $sublm witten-bell $witten_bell kneser-ney $kneser_ney cross-sentence $cross_sentence\n"
 if $verbose;
@@ -81,13 +83,11 @@ if $verbose;
 die "build-sublm: value of --size must be larger than 0\n" if $size<1;
 die "build-sublm: choose one smoothing method\n" if $witten_bell && $kneser_ney;
 
-my $log10=log(10.0);  #service variable to convert log into log10
-
-my $oldwrd="";      #variable to check if 1-gram changed 
-
+my $log10=log(10.0); #service variable to convert log into log10
+my $oldwrd="";       #variable to check if 1-gram changed 
 my @cnt=();         #counter of n-grams
 my $totcnt=0;       #total counter of n-grams
-my ($ng,@ng);      #read ngrams
+my ($ng,@ng);       #read ngrams
 my $ngcnt=0;        #store ngram frequency
 my $n;
 
@@ -113,11 +113,28 @@ printf GR "%s %s\n",$totcnt,$oldwrd;
 close(INP);
 close(GR);
 
-my (@h,$h,$hpr);    #n-gram history 
-my (@dict,$code);   #sorted dictionary of history successors
-my $diff;           #different successors of history
-my $locfreq;        #accumulate frequency of n-grams of given size
-my ($N1,$N2,$beta); #Kneser-Ney Smoothing: n-grams occurring once or twice 
+my (@h,$h,$hpr);                #n-gram history 
+my (@dict,$code);               #sorted dictionary of history successors
+my ($diff,$diff1,$diff2,$diff3); #different successors of history
+my (@n1,@n2,@n3,@n4,@uno3);   #IKN: n-grams occurring once or twice ...
+my (@beta,$beta);               #IKN: n-grams occurring once or twice ...
+
+
+#collect global statistics for (Improved) Kneser-Ney smoothing
+if ($kneser_ney || $improved_kneser_ney){
+   my $statfile=$kneser_ney || $improved_kneser_ney;
+   warn "load \& merge IKN statistics from $statfile \n";
+   open(IKN,"$statfile") || open(IKN,"$statfile|")  || die "cannot open $statfile\n";
+   while(<IKN>){
+     my($lev,$n1,$n2,$n3,$n4,$uno3)=$_=~/level: (\d+)  n1: (\d+) n2: (\d+) n3: (\d+) n4: (\d+) unover3: (\d+)/;
+     @n1[$lev]+=$n1;@n2[$lev]+=$n2;@n3[$lev]+=$n3;@n4[$lev]+=$n4;@uno3[$lev]+=$uno3;
+   }
+   for (my $lev=1;$lev<=$#n1;$lev++){
+     warn "level $lev: $n1[$lev] $n2[$lev]  $n3[$lev] $n4[$lev] $uno3[$lev]\n";
+   }
+   close(IKN);
+ }
+
 
 warn "Computing n-gram probabilities:\n"; 
 
@@ -132,94 +149,127 @@ foreach ($n=2;$n<=$size;$n++){
   chop($ng=<INP>); @ng=split(/[ \t]/,$ng);$ngcnt=(pop @ng) - $freqshift;
   chop($h=<HGR>);  @h=split(/ /,$h); $hpr=shift @h;
   
-  $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0; $oldwrd="";$N1=0;$N2=0;$locfreq=0;
+  $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0; $diff1=0; $diff2=0; $diff3=0; $oldwrd=""; 
    
+  
+
+     #compute smothing statistics         
+     my (@beta,$beta);               
+      
+      if ($kneser_ney) {
+        if ($n1[$n]==0 || $n2[$n]==0) {
+          warn "Error in Kneser-Ney smoothing statistics: resorting to Witten-Bell\n";
+          $beta=0;  
+        } else {
+          $beta=$n1[$n]/($n1[$n] + 2 * $n2[$n]); 
+	  warn "beta $n: $beta\n";
+        }
+      }
+
+     if ($improved_kneser_ney){
+    
+        my $Y=$n1[$n]/($n1[$n] + 2 * $n2[$n]);
+
+       if ($n3[$n] == 0 || $n4[$n] == 0 || $n2[$n] <= $n3[$n] || $n3[$n] <= $n4[$n]) {
+  	 warn "Warning: higher order count-of-counts are wrong\n";
+         warn "Fixing this problem by resorting only on the lower order count-of-counts\n";      
+         $beta[1] = $Y;
+         $beta[2] = $Y;
+         $beta[3] = $Y;
+         }
+        else{
+         $beta[1] = 1 - 2 * $Y * $n2[$n] / $n1[$n];
+         $beta[2] = 2 - 3 * $Y * $n3[$n] / $n2[$n];
+         $beta[3] = 3 - 4 * $Y * $n4[$n] / $n3[$n];
+        }
+  }
+  
+
   do{
     
-#load all n-grams with prefix of history h, and collect useful statistics 
+    #load all n-grams starting with history h, and collect useful statistics 
     
     while (join(" ",@h[0..$n-2]) eq join(" ",@ng[0..$n-2])) { #must be true the first time!   
       
       if ($oldwrd ne $ng[$n-1]) {
         $dict[++$code]=$oldwrd=$ng[$n-1];
         $diff++;
-        $N1++ if $locfreq==1;
-          $N2++ if $locfreq==2;
-          $locfreq=$ngcnt;
-      } else {
-        $locfreq+=$ngcnt;
       }
         
-        $cnt[$code]+=$ngcnt; $totcnt+=$ngcnt;           
+      $cnt[$code]+=$ngcnt; $totcnt+=$ngcnt;           
         
-        chop($ng=<INP>); @ng=split(/[ \t]/,$ng);$ngcnt=(pop @ng) - $freqshift;	
+      chop($ng=<INP>); @ng=split(/[ \t]/,$ng);$ngcnt=(pop @ng) - $freqshift;	
+    }
+   
+   
+    if ($improved_kneser_ney) { 
+      for (my $c=0;$c<=$code;$c++) {
+	$diff1++ if $cnt[$c]==1;
+	$diff2++ if $cnt[$c]==2;
+	$diff3++ if $cnt[$c]>=3;
+      }
     }
       
-#compute smothing statistics         
+    #print smoothed probabilities
       
-      if ($kneser_ney) {
-        if ($N1==0 || $N2==0) {
-          warn "Error in Kneser-Ney smoothing N1 $N1 N2 $N2 diff $diff: resorting to Witten-Bell\n";
-          $beta=0;  
-        } else {
-          $beta=$N1/($N1 + 2 * $N2); 
-        }
-      }
+    my $boprob=0; #accumulate pruned probabilities 
+    my $prob=0;
       
-#print smoothed probabilities
-      
-      my $boprob=0; #accumulate pruned probabilities 
-      my $prob=0;
-      
-      for (my $c=0;$c<=$code;$c++) {
+    for (my $c=0;$c<=$code;$c++) {
         
-        if ($kneser_ney && $beta>0) {
-          $prob=($cnt[$c]-$beta)/$totcnt;
-        } else {
-          $prob=$cnt[$c]/($totcnt+$diff);
-        }
+      if ($kneser_ney && $beta>0) {
+	$prob=($cnt[$c]-$beta)/$totcnt;
+      } elsif ($improved_kneser_ney) {
+	my $b=($cnt[$c]>= 3? $beta[3]:$beta[$cnt[$c]]);
+	$prob=($cnt[$c] - $b)/$totcnt;
+      } else {
+	$prob=$cnt[$c]/($totcnt+$diff);
+      }
 
-        $ngram=join(" ",@h[0..$n-2],$dict[$c]);
+      $ngram=join(" ",@h[0..$n-2],$dict[$c]);
         
-        #rm singleton n-grams 
-        #rm n-grams containing cross-sentence boundaries
-        #rm n-grams containing <unk> except for 1-grams
-        if (($prune_singletons && $n>=3 && $cnt[$c]==1) ||
-            (!$cross_sentence && $n >1 && &CrossSentence($size,$n,$ngram)) ||
-            (($dict[$c]  eq '<unk>') || ($n>=2 && $h=~/<unk>/)) 
-            ){	
+      #rm singleton n-grams 
+      #rm n-grams containing cross-sentence boundaries
+      #rm n-grams containing <unk> except for 1-grams
+      if (($prune_singletons && $n>=3 && $cnt[$c]==1) ||
+	  (!$cross_sentence && $n >1 && &CrossSentence($size,$n,$ngram)) ||
+	  (($dict[$c]  eq '<unk>') || ($n>=2 && $h=~/<unk>/)) 
+	 ) {	
          
-          $boprob+=$prob;
+	$boprob+=$prob;
           
-          if ($n<$size) {	#output as it will be an history for n+1 
-            printf GR "%f %s %s\n",-10000,join(" ",@h[0..$n-2]),$dict[$c];
-          }
-          
-        } else { # print ngrams of highest level
-          printf(GR "%f %s %s\n",log($prob)/$log10,join(" ",@h[0..$n-2]),$dict[$c]);
-        }
+	if ($n<$size) {	#output this anyway because it will be an history for n+1 
+	  printf GR "%f %s %s\n",-10000,join(" ",@h[0..$n-2]),$dict[$c];
+	}
+      } 
+      else { # print unpruned n-1 gram
+	printf(GR "%f %s %s\n",log($prob)/$log10,join(" ",@h[0..$n-2]),$dict[$c]);
       }
+    }
       
-#rewrite history including back-off weight      
+    #rewrite history including back-off weight      
       
-      print "$h - $ng - $totcnt $diff \n" if $totcnt+$diff==0;
+    print "$h - $ng - $totcnt $diff \n" if $totcnt+$diff==0;
         
-#check if history has to be pruned out
-        if ($hpr==-10000) {
-        #skip this history
-        } elsif ($kneser_ney && $beta>0) {
-          printf NHGR "%s %f\n",$h,log($boprob+($beta * ($diff-$N1)/$totcnt))/$log10;
-        } else {
-          printf NHGR "%s %f\n",$h,log($boprob+($diff/($totcnt+$diff)))/$log10;
-        }     
+    #check if history has to be pruned out
+    if ($hpr==-10000) {
+      #skip this history
+    } elsif ($kneser_ney && $beta>0) {
+      printf NHGR "%s %f\n",$h,log($boprob+($beta * $diff/$totcnt))/$log10;
+    } elsif ($improved_kneser_ney) {
+      my $lambda=($beta[1] * $diff1 + $beta[2] * $diff2 + $beta[3] * $diff3)/$totcnt; 	  
+      printf NHGR "%s %f\n",$h,log($boprob+$lambda)/$log10;
+    } else {
+      printf NHGR "%s %f\n",$h,log($boprob+($diff/($totcnt+$diff)))/$log10;
+    }     
       
-#reset smoothing statistics
+    #reset smoothing statistics
       
-      $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0;$oldwrd="";$N1=0;$N2=0;$locfreq=0;
+    $code=-1;@cnt=(); @dict=(); $totcnt=0;$diff=0;$oldwrd="";$diff1=0;$diff2=0;$diff3=0;$locfreq=0;
       
-#read next history
+    #read next history
       
-      chop($h=<HGR>);  @h=split(/ /,$h); $hpr=shift @h;
+    chop($h=<HGR>);  @h=split(/ /,$h); $hpr=shift @h;
       
   }until ($ng eq "");		#n-grams are over
 
