@@ -57,6 +57,7 @@ int main(int argc, char **argv)
   char *subdic=NULL;    // subdictionary filename 
   char *filterdict=NULL;    // subdictionary filename
   char *filtertable=NULL;   // ngramtable filename 
+  char *iknfile=NULL;   //  filename to save IKN statistics 
   double filter_hit_rate=1.0;  // minimum hit rate of filter
   char *isym=NULL;      // interruption symbol
   char *aug=NULL;       // augmentation data
@@ -115,6 +116,7 @@ int main(int argc, char **argv)
                 "tlm", CMDENUMTYPE, &tlm, BooleanEnum,
                 "ftlm", CMDSTRINGTYPE, &ftlm,
                 "memuse", CMDENUMTYPE, &memuse, BooleanEnum,
+                "iknstat", CMDSTRINGTYPE, &iknfile,
                 (char *)NULL
                 );
   
@@ -141,55 +143,55 @@ int main(int argc, char **argv)
   
   if (filtertable){
     
-    {
-      ngramtable ngt(filtertable,1,isym,NULL,NULL,0,0,NULL,0,table_type);
-      mfstream inpstream(inp,ios::in); //google input table
-      mfstream outstream(out,ios::out); //google output table
+  {
+    ngramtable ngt(filtertable,1,isym,NULL,NULL,0,0,NULL,0,table_type);
+    mfstream inpstream(inp,ios::in); //google input table
+    mfstream outstream(out,ios::out); //google output table
     
-      cerr << "Filtering table " << inp << " assumed to be in Google Format with size " << ngsz << "\n"; 
-      cerr << "with table " << filtertable <<  " of size " << ngt.maxlevel() << "\n";
-      cerr << "with hit rate " << filter_hit_rate << "\n";
-
-      //order of filter table must be smaller than that of input n-grams
-      assert(ngt.maxlevel() <= ngsz);
-
-      //read input googletable of ngrams of size ngsz
-      //output entries made of at least X% n-grams contained in filtertable
-      //<unk> words are not accepted
-
-      ngram ng(ngt.dict), ng2(ng.dict);
-      double hits=0;
-      double maxhits=(double)(ngsz-ngt.maxlevel()+1);
-
-      long c=0;
-      while(inpstream >> ng){
+    cerr << "Filtering table " << inp << " assumed to be in Google Format with size " << ngsz << "\n"; 
+    cerr << "with table " << filtertable <<  " of size " << ngt.maxlevel() << "\n";
+    cerr << "with hit rate " << filter_hit_rate << "\n";
+    
+    //order of filter table must be smaller than that of input n-grams
+    assert(ngt.maxlevel() <= ngsz);
+    
+    //read input googletable of ngrams of size ngsz
+    //output entries made of at least X% n-grams contained in filtertable
+    //<unk> words are not accepted
+    
+    ngram ng(ngt.dict), ng2(ng.dict);
+    double hits=0;
+    double maxhits=(double)(ngsz-ngt.maxlevel()+1);
+    
+    long c=0;
+    while(inpstream >> ng){
       
-	if (ng.size>= ngt.maxlevel()){
-	  //need to make a copy
-	  ng2=ng; ng2.size=ngt.maxlevel();  
-	  //cerr << "check if " << ng2 << " is contained: ";
-	  hits+=(ngt.get(ng2)?1:0);
-	}
-
-	if (ng.size==ngsz){       
-	  if (!(++c % 1000000)) cerr << ".";
-	  //cerr << ng << " -> " << is_included << "\n";
-	  //you reached the last word before freq
-	  inpstream >> ng.freq;
-	  //consistency check of n-gram
-	  if (((hits/maxhits)>=filter_hit_rate) &&
-	      (!ng.containsWord(ngt.dict->OOV(),ng.size))
-	      )
-	    outstream << ng << "\n";
-	  hits=0;
-	  ng.size=0;
-	}
+      if (ng.size>= ngt.maxlevel()){
+        //need to make a copy
+        ng2=ng; ng2.size=ngt.maxlevel();  
+        //cerr << "check if " << ng2 << " is contained: ";
+        hits+=(ngt.get(ng2)?1:0);
       }
       
-      outstream.flush();
-      inpstream.flush();
+      if (ng.size==ngsz){       
+        if (!(++c % 1000000)) cerr << ".";
+        //cerr << ng << " -> " << is_included << "\n";
+        //you reached the last word before freq
+        inpstream >> ng.freq;
+        //consistency check of n-gram
+        if (((hits/maxhits)>=filter_hit_rate) &&
+            (!ng.containsWord(ngt.dict->OOV(),ng.size))
+            )
+          outstream << ng << "\n";
+        hits=0;
+        ng.size=0;
+      }
     }
-
+    
+    outstream.flush();
+    inpstream.flush();
+  }
+    
     exit(1);
   }
   
@@ -261,7 +263,7 @@ int main(int argc, char **argv)
   
   if (ngsz < ngt->maxlevel() && hmask){
     cerr << "start projection of ngramtable " << inp 
-	 << " according to hmask\n"; 
+    << " according to hmask\n"; 
 		
     int i,c;
     int selmask[MAX_NGRAM];
@@ -271,7 +273,7 @@ int main(int argc, char **argv)
     for (c=0;c< (int)strlen(hmask);c++){
       cerr << hmask[c] << "\n";
       if (hmask[c] == '1')
-	selmask[i++]=c+2;
+        selmask[i++]=c+2;
     }
 		
     if (i!= ngsz){
@@ -281,7 +283,7 @@ int main(int argc, char **argv)
 		
     if (selmask[ngsz-1] >  ngt->maxlevel()){
       cerr << "wrong mask: farest bits=" << selmask[ngsz-1] 
-	   << " maxlev=" << ngt->maxlevel() << "\n";
+      << " maxlev=" << ngt->maxlevel() << "\n";
       exit(1);
     }
 		
@@ -298,7 +300,7 @@ int main(int argc, char **argv)
     while (ngt->scan(ng,CONT,ngt->maxlevel())){
       //projection
       for (i=0;i<ngsz;i++)
-	*png.wordp(i+1)=*ng.wordp(selmask[i]);
+        *png.wordp(i+1)=*ng.wordp(selmask[i]);
       png.freq=ng.freq;
       //transfer
       ng2.trans(png);      
@@ -316,7 +318,7 @@ int main(int argc, char **argv)
 		
     for (int i=0;i<ngt->dict->size();i++){
       ngt2->dict->incfreq(ngt2->dict->encode(ngt->dict->decode(i)),
-			  ngt->dict->freq(i));
+                          ngt->dict->freq(i));
     }
     
     cerr <<" oov: " << ngt2->dict->freq(ngt2->dict->oovcode()) << "\n";
@@ -334,11 +336,11 @@ int main(int argc, char **argv)
     while(cin >> ng){
       ngt->bo_state(0);
       if (ng.size>=ngsz){
-	cout << ng << " p= " << log(ngt->prob(ng));
-	cout << " bo= " << ngt->bo_state() << "\n";
+        cout << ng << " p= " << log(ngt->prob(ng));
+        cout << " bo= " << ngt->bo_state() << "\n";
       }
       else
-	cout << ng << " p= NULL\n";
+        cout << ng << " p= NULL\n";
       
       cout << "> ";
     }
@@ -362,17 +364,17 @@ int main(int argc, char **argv)
 			
       // reset ngram at begin of sentence
       if (*ng.wordp(1)==bos){
-	ng.size=1;
-	continue;
+        ng.size=1;
+        continue;
       }
 			
       ngt->bo_state(0);
       if (ng.size>=1){
-	logPr+=log(ngt->prob(ng));
-	if (*ng.wordp(1) == ngt->dict->oovcode())
-	  Noov++;
+        logPr+=log(ngt->prob(ng));
+        if (*ng.wordp(1) == ngt->dict->oovcode())
+          Noov++;
 				
-	Nw++; if (ngt->bo_state()) Nbo++;
+        Nw++; if (ngt->bo_state()) Nbo++;
       }	
     }
     
@@ -386,14 +388,70 @@ int main(int argc, char **argv)
     
     
     cout << "%% Nw=" << Nw << " PP=" << PP << " PPwp=" << PPwp
-	 << " Nbo=" << Nbo << " Noov=" << Noov 
-	 << " OOV=" << (float)Noov/Nw * 100.0 << "%\n";
+      << " Nbo=" << Nbo << " Noov=" << Noov 
+      << " OOV=" << (float)Noov/Nw * 100.0 << "%\n";
     
   }
 	
 	
   if (memuse)  ngt->stat(0);
 	
+  
+  if (iknfile){ //compute and save statistics of Improved Kneser Ney smoothing
+    
+    ngram ng(ngt->dict);
+    int n1,n2,n3,n4;
+    int unover3=0;
+    mfstream iknstat(iknfile,ios::out); //output of ikn statistics
+      
+    for (int l=1;l<=ngt->maxlevel();l++){
+      
+      cerr << "level " << l << "\n";
+      iknstat << "level: " << l << " ";
+      
+      cerr << "computing statistics\n";
+      
+      n1=0;n2=0;n3=0,n4=0;
+      
+      ngt->scan(ng,INIT,l);
+      
+      while(ngt->scan(ng,CONT,l)){
+        
+        //skip ngrams containing _OOV
+        if (l>1 && ng.containsWord(ngt->dict->OOV(),l)){
+          //cerr << "skp ngram" << ng << "\n";
+          continue;
+        }
+        
+        //skip n-grams containing </s> in context
+        if (l>1 && ng.containsWord(ngt->dict->EoS(),l-1)){
+          //cerr << "skp ngram" << ng << "\n";
+          continue;
+        }
+        
+        //skip 1-grams containing <s>
+        if (l==1 && ng.containsWord(ngt->dict->BoS(),l)){
+          //cerr << "skp ngram" << ng << "\n";
+          continue;
+        }
+        
+        if (ng.freq==1) n1++;
+        else if (ng.freq==2) n2++;
+        else if (ng.freq==3) n3++;
+        else if (ng.freq==4) n4++;
+        if (l==1 && ng.freq >=3) unover3++;
+        
+      }
+      
+      
+      cerr << " n1: " << n1 << " n2: " << n2 << " n3: " << n3 << " n4: " << n4 << "\n";
+      iknstat << " n1: " << n1 << " n2: " << n2 << " n3: " << n3 << " n4: " << n4 << " unover3: " << unover3 << "\n";
+        
+    }
+ 
+  }
+  
+  
   if (out)
     bin?ngt->savebin(out,ngsz): ngt->savetxt(out,ngsz,outputgoogleformat);
 	

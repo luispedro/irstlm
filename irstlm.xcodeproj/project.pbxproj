@@ -35,7 +35,18 @@
 		3DE1091C0D22A69100F2ADEC /* quantize-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = "quantize-lm.cpp"; path = "src/quantize-lm.cpp"; sourceTree = "<group>"; };
 		3DE1091D0D22A69100F2ADEC /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = src/util.cpp; sourceTree = "<group>"; };
 		3DE1091E0D22A69100F2ADEC /* util.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = util.h; path = src/util.h; sourceTree = "<group>"; };
+		AD60AFC60DBC7CB900610122 /* ngt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngt; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AD60AFC40DBC7CB900610122 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		08FB7794FE84155DC02AAC07 /* IRSTLM */ = {
@@ -86,6 +97,7 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				AD60AFC60DBC7CB900610122 /* ngt */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -99,6 +111,25 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXNativeTarget section */
+		AD60AFC50DBC7CB900610122 /* ngt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD60AFCB0DBC7CCE00610122 /* Build configuration list for PBXNativeTarget "ngt" */;
+			buildPhases = (
+				AD60AFC30DBC7CB900610122 /* Sources */,
+				AD60AFC40DBC7CB900610122 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ngt;
+			productName = ngt;
+			productReference = AD60AFC60DBC7CB900610122 /* ngt */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
@@ -107,9 +138,20 @@
 			mainGroup = 08FB7794FE84155DC02AAC07 /* IRSTLM */;
 			projectDirPath = "";
 			targets = (
+				AD60AFC50DBC7CB900610122 /* ngt */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AD60AFC30DBC7CB900610122 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
 		1DEB923608733DC60010E9CD /* Debug */ = {
@@ -132,6 +174,36 @@
 			};
 			name = Release;
 		};
+		AD60AFCC0DBC7CCE00610122 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = ngt;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		AD60AFCD0DBC7CCE00610122 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = ngt;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -140,6 +212,15 @@
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
 				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AD60AFCB0DBC7CCE00610122 /* Build configuration list for PBXNativeTarget "ngt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD60AFCC0DBC7CCE00610122 /* Debug */,
+				AD60AFCD0DBC7CCE00610122 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
