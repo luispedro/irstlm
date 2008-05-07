@@ -43,6 +43,8 @@ public:
   int            *microMacroMap;
   int             microMacroMapN;
   int             selectedField;
+  int            *lexicaltoken2classMap;
+  int             lexicaltoken2classMapN;
 
   lmmacro(std::string lmfilename, std::istream& inp, std::istream& inpMap);
   ~lmmacro() {};
@@ -57,6 +59,9 @@ public:
   void map(ngram *in, ngram *out);
   void One2OneMapping(ngram *in, ngram *out);
   void Micro2MacroMapping(ngram *in, ngram *out);
+  void Micro2MacroMapping(ngram *in, ngram *out, char **lemma);
+  void cutLex(ngram *in, ngram *out);
+  void loadLexicalClasses(char *fn);
 
   inline dictionary* getDict() {
     return dict;
