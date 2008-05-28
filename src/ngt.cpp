@@ -230,6 +230,10 @@ int main(int argc, char **argv)
     if (ngt->dict->encode(ngt->dict->EoS())!=ngt->dict->oovcode()){
       ngt2->dict->incflag(1);
       ngt2->dict->encode(ngt2->dict->EoS());
+      ngt2->dict->incflag(0);
+    }
+    if (ngt->dict->encode(ngt->dict->BoS())!=ngt->dict->oovcode()){
+      ngt2->dict->incflag(1);
       ngt2->dict->encode(ngt2->dict->BoS());
       ngt2->dict->incflag(0);
     }
