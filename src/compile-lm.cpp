@@ -191,6 +191,7 @@ int main(int argc, const char **argv)
     double logPr=0,PP=0,PPwp=0,Pr;
     
     int bos=ng.dict->encode(ng.dict->BoS());
+    int eos=ng.dict->encode(ng.dict->EoS());
 
 #ifdef TRACE_CACHE
     lmt.init_probcache();
@@ -207,8 +208,12 @@ int main(int argc, const char **argv)
       lmt.bo_state(0);
       if (ng.size>=1){ 
         logPr+=(Pr=lmt.clprob(ng));
-        if (debug>0)
-          std::cout << ng << "[" << ng.size << "-gram]" << " " << Pr << std::endl; 
+        if (debug>0){
+          std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << ng.size-lmt.bo_state() << "]" << " "; 
+          if (*ng.wordp(1)==eos) std::cout << std::endl;
+        }
+        if (debug>1)
+          std::cout << ng << "[" << ng.size-lmt.bo_state() << "-gram]" << " " << Pr << std::endl; 
         
         if (*ng.wordp(1) == lmt.dict->oovcode()) Noov++;        
         Nw++; if (lmt.bo_state()) Nbo++;                   

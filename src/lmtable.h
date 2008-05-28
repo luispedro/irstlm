@@ -238,9 +238,10 @@ public:
   };
   
 
-  int bo_state(int value=-1){ 
+// maintains/returns the back-off status of the LM
+ int bo_state(int value=-1){ 
     return (value==-1?backoff_state:backoff_state=value); 
-  };
+ };
   
   
   int nodesize(LMT_TYPE ndt){

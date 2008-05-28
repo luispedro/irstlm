@@ -1258,7 +1258,7 @@ double lmtable::lprob(ngram ong){
       return -log(UNIGRAM_RESOLUTION)/log(10.0);
     else{ // compute backoff
           //set backoff state, shift n-gram, set default bow prob 
-      bo_state(1); ng.shift();rbow=0.0; 			
+      bo_state(bo_state()==-11?1:bo_state()+1); ng.shift();rbow=0.0; 			
       if (ng.lev==ng.size){ 
         ibow=ng.bow; 
         rbow= (double) (isQtable?Bcenters[ng.size][ibow]:*((float *)&ibow));
