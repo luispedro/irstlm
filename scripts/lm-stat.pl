@@ -26,10 +26,10 @@ use Getopt::Long "GetOptions";
 
 my ($help,$lm,$txt)=();
 $help=1 unless
+
 &GetOptions('lm=s' => \$lm,
             'txt=s' => \$txt,
             'help' => \$help,);
-
 
 if ($help || !$lm || !$txt){
   print "lm-stat.pl <options>\n",
@@ -44,15 +44,16 @@ if (!$ENV{IRSTLM}){
   exit(1);
 }
 
-my $clm="$ENV{IRSTLM}/bin/compile-lm"
+
+
+my $clm="$ENV{IRSTLM}/bin/compile-lm";
 
 my $gzip="/usr/bin/gzip";   
 my $gunzip="/usr/bin/gunzip";
 
-open (OUT,"$clm $lm --eval $txt -debug 1|");
+open (OUT,"$clm $lm --eval $txt --debug 1|");
 while (<OUT>){
 print;
 }
 
-close(OUT)
-k
+close(OUT);
