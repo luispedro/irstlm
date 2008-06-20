@@ -195,7 +195,7 @@ for sfx in ${suffix[@]} ; do
 qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
 cd $workingdir
 echo exit status $?
-$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.dict.${sfx}.gz" -fd="$tmpdir/dict.${sfx}" >& log_ngt-$sfx
+$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.dict.${sfx}.gz" -fd="$tmpdir/dict.${sfx}" -iknstat="$tmpdir/ikn.stat.dict.${sfx}" >& log_ngt-$sfx
 echo exit status $?
 echo
 EOF
@@ -224,8 +224,12 @@ for sfx in ${suffix[@]} ; do
 qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
 cd $workingdir
 echo exit status $?
-$scr/build-sublm.pl $verbose $prune $smoothing --size $order --ngrams "gunzip -c $tmpdir/ngram.dict.${sfx}.gz" -sublm $tmpdir/lm.dict.${sfx}  >> $logfile 2>&1
+if [ $smoothing = "--kneser-ney" -o $smoothing = "--improved-kneser-ney" ]; then
+$scr/build-sublm.pl $verbose $prune $smoothing "cat $tmpdir/ikn.stat.dict*" --size $order --ngrams "gunzip -c $tmpdir/ngram.dict.${sfx}.gz" -sublm $tmpdir/lm.dict.${sfx}  >> $logfile 2>&1
 echo exit status $?
+else
+$scr/build-sublm.pl $verbose $prune $smoothing --size $order --ngrams "gunzip -c $tmpdir/ngram.dict.${sfx}.gz" -sublm $tmpdir/lm.dict.${sfx}  >> $logfile 2>&1
+fi
 echo
 EOF
 ) >& $qsublog.$sfx
