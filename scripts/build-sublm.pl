@@ -116,9 +116,9 @@ close(GR);
 my (@h,$h,$hpr);                #n-gram history 
 my (@dict,$code);               #sorted dictionary of history successors
 my ($diff,$diff1,$diff2,$diff3); #different successors of history
-my (@n1,@n2,@n3,@n4,@uno3);   #IKN: n-grams occurring once or twice ...
+my (@n1,@n2,@n3,@n4,@uno3);     #IKN: n-grams occurring once or twice ...
 my (@beta,$beta);               #IKN: n-grams occurring once or twice ...
-
+my $locfreq;
 
 #collect global statistics for (Improved) Kneser-Ney smoothing
 if ($kneser_ney || $improved_kneser_ney){
