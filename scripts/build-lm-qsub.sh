@@ -149,19 +149,12 @@ if [ ! -d $tmpdir ]; then
    mkdir -p $tmpdir;
 else
     echo "Cleaning temporary directory $tmpdir";
-    rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* >& /dev/null
+    rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* $tmpdir/ikn.stat.dict.* >& /dev/null
 fi
 
 
 
-getPwdCmd() {
-pwdcmd='pwd'
-cmd=`which pawd | head -1 | awk '{print $1}'`
-if [ $cmd -a -e $cmd ] ; then pwdcmd=$cmd ; fi
-}
-
-getPwdCmd
-workingdir=`$pwdcmd`
+workingdir=`pwd | perl -pe 's/\/nfsmnt//g'`
 cd $workingdir
 
 qsub $queueparameters -b no -sync yes -o /dev/null -e /dev/null -N dict << EOF
@@ -219,17 +212,18 @@ qsubname="SUBLM"
 
 unset getpids
 echo "Estimating language models for each word list"
+
+if [ $smoothing = "--kneser-ney" -o $smoothing = "--improved-kneser-ney" ]; then
+
 for sfx in ${suffix[@]} ; do
 (\
 qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
 cd $workingdir
 echo exit status $?
-if [ $smoothing = "--kneser-ney" -o $smoothing = "--improved-kneser-ney" ]; then
-$scr/build-sublm.pl $verbose $prune $smoothing "cat $tmpdir/ikn.stat.dict*" --size $order --ngrams "gunzip -c $tmpdir/ngram.dict.${sfx}.gz" -sublm $tmpdir/lm.dict.${sfx}  >> $logfile 2>&1
+
+$scr/build-sublm.pl $verbose $prune $smoothing "cat $tmpdir/ikn.stat.dict*" --size $order --ngrams "gunzip -c $tmpdir/ngram.dict.${sfx}.gz" -sublm $tmpdir/lm.dict.${sfx}  
 echo exit status $?
-else
-$scr/build-sublm.pl $verbose $prune $smoothing --size $order --ngrams "gunzip -c $tmpdir/ngram.dict.${sfx}.gz" -sublm $tmpdir/lm.dict.${sfx}  >> $logfile 2>&1
-fi
+
 echo
 EOF
 ) >& $qsublog.$sfx
@@ -238,6 +232,29 @@ id=`cat $qsublog.$sfx | grep 'Your job' | awk '{print $3}'`
 sgepid[${#sgepid[@]}]=$id
 
 done
+
+else
+
+
+for sfx in ${suffix[@]} ; do
+(\
+qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
+cd $workingdir
+echo exit status $?
+
+$scr/build-sublm.pl $verbose $prune $smoothing --size $order --ngrams "gunzip -c $tmpdir/ngram.dict.${sfx}.gz" -sublm $tmpdir/lm.dict.${sfx}  
+
+echo
+EOF
+) >& $qsublog.$sfx
+
+id=`cat $qsublog.$sfx | grep 'Your job' | awk '{print $3}'`
+sgepid[${#sgepid[@]}]=$id
+
+done
+
+fi
+
 
 waiting=""
 for id in ${sgepid[@]} ; do waiting="$waiting -hold_jid $id" ; done
