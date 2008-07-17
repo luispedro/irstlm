@@ -15,11 +15,9 @@ irstlm/release.txt
 
 cat << EOF
 Add release to sourceforge server as follows:
-1. cd ..
-2. ftp upload.sourceforge.net (connect with anonymous user and password)
-3. cd incoming 
-4. put irstlm-$release.tgz
-5. quit
-6. After that go the Sourceforge website
-   and follow the instructions to add a new release
+1. log in sourceforge.net, project IRSTLM
+2. select Administration -> File Releases
+3. Add Release to irstlm
+4. New release name: irstlm-$release
+5. Upload release file from local disk
 EOF
