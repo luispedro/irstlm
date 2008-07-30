@@ -175,8 +175,8 @@ int main(int argc, const char **argv)
     
   lmt.load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);       
   
-  lmt.set_dictionary_upperbound(dub);
- 
+  if (dub) lmt.setlogOOVpenalty(dub);
+  
   if (seval != ""){
     std::cerr << "Start Eval" << std::endl;
     std::cerr << "OOV code: " << lmt.dict->oovcode() << std::endl;
@@ -190,9 +190,13 @@ int main(int argc, const char **argv)
     int Nbo=0,Nw=0,Noov=0;
     double logPr=0,PP=0,PPwp=0,Pr;
     
+    ng.dict->incflag(1);
     int bos=ng.dict->encode(ng.dict->BoS());
     int eos=ng.dict->encode(ng.dict->EoS());
+    ng.dict->incflag(0);
 
+    
+    
 #ifdef TRACE_CACHE
     lmt.init_probcache();
 #endif
@@ -204,7 +208,6 @@ int main(int argc, const char **argv)
       // reset ngram at begin of sentence
       if (*ng.wordp(1)==bos) continue;
       
-     
       lmt.bo_state(0);
       if (ng.size>=1){ 
         logPr+=(Pr=lmt.clprob(ng));
@@ -222,7 +225,7 @@ int main(int argc, const char **argv)
     
     PP=exp((-logPr * log(10.0)) /Nw);
 
-    PPwp= PP-exp((-logPr - Noov * lmt.getlogOOVpenalty()) * log(10.0) /Nw);
+    PPwp= PP-exp((-logPr - Noov *  lmt.getlogOOVpenalty()) * log(10.0) /Nw);
     
     std::cout << "%% Nw=" << Nw << " PP=" << PP << " PPwp=" << PPwp
       << " Nbo=" << Nbo << " Noov=" << Noov 
@@ -241,6 +244,7 @@ int main(int argc, const char **argv)
     //use caches to save time
     //lmt.init_probcache();
     //lmt.init_lmtcaches(lmt.maxlevel());
+    
     float log10=log(10.0);
 
     unsigned int n=0;

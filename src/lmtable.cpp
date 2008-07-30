@@ -66,8 +66,7 @@ lmtable::lmtable(){
   for (int i=0;i<=LMTMAXLEV+1;i++) totget[i]=totbsearch[i]=0;
   
   logOOVpenalty=0.0; //penalty for OOV words (default 0)
-  dictionary_upperbound=0; //set by user
-
+  
 };
 
 void lmtable::init_probcache(){
@@ -114,17 +113,6 @@ void lmtable::configure(int n,bool quantized){
     for (int i=1;i<n;i++) tbltype[i]=(quantized?QINTERNAL:INTERNAL);
        tbltype[n]=(quantized?QLEAF:LEAF);
   }
-}
-
-//set penalty for OOV words  
-void lmtable::set_dictionary_upperbound(int dub){
-    assert (dict->size()>0);
-    if (dict->size()>dub) dub=dict->size()+1;
-    dictionary_upperbound=dub; //set by user
-    logOOVpenalty=log((double)(dub - dict->size()))/log(10.0);
-
-    std::cerr << "Set dictionary_upperbound to: " << dictionary_upperbound << "\n";
-    std::cerr << "Set logOOVpenalty to: " << logOOVpenalty << "\n";
 }
 
 

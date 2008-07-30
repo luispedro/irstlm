@@ -172,10 +172,12 @@ public:
   void configure(int n,bool quantized);
     
  //set penalty for OOV words  
-  void set_dictionary_upperbound(int dub);
-  
   double getlogOOVpenalty(){ return logOOVpenalty; }
-
+  
+  double setlogOOVpenalty(int dub){ 
+    assert(dub>dict->size());
+    return logOOVpenalty=log((double)(dub - dict->size()))/log(10.0);
+  }
   
   int maxlevel(){return maxlev;};
   bool isQuantized(){return isQtable;}

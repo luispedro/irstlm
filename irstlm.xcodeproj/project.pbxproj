@@ -36,10 +36,18 @@
 		3DE1091D0D22A69100F2ADEC /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = src/util.cpp; sourceTree = "<group>"; };
 		3DE1091E0D22A69100F2ADEC /* util.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = util.h; path = src/util.h; sourceTree = "<group>"; };
 		AD60AFC60DBC7CB900610122 /* ngt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngt; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD900C150E40BE3D00E1CE19 /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "compile-lm"; path = "build/Debug/compile-lm"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AD60AFC40DBC7CB900610122 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD900C130E40BE3D00E1CE19 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -98,6 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				AD60AFC60DBC7CB900610122 /* ngt */,
+				AD900C150E40BE3D00E1CE19 /* compile-lm */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,6 +137,22 @@
 			productReference = AD60AFC60DBC7CB900610122 /* ngt */;
 			productType = "com.apple.product-type.tool";
 		};
+		AD900C140E40BE3D00E1CE19 /* compile-lm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD900C170E40BE5C00E1CE19 /* Build configuration list for PBXNativeTarget "compile-lm" */;
+			buildPhases = (
+				AD900C120E40BE3D00E1CE19 /* Sources */,
+				AD900C130E40BE3D00E1CE19 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "compile-lm";
+			productName = "compile-lm";
+			productReference = AD900C150E40BE3D00E1CE19 /* compile-lm */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -139,12 +164,20 @@
 			projectDirPath = "";
 			targets = (
 				AD60AFC50DBC7CB900610122 /* ngt */,
+				AD900C140E40BE3D00E1CE19 /* compile-lm */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AD60AFC30DBC7CB900610122 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD900C120E40BE3D00E1CE19 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -204,6 +237,36 @@
 			};
 			name = Release;
 		};
+		AD900C180E40BE5C00E1CE19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = "compile-lm";
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		AD900C190E40BE5C00E1CE19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = "compile-lm";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -221,6 +284,15 @@
 			buildConfigurations = (
 				AD60AFCC0DBC7CCE00610122 /* Debug */,
 				AD60AFCD0DBC7CCE00610122 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AD900C170E40BE5C00E1CE19 /* Build configuration list for PBXNativeTarget "compile-lm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD900C180E40BE5C00E1CE19 /* Debug */,
+				AD900C190E40BE5C00E1CE19 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
