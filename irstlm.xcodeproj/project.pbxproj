@@ -67,6 +67,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		ADCFA0280E4872FC00E351DB /* dict */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dict; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCFA02A0E4872FC00E351DB /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirstlm.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCFA02B0E4872FC00E351DB /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "compile-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCFA02D0E4872FC00E351DB /* quantize-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "quantize-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCFA02F0E4872FC00E351DB /* ngt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngt; sourceTree = BUILT_PRODUCTS_DIR; };
 		D701C7870B2EB27C007D2774 /* cmd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd.c; path = src/cmd.c; sourceTree = "<group>"; };
 		D701C78D0B2EB37D007D2774 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dictionary.cpp; path = src/dictionary.cpp; sourceTree = "<group>"; };
 		D701C78E0B2EB37D007D2774 /* htable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htable.cpp; path = src/htable.cpp; sourceTree = "<group>"; };
@@ -121,12 +126,7 @@
 		D77D1C840B30331500D79D16 /* run-single-test.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "run-single-test.pl"; sourceTree = "<group>"; };
 		D77D1C850B30331500D79D16 /* run-test-suite */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "run-test-suite"; sourceTree = "<group>"; };
 		D77D1C940B30332B00D79D16 /* user-manual.4.2 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "user-manual.4.2"; sourceTree = "<group>"; };
-		D78A911E0B43C07800D631F9 /* dict */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = dict; path = /Users/marcello/Workspace/software/irstlm/build/Debug/dict; sourceTree = "<absolute>"; };
-		D78A91200B43C07800D631F9 /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "compile-lm"; path = "/Users/marcello/Workspace/software/irstlm/build/Debug/compile-lm"; sourceTree = "<absolute>"; };
-		D78A91220B43C07800D631F9 /* quantize-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "quantize-lm"; path = "/Users/marcello/Workspace/software/irstlm/build/Debug/quantize-lm"; sourceTree = "<absolute>"; };
-		D7A9858D0B3D10F9008279E6 /* ngt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = ngt; path = /Users/marcello/Workspace/software/irstlm/build/Debug/ngt; sourceTree = "<absolute>"; };
 		D7BE45CE0C104DD400B95F19 /* build-lm.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "build-lm.sh"; sourceTree = "<group>"; };
-		D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libirstlm.a; path = /Users/marcello/Workspace/software/irstlm/build/Debug/libirstlm.a; sourceTree = "<absolute>"; };
 		D7F00B530B382B8900A1FF7A /* build-sublm.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "build-sublm.pl"; sourceTree = "<group>"; };
 		D7F00B540B382B8900A1FF7A /* merge-sublm.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "merge-sublm.pl"; sourceTree = "<group>"; };
 		D7F00B550B382B8900A1FF7A /* ngram-split.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "ngram-split.pl"; sourceTree = "<group>"; };
@@ -182,6 +182,11 @@
 			children = (
 				D77D1C7F0B3032FB00D79D16 /* other */,
 				D701C78C0B2EB333007D2774 /* src */,
+				ADCFA0280E4872FC00E351DB /* dict */,
+				ADCFA02A0E4872FC00E351DB /* libirstlm.a */,
+				ADCFA02B0E4872FC00E351DB /* compile-lm */,
+				ADCFA02D0E4872FC00E351DB /* quantize-lm */,
+				ADCFA02F0E4872FC00E351DB /* ngt */,
 			);
 			name = irstlm;
 			sourceTree = "<group>";
@@ -424,7 +429,7 @@
 			);
 			name = "compile-lm";
 			productName = "compile-lm";
-			productReference = D78A91200B43C07800D631F9 /* compile-lm */;
+			productReference = ADCFA02B0E4872FC00E351DB /* compile-lm */;
 			productType = "com.apple.product-type.tool";
 		};
 		D733D3F30B1F3B0800565249 /* irstlm */ = {
@@ -441,7 +446,7 @@
 			);
 			name = irstlm;
 			productName = irstlm;
-			productReference = D7E4C0190B2EB5C100DDA2A4 /* libirstlm.a */;
+			productReference = ADCFA02A0E4872FC00E351DB /* libirstlm.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		D77D1C1E0B2F1D7200D79D16 /* quantize-lm */ = {
@@ -458,7 +463,7 @@
 			);
 			name = "quantize-lm";
 			productName = "quantize-lm";
-			productReference = D78A91220B43C07800D631F9 /* quantize-lm */;
+			productReference = ADCFA02D0E4872FC00E351DB /* quantize-lm */;
 			productType = "com.apple.product-type.tool";
 		};
 		D77D1C700B30325000D79D16 /* dict */ = {
@@ -475,7 +480,7 @@
 			);
 			name = dict;
 			productName = dict;
-			productReference = D78A911E0B43C07800D631F9 /* dict */;
+			productReference = ADCFA0280E4872FC00E351DB /* dict */;
 			productType = "com.apple.product-type.tool";
 		};
 		D7F00B5F0B38505100A1FF7A /* ngt */ = {
@@ -492,7 +497,7 @@
 			);
 			name = ngt;
 			productName = ngt;
-			productReference = D7A9858D0B3D10F9008279E6 /* ngt */;
+			productReference = ADCFA02F0E4872FC00E351DB /* ngt */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
