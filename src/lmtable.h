@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #include <sys/mman.h>
 #endif
 
+#include <math.h>
+
 #include "util.h"
 #include "ngramcache.h"
 #include "dictionary.h"
@@ -106,6 +108,10 @@ class lmtable{
   int diskid;
   off_t tableOffs[LMTMAXLEV+1];
   off_t tableGaps[LMTMAXLEV+1];
+
+  // is this LM queried for knowing the matching order or (standard
+  // case) for score?
+  bool      orderQuery;
   
 public:
     
@@ -324,7 +330,14 @@ public:
     return dict;
   };
 
-
+  inline void setOrderQuery(bool v) 
+    {
+      orderQuery = v;
+    }
+  inline bool isOrderQuery() 
+    {
+      return orderQuery;
+    }
 };
 
 

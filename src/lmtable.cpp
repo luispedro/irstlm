@@ -67,6 +67,8 @@ lmtable::lmtable(){
   
   logOOVpenalty=0.0; //penalty for OOV words (default 0)
   
+  // by default, it is a standard LM, i.e. queried for score
+  setOrderQuery(false);
 };
 
 void lmtable::init_probcache(){
