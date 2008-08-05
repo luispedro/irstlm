@@ -1240,8 +1240,6 @@ double lmtable::lprob(ngram ong){
       return (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob))-logOOVpenalty;
     else
       return (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob));
-      
-
   }
   else{ //size==1 means an OOV word 
     if (ng.size==1)    

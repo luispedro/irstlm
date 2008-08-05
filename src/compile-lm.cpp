@@ -225,7 +225,7 @@ int main(int argc, const char **argv)
     
     PP=exp((-logPr * log(10.0)) /Nw);
 
-    PPwp= PP-exp((-logPr - Noov *  lmt.getlogOOVpenalty()) * log(10.0) /Nw);
+    PPwp= PP * (1 - 1/exp((Noov *  lmt.getlogOOVpenalty()) * log(10.0) / Nw));
     
     std::cout << "%% Nw=" << Nw << " PP=" << PP << " PPwp=" << PPwp
       << " Nbo=" << Nbo << " Noov=" << Noov 
