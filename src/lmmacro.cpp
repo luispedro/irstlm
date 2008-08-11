@@ -561,10 +561,11 @@ void lmmacro::Micro2MacroMapping(ngram *in, ngram *out)
       int curr_len = strlen(curr_microtag)-1;
 
       if (strcmp(curr_macrotag,prev_macrotag) != 0 ||
-	  !((prev_microtag[prev_len]== '(' &&  curr_microtag[curr_len]==')' ) ||
-	    (prev_microtag[prev_len]== '(' &&  curr_microtag[curr_len]=='+' ) ||
+	  !(
+	    (( prev_microtag[prev_len]== '(' || ( prev_microtag[0]== '(' && prev_microtag[prev_len]!= ')' )) &&  ( curr_microtag[curr_len]==')' && curr_microtag[0]!='(')) ||
+	    (( prev_microtag[prev_len]== '(' || ( prev_microtag[0]== '(' && prev_microtag[prev_len]!= ')' )) &&  curr_microtag[curr_len]=='+' ) ||
 	    (prev_microtag[prev_len]== '+' &&  curr_microtag[curr_len]=='+' ) ||
-	    (prev_microtag[prev_len]== '+' &&  curr_microtag[curr_len]==')' )))
+	    (prev_microtag[prev_len]== '+' &&  ( curr_microtag[curr_len]==')' && curr_microtag[0]!='(' ))))
 	out->pushw(curr_macrotag);
     }
   }
@@ -604,7 +605,7 @@ void lmmacro::Micro2MacroMapping(ngram *in, ngram *out, char **lemmas)
     int curr_len = strlen(curr_microtag)-1;
     
     if (i==microsize) {
-      if (( curr_microtag[curr_len]=='(' ) || ( curr_microtag[curr_len]=='+' ))
+      if (( curr_microtag[curr_len]=='(' ) || ( curr_microtag[0]=='(' && curr_microtag[curr_len]!=')' ) || ( curr_microtag[curr_len]=='+' ))
 	sprintf(tag_lemma, "%s", curr_macrotag); // non lessicalizzo il macrotag se sono ancora all''interno del chunk
       else 
 	if (lexicaltoken2classMap)
@@ -629,7 +630,7 @@ void lmmacro::Micro2MacroMapping(ngram *in, ngram *out, char **lemmas)
 
       int prev_len = strlen(prev_microtag)-1;
 
-      if (( curr_microtag[curr_len]=='(' ) || ( curr_microtag[curr_len]=='+' ))
+      if (( curr_microtag[curr_len]=='(' ) || ( curr_microtag[0]=='(' && curr_microtag[curr_len]!=')' ) || ( curr_microtag[curr_len]=='+' ))
 	sprintf(tag_lemma, "%s", curr_macrotag); // non lessicalizzo il macrotag se sono ancora all''interno del chunk
       else 
 	if (lexicaltoken2classMap)
@@ -642,10 +643,11 @@ void lmmacro::Micro2MacroMapping(ngram *in, ngram *out, char **lemmas)
 #endif
 
       if (strcmp(curr_macrotag,prev_macrotag) != 0 ||
-	  !((prev_microtag[prev_len]== '(' &&  curr_microtag[curr_len]==')' ) ||
-	    (prev_microtag[prev_len]== '(' &&  curr_microtag[curr_len]=='+' ) ||
+	  !(
+	    (( prev_microtag[prev_len]== '(' || ( prev_microtag[0]== '(' && prev_microtag[prev_len]!=')' )) && curr_microtag[curr_len]==')' && curr_microtag[0]!='(') ||
+	    (( prev_microtag[prev_len]== '(' || ( prev_microtag[0]== '(' && prev_microtag[prev_len]!= ')')) && curr_microtag[curr_len]=='+' ) ||
 	    (prev_microtag[prev_len]== '+' &&  curr_microtag[curr_len]=='+' ) ||
-	    (prev_microtag[prev_len]== '+' &&  curr_microtag[curr_len]==')' ))) {
+	    (prev_microtag[prev_len]== '+' &&  curr_microtag[curr_len]==')' && curr_microtag[0]!='(' ))) {
 
 
 #ifdef DEBUG
