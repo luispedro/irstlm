@@ -9,7 +9,7 @@ inputfile=input
 
 $bin/dict -i=$inputfile -o=dict > /dev/null 2>&1
 
-tail +2 dict | split -l 1000 - dict.
+tail -n +2 dict | split -l 1000 - dict.
 
 rm dict
 
