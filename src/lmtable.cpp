@@ -1333,3 +1333,55 @@ void lmtable::reset_mmap(){
     }
 #endif
 }
+
+double lmtable::lprobx(ngram    ong,
+                       double   *lkp,
+                       double   *bop,
+                       int      *bol)
+{
+        double          bo,
+                        lbo,
+                        pr;
+        int             ipr;
+        ngram           ng(dict),
+                        ctx(dict);
+
+        if(bol) *bol=0;
+        if(ong.size==0) {
+                if(lkp) *lkp=0;
+                return 0;       // lprob ritorna 0, prima lprobx usava LOGZERO
+        }
+        if(ong.size>maxlev) ong.size=maxlev;
+        ctx = ng = ong;
+        bo=0;
+        ctx.shift();
+        while(!get(ng)) {
+                //OOV not included in dictionary
+                if(ng.size==1) {
+                        pr = -log(UNIGRAM_RESOLUTION)/M_LN10;
+                        if(lkp) *lkp=pr;
+                        pr += bo;
+                        return pr;
+                }
+                // backoff-probability
+                bo_state(1); //set backoff state to 1
+                lbo = 0.0;
+                if(get(ctx)){
+                        ipr = ctx.bow;
+			//cout<<"ipr:"<<ipr<<" ngsize:"<<ng.size<<endl;
+                        //lbo = isQtable?Bcenters[ng.size][ipr]:*(float*)&ipr; Modified F.D.
+                        lbo = isQtable?Bcenters[ng.size-1][ipr]:*(float*)&ipr;
+			//cout<<"lbo:"<<lbo<<endl;
+                }
+                if(bop) *bop++=lbo;
+                if(bol) ++*bol;
+                bo += lbo;
+                ng.size--;
+                ctx.size--;
+        }
+        ipr = ng.prob;
+        pr = isQtable?Pcenters[ng.size][ipr]:*((float*)&ipr);
+        if(lkp) *lkp=pr;
+        pr += bo;
+        return pr;
+}

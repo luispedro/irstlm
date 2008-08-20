@@ -212,7 +212,7 @@ public:
 	
   virtual double lprob(ngram ng); 
   virtual double clprob(ngram ng); 
-
+  double lprobx(ngram ng, double *lk=0, double *boff=0, int *bol=0); 
   
   void *search(int lev,int offs,int n,int sz,int *w,
                LMT_ACTION action,char **found=(char **)NULL);
@@ -221,7 +221,7 @@ public:
   
   int add(ngram& ng,int prob,int bow);
   void checkbounds(int level);
-  
+
   int get(ngram& ng){return get(ng,ng.size,ng.size);}
   int get(ngram& ng,int n,int lev);
   
