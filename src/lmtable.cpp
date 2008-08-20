@@ -150,6 +150,7 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
   }
 
   cerr << "OOV code is " << lmtable::getDict()->oovcode() << "\n";
+ 
   
 }
 
@@ -414,7 +415,7 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
             int tmp=maxlev;
             maxlev=Order-1;
             //cerr << ng << "rbow: " << rbow << "prob: " << pb << "low-prob: " << lprob(ng) << "\n"; 
-            pb= log(exp(pb * log(10.0)) +  exp((rbow + lprob(ng)) * log(10.0)))/log(10.0);
+            pb= log(exp(pb * M_LN10) +  exp((rbow + lprob(ng)) * M_LN10))/M_LN10;
             maxlev=tmp;
           }
           add(ng,
@@ -578,7 +579,7 @@ void lmtable::loadtxt(istream& inp,const char* header){
             int tmp=maxlev;
             maxlev=Order-1;
             //cerr << ng << "rbow: " << rbow << "prob: " << prob << "low-prob: " << lprob(ng) << "\n"; 
-            prob= log(exp(prob * log(10.0)) +  exp((rbow + lprob(ng)) * log(10.0)))/log(10.0);
+            prob= log(exp(prob * M_LN10) +  exp((rbow + M_LN10) * M_LN10))/M_LN10;
             //cerr << "new prob: " << prob << "\n"; 
             
             maxlev=tmp;
@@ -1231,25 +1232,26 @@ double lmtable::lprob(ngram ong){
   //ngram ng(lmtable::getDict()); //avoid dictionary transfer
   //ng.trans(ong);
 	
-  double rbow;
+  double rbow,lpr=0;
   int ibow,iprob;  
 	
   if (get(ng,ng.size,ng.size)){
     iprob=ng.prob;		
-    if (*ng.wordp(1)==dict->oovcode())
-      return (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob))-logOOVpenalty;
-    else
-      return (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob));
+    lpr = (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob));
+    if (*ng.wordp(1)==dict->oovcode()) lpr-=logOOVpenalty;
+    return (double)lpr;
   }
-  else{ //size==1 means an OOV word 
-    if (ng.size==1)    
-      return -log(UNIGRAM_RESOLUTION)/log(10.0);
-    else{ // compute backoff
+  else{ 
+    if (ng.size==1) //means an OOV word 
+      return -log(UNIGRAM_RESOLUTION)/M_LN10;
+    else{ //compute backoff
           //set backoff state, shift n-gram, set default bow prob 
-      bo_state(bo_state()==-11?1:bo_state()+1); ng.shift();rbow=0.0; 			
-      if (ng.lev==ng.size){ 
+      bo_state(bo_state()==-11?1:bo_state()+1); rbow=0.0; 			
+      if ((ng.lev==(ng.size-1)) && (*ng.wordp(2)!=dict->oovcode())){ 
+        //found history in table: use its bo weight 
+        //avoid wrong quantization of bow of <unk>
         ibow=ng.bow; 
-        rbow= (double) (isQtable?Bcenters[ng.size][ibow]:*((float *)&ibow));
+        rbow= (double) (isQtable?Bcenters[ng.lev][ibow]:*((float *)&ibow));
       }
       //prepare recursion step
       ong.size--;      
