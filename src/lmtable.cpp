@@ -579,7 +579,7 @@ void lmtable::loadtxt(istream& inp,const char* header){
             int tmp=maxlev;
             maxlev=Order-1;
             //cerr << ng << "rbow: " << rbow << "prob: " << prob << "low-prob: " << lprob(ng) << "\n"; 
-            prob= log(exp(prob * M_LN10) +  exp((rbow + M_LN10) * M_LN10))/M_LN10;
+            prob= log(exp(prob * M_LN10) +  exp((rbow + lprob(ng)) * M_LN10))/M_LN10;
             //cerr << "new prob: " << prob << "\n"; 
             
             maxlev=tmp;
