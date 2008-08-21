@@ -247,6 +247,12 @@ int main(int argc, const char **argv)
     
     float log10=log(10.0);
 
+
+    float bcoT=0;
+    int bt;
+    double* bco=new double[lmt.maxlevel()];
+    double ls,lkp;
+
     unsigned int n=0;
     while(std::cin >> ng){
       lmt.bo_state(0);
@@ -254,21 +260,38 @@ int main(int argc, const char **argv)
         ng.size=lmt.maxlevel();
         ++n;
         std::cout << ng << " p= " << lmt.clprob(ng) * log10;
+
         std::cout << " bo= " << lmt.bo_state() << std::endl;
         if ((n % 10000000)==0){ 
           std::cerr << "check cache levels" << std::endl;
           lmt.check_cache_levels();   
           //lmt.reset_mmap();
         }        
+
+
+	lmt.bo_state(0);
+	for(int ii=0;ii<ng.size-1;ii++)
+	  bco[ii]=0;
+	bt=0;
+	ls=(float)lmt.lprobx(ng,&lkp,bco,&bt); 
+
+	for(int ii=0, bcoT=0.0;ii<ng.size-1;ii++)
+	  bcoT+=bco[ii];
+        std::cout << ng << " lprobx= " << lkp * log10;
+        std::cout << " lprobxbo= " << bt << std::endl;
+        std::cout << " lprobxbackoff= " << bcoT << std::endl;
+
+
+
       }
       else
         std::cout << ng << " p= NULL" << std::endl;      
       std::cout << "> ";                 
     }
     
+    delete[] bco;
     return 0;
   }
-  
   
   if (textoutput) {
     std::cout << "Saving in txt format to " << outfile << std::endl;
