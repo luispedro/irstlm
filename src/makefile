@@ -34,7 +34,7 @@ $(LIB): $(LIBOBJ)
 	ar r $(LIB) $?
 
 #TARGET COMMANDS
-all: compile-lm quantize-lm dict ngt
+all: compile-lm quantize-lm prune-lm dict ngt
 clean:;rm *.o
 
 compile-lm: compile-lm.cpp  $(LIB)
@@ -42,6 +42,9 @@ compile-lm: compile-lm.cpp  $(LIB)
 
 quantize-lm: quantize-lm.cpp  $(LIB)
 	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< util.o -lz	
+
+prune-lm: prune-lm.cpp  $(LIB)
+	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz	
 
 dict: dict.cpp  $(LIB)
 	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz	

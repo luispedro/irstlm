@@ -175,7 +175,7 @@ int main(int argc, const char **argv)
     
   lmt.load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);       
   
-  if (dub) lmt.setlogOOVpenalty(dub);
+  if (dub) lmt.setlogOOVpenalty((int)dub);
   
   if (seval != ""){
     std::cerr << "Start Eval" << std::endl;
@@ -217,10 +217,28 @@ int main(int argc, const char **argv)
         }
         if (debug==2)
           std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << std::endl; 
-
-        if (debug>2)
+        
+        if (debug==3)
           std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << " bow:" << bow << std::endl; 
         
+        if (debug>3){
+          std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << " bow:" << bow;
+          double totp=0.0; int oldw=*ng.wordp(1);
+          double oovp=lmt.getlogOOVpenalty();lmt.setlogOOVpenalty2(0);
+          
+          for (int c=0;c<ng.dict->size();c++){
+            *ng.wordp(1)=c;totp+=pow(10.0,lmt.lprob(ng));
+          }
+          *ng.wordp(1)=oldw;
+          
+          if ( totp < (1.0 - 1e-5) || totp > (1.0 + 1e-5))
+            std::cout << "  [t=" << totp << "] POSSIBLE ERROR\n";
+          else 
+            std::cout << "\n";
+          
+          lmt.setlogOOVpenalty2((double)oovp);
+        }
+                  
         if (*ng.wordp(1) == lmt.dict->oovcode()) Noov++;        
         Nw++; if (bol) Nbo++;                   
       }

@@ -33,6 +33,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 #define DEBUG 0
 
+//special value for pruned iprobs 
+#define NOPROB -2 
+
 using namespace std;
 
 inline void error(char* message){
@@ -831,6 +834,7 @@ int lmtable::mybsearch(char *ar, int n, int size,
 void lmtable::savetxt(const char *filename){
   
   fstream out(filename,ios::out);
+  int		cnt[1+MAX_NGRAM];
   int l;
 	
   out.precision(7);			
@@ -845,16 +849,18 @@ void lmtable::savetxt(const char *filename){
   ngram ng(lmtable::getDict(),0);
   
   cerr << "savetxt: " << filename << "\n";
-  
+
+  //check size of table by considering pruned n-grams
+  ngcnt(cnt);
   out << "\n\\data\\\n";
   for (l=1;l<=maxlev;l++){
-    out << "ngram " << l << "= " << cursize[l] << "\n";
+    out << "ngram " << l << "= " << cnt[l] << "\n";
   }
   
   for (l=1;l<=maxlev;l++){
     
     out << "\n\\" << l << "-grams:\n";
-    cerr << "save: " << cursize[l] << " " << l << "-grams\n";
+    cerr << "save: " << cnt[l] << " " << l << "-grams\n";
     if (isQtable){
       out << NumCenters[l] << "\n";
       for (int c=0;c<NumCenters[l];c++){
@@ -1050,7 +1056,8 @@ int lmtable::get(ngram& ng,int n,int lev){
     if (lmtcache[l] && hit==0)
       lmtcache[l]->add(ng.wordp(n),(char *)&found);   
     
-    if (!found) return 0;      
+    if (!found) return 0;          
+    if (prob(found,ndt)==NOPROB) return 0; //pruned n-gram
     
     ng.bow=(l<maxlev?bow(found,ndt):0);    
     ng.prob=prob(found,ndt);
@@ -1099,6 +1106,11 @@ void lmtable::dumplm(fstream& out,ngram ng, int ilev, int elev, int ipos,int epo
 		
   for (int i=ipos;i<epos;i++){
     *ng.wordp(1)=word(table[ilev]+(long long)i*ndsz);
+    int ipr=prob(table[ilev]+(long long)i*ndsz,ndt);
+
+    //skip pruned n-grams
+    if(ipr==NOPROB) continue; 
+
     if (ilev<elev){
       //get first and last successor position
       int isucc=(i>0?bound(table[ilev]+(long long)(i-1)*ndsz,ndt):0);
@@ -1110,7 +1122,6 @@ void lmtable::dumplm(fstream& out,ngram ng, int ilev, int elev, int ipos,int epo
     }
     else{
       //out << i << " "; //this was just to count printed n-grams
-      int ipr=prob(table[ilev]+ (long long)i * ndsz,ndt);
       out << (isQtable?ipr:*(float *)&ipr) <<"\t";
       for (int k=ng.size;k>=1;k--){
         if (k<ng.size) out << " ";
@@ -1351,56 +1362,182 @@ void lmtable::reset_mmap(){
 // ng: input n-gram
 
 // *lk: prob of n-(*bol) gram
-// *boff: backoff weight
+// *boff: backoff weight vector
 // *bol:  backoff level
 
-double lmtable::lprobx(ngram    ong,
-                       double   *lkp,
-                       double   *bop,
-                       int      *bol)
+double lmtable::lprobx(ngram	ong,
+                       double	*lkp,
+                       double	*bop,
+                       int	*bol)
 {
-        double          bo,
-                        lbo,
-                        pr;
-        int             ipr;
-        ngram           ng(dict),
-                        ctx(dict);
-
-        if(bol) *bol=0;
-        if(ong.size==0) {
-                if(lkp) *lkp=0;
-                return 0;       // lprob ritorna 0, prima lprobx usava LOGZERO
-        }
-        if(ong.size>maxlev) ong.size=maxlev;
-        ctx = ng = ong;
-        bo=0;
-        ctx.shift();
-        while(!get(ng)) {
-                //OOV not included in dictionary
-                if(ng.size==1) {
-                        pr = -log(UNIGRAM_RESOLUTION)/M_LN10;
-                        if(lkp) *lkp=pr;
-                        pr += bo;
-                        return pr;
-                }
-                // backoff-probability
-                lbo = 0.0;
-                if(get(ctx)){
-                        ipr = ctx.bow;
-			//cout<<"ipr:"<<ipr<<" ngsize:"<<ng.size<<endl;
-                        //lbo = isQtable?Bcenters[ng.size][ipr]:*(float*)&ipr; Modified F.D.
-                        lbo = isQtable?Bcenters[ng.size-1][ipr]:*(float*)&ipr;
-			//cout<<"lbo:"<<lbo<<endl;
-                }
-                if(bop) *bop++=lbo;
-                if(bol) ++*bol;
-                bo += lbo;
-                ng.size--;
-                ctx.size--;
-        }
-        ipr = ng.prob;
-        pr = isQtable?Pcenters[ng.size][ipr]:*((float*)&ipr);
-        if(lkp) *lkp=pr;
-        pr += bo;
-        return pr;
+	double		bo,
+  lbo,
+  pr;
+	int		ipr;
+	ngram		ng(dict),
+    ctx(dict);
+  
+	if(bol) *bol=0;
+	if(ong.size==0) {
+		if(lkp) *lkp=0;
+		return 0;	// lprob ritorna 0, prima lprobx usava LOGZERO
+	}
+	if(ong.size>maxlev) ong.size=maxlev;
+	ctx = ng = ong;
+	bo=0;
+	ctx.shift(); 
+	while(!get(ng)) { // back-off 
+    
+		//OOV not included in dictionary
+		if(ng.size==1) {
+			pr = -log(UNIGRAM_RESOLUTION)/M_LN10;
+			if(lkp) *lkp=pr; // this is the innermost probability
+			pr += bo; //add all the accumulated back-off probability
+			return pr; 
+		}
+		// backoff-probability
+    lbo = 0.0; //local back-off: default is logprob 0
+		if(get(ctx)){ //this can be replaced with (ng.lev==(ng.size-1))
+			ipr = ctx.bow; 
+			lbo = isQtable?Bcenters[ng.size][ipr]:*(float*)&ipr;
+		}
+		if(bop) *bop++=lbo;
+		if(bol) ++*bol;
+		bo += lbo;
+		ng.size--;
+		ctx.size--;
+	}
+	ipr = ng.prob;
+	pr = isQtable?Pcenters[ng.size][ipr]:*((float*)&ipr);
+	if(lkp) *lkp=pr;
+	pr += bo;
+	return pr;
 }
+
+
+// FABIO
+int lmtable::wdprune(float	*thr)
+{
+	int	l;
+	ngram	ng(lmtable::getDict(),0);
+  
+	ng.size=0;
+	for(l=3; l<=maxlev; l++) wdprune(thr, ng, 1, l, 0, cursize[1]);
+	return 0;
+}
+
+// FABIO: LM pruning method
+
+int lmtable::wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epos, double	tlk,
+                     double	bo, double	*ts, double	*tbs)
+{
+	LMT_TYPE	ndt=tbltype[ilev];
+	int		   ndsz=nodesize(ndt);
+	char		 *ndp;
+	float		 lk;
+	int i, ipr, ibo, k, nk;
+  
+	assert(ng.size==ilev-1);
+	assert(ipos>=0 && epos<=cursize[ilev] && ipos<epos);
+  
+  ng.pushc(0); //increase size of n-gram 
+  
+	for(i=ipos, nk=0; i<epos; i++) {
+
+    //scan table at next level ilev from position ipos 
+		ndp = table[ilev]+(long long)i*ndsz;
+		*ng.wordp(1) = word(ndp);
+
+    //get probability 
+		ipr = prob(ndp, ndt);
+		if(ipr==NOPROB) continue;	// Has been already pruned ??
+		lk = *(float*)&ipr;
+
+    
+		if(ilev<elev) { //there is an higher order 
+      
+      //get backoff-weight for next level
+			ibo = bow(ndp, ndt);
+      bo = *(float*)&ibo;
+
+      //get table boundaries for next level
+			int isucc = i>0 ? bound(ndp-ndsz, ndt) : 0;
+			int esucc = bound(ndp, ndt);
+			if(isucc>=esucc) continue; // no successors
+
+      //look for n-grams to be pruned with this context (see back-off weight)
+			double ts=0, tbs=0;
+			k = wdprune(thr, ng, ilev+1, elev, isucc, esucc, tlk+lk, bo, &ts, &tbs);
+      
+      //k  is the number of pruned n-grams with this context
+      
+			if(k && ilev==elev-1){ 
+        // adjusts backoff: 1-sum_succ(pr(w|ng)) / 1-sum_succ(pr(w|bng))
+				bo = log((1-ts)/(1-tbs))/M_LN10;
+				*(float*)&ibo=bo;
+				bow(ndp, ndt, ibo);
+      }
+		} else { //we are at the highest level
+      
+      //get probability of lower order n-gram
+			ngram	bng = ng; --bng.size;
+			float blk = lprob(bng); // ma ristretto !!
+        
+			float wd = pow(10., tlk+lk)*(lk-bo-blk);
+			if(wd>thr[elev-1]) {
+				*ts += pow(10., lk); 
+				*tbs += pow(10., blk);
+			} else {		// va scartato
+				++nk;      
+				prob(ndp, ndt, NOPROB);
+			}
+#if 0
+			if(wd<thr[elev-1]) {
+				cout << tlk << " " << lk << " " << blk;
+				cout << " " << wd << " ";
+				for (int k=ng.size;k;k--){
+					cout << " " <<
+          lmtable::getDict()->decode(*ng.wordp(k));
+				}
+				cout << "\n";
+			}
+#endif
+		}
+	}
+	return nk;
+}
+
+//recompute table size by excluding pruned n-grams
+
+int lmtable::ngcnt(int		*cnt)
+{
+	ngram	ng(lmtable::getDict(),0);
+	memset(cnt, 0, (maxlev+1)*sizeof(*cnt));
+	ngcnt(cnt, ng, 1, 0, cursize[1]);
+	return 0;
+}
+
+//recursively compute size 
+int lmtable::ngcnt(int		*cnt, ngram	ng, int		l, int		ipos, int		epos){
+
+	int		i, ipr, isucc, esucc;
+	char		*ndp;
+	LMT_TYPE	ndt=tbltype[l];
+	int		ndsz=nodesize(ndt);
+  
+	ng.pushc(0);
+	for(i=ipos; i<epos; i++) {
+		ndp = table[l]+(long long)i*ndsz;
+		*ng.wordp(1)=word(ndp);
+		ipr=prob(ndp, ndt);
+		if(ipr==NOPROB) continue;
+		++cnt[l];
+		if(l==maxlev) continue;
+		isucc = (i>0)?bound(ndp-ndsz, ndt):0;
+		esucc = bound(ndp, ndt);
+		if(isucc < esucc) ngcnt(cnt, ng, l+1, isucc, esucc);
+	}
+	return 0;
+}
+
+

@@ -162,6 +162,14 @@ public:
   };
 
 
+  int wdprune(float *thr);
+  int wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epos,
+                double	lk=0, double	bo=0, double	*ts=0, double	*tbs=0);
+  double lprobx(ngram	ong, double	*lkp=0, double	*bop=0, int	*bol=0);
+
+  int ngcnt(int		*cnt);
+  int ngcnt(int		*cnt, ngram	ng, int l, int ipos, int epos);
+    
   void init_probcache();
   void init_statecache();
   void init_lmtcaches(int uptolev);
@@ -181,8 +189,12 @@ public:
   double getlogOOVpenalty(){ return logOOVpenalty; }
   
   double setlogOOVpenalty(int dub){ 
-    assert(dub>dict->size());
+    assert(dub > dict->size());
     return logOOVpenalty=log((double)(dub - dict->size()))/log(10.0);
+  }
+  
+  double setlogOOVpenalty2(double oovp){ 
+    return logOOVpenalty=oovp;
   }
   
   int maxlevel(){return maxlev;};
@@ -214,7 +226,6 @@ public:
   //virtual double lprob(ngram ng);
   virtual double clprob(ngram ng); 
   
-  double lprobx(ngram ng, double *lk=0, double *boff=0, int *bol=0); 
   
   void *search(int lev,int offs,int n,int sz,int *w,
                LMT_ACTION action,char **found=(char **)NULL);
