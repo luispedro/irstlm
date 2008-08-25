@@ -208,7 +208,6 @@ int main(int argc, const char **argv)
       // reset ngram at begin of sentence
       if (*ng.wordp(1)==bos) continue;
       
-      lmt.bo_state(0);
       if (ng.size>=1){ 
         logPr+=(Pr=lmt.lprob(ng,&bow,&bol)); 
         
@@ -223,7 +222,7 @@ int main(int argc, const char **argv)
           std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << " bow:" << bow << std::endl; 
         
         if (*ng.wordp(1) == lmt.dict->oovcode()) Noov++;        
-        Nw++; if (lmt.bo_state()) Nbo++;                   
+        Nw++; if (bol) Nbo++;                   
       }
     } 
     

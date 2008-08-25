@@ -1254,7 +1254,7 @@ double lmtable::lprob(ngram ong,double* bow, int* bol,int internalcall){
       return -log(UNIGRAM_RESOLUTION)/M_LN10;
     else{ //compute backoff
           //set backoff state, shift n-gram, set default bow prob 
-      bo_state(bo_state()==-11?1:bo_state()+1); rbow=0.0; 
+      rbow=0.0; 
 			if (bol) (*bol)++; //increase backoff level
       if ((ng.lev==(ng.size-1)) && (*ng.wordp(2)!=dict->oovcode())){ 
         //found history in table: use its bo weight 
@@ -1384,7 +1384,6 @@ double lmtable::lprobx(ngram    ong,
                         return pr;
                 }
                 // backoff-probability
-                bo_state(1); //set backoff state to 1
                 lbo = 0.0;
                 if(get(ctx)){
                         ipr = ctx.bow;
