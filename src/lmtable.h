@@ -210,8 +210,10 @@ public:
   
   void loadcenters(std::istream& inp,int Order);
 	
-  virtual double lprob(ngram ng); 
+  virtual double lprob(ngram ng, double* bow=NULL,int* bol=NULL,int internalcall=0);
+  //virtual double lprob(ngram ng);
   virtual double clprob(ngram ng); 
+  
   double lprobx(ngram ng, double *lk=0, double *boff=0, int *bol=0); 
   
   void *search(int lev,int offs,int n,int sz,int *w,

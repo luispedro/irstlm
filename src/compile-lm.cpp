@@ -200,7 +200,7 @@ int main(int argc, const char **argv)
 #ifdef TRACE_CACHE
     lmt.init_probcache();
 #endif
-    
+    double bow; int bol; 
     while(inptxt >> ng){      
       
       if (ng.size>lmt.maxlevel()) ng.size=lmt.maxlevel();
@@ -210,13 +210,17 @@ int main(int argc, const char **argv)
       
       lmt.bo_state(0);
       if (ng.size>=1){ 
-        logPr+=(Pr=lmt.clprob(ng));
-        if (debug>0){
-          std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << ng.size-lmt.bo_state() << "]" << " "; 
+        logPr+=(Pr=lmt.lprob(ng,&bow,&bol)); 
+        
+        if (debug==1){
+          std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << ng.size-bol << "]" << " "; 
           if (*ng.wordp(1)==eos) std::cout << std::endl;
         }
-        if (debug>1)
-          std::cout << ng << "[" << ng.size-lmt.bo_state() << "-gram]" << " " << Pr << std::endl; 
+        if (debug==2)
+          std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << std::endl; 
+
+        if (debug>2)
+          std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << " bow:" << bow << std::endl; 
         
         if (*ng.wordp(1) == lmt.dict->oovcode()) Noov++;        
         Nw++; if (lmt.bo_state()) Nbo++;                   
@@ -245,51 +249,26 @@ int main(int argc, const char **argv)
     //lmt.init_probcache();
     //lmt.init_lmtcaches(lmt.maxlevel());
     
-    float log10=log(10.0);
-
-
-    float bcoT=0;
-    int bt;
-    double* bco=new double[lmt.maxlevel()];
-    double ls,lkp;
-
-    unsigned int n=0;
+    unsigned int n=0; int bol; double bow;
     while(std::cin >> ng){
-      lmt.bo_state(0);
+
       if (ng.size>=lmt.maxlevel()){
         ng.size=lmt.maxlevel();
         ++n;
-        std::cout << ng << " p= " << lmt.clprob(ng) * log10;
-
-        std::cout << " bo= " << lmt.bo_state() << std::endl;
+        std::cout << ng << " p= " << lmt.lprob(ng,&bow,&bol) * M_LN10;
+        
+        std::cout << " bo= " << bol << std::endl;
         if ((n % 10000000)==0){ 
           std::cerr << "check cache levels" << std::endl;
           lmt.check_cache_levels();   
-          //lmt.reset_mmap();
         }        
-
-
-	lmt.bo_state(0);
-	for(int ii=0;ii<ng.size-1;ii++)
-	  bco[ii]=0;
-	bt=0;
-	ls=(float)lmt.lprobx(ng,&lkp,bco,&bt); 
-
-	for(int ii=0, bcoT=0.0;ii<ng.size-1;ii++)
-	  bcoT+=bco[ii];
-        std::cout << ng << " lprobx= " << lkp * log10;
-        std::cout << " lprobxbo= " << bt << std::endl;
-        std::cout << " lprobxbackoff= " << bcoT << std::endl;
-
-
-
+                
       }
       else
         std::cout << ng << " p= NULL" << std::endl;      
       std::cout << "> ";                 
     }
     
-    delete[] bco;
     return 0;
   }
   

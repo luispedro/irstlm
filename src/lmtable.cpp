@@ -1221,13 +1221,21 @@ const char *lmtable::cmaxsuffptr(ngram ong){
 
 
 
-//return log10 probs
+//returns log10prob of n-gram
+//bow: backoff weight
+//bol: backoff level
 
-double lmtable::lprob(ngram ong){
+double lmtable::lprob(ngram ong,double* bow, int* bol,int internalcall){
+//double lmtable::lprob(ngram ong){
 	
   if (ong.size==0) return 0.0;
   if (ong.size>maxlev) ong.size=maxlev;
-  
+
+  if (internalcall==0){ //first call to lprob
+    if (bow) *bow=0;
+    if (bol) *bol=0;
+  }
+    
   ngram ng=ong;
   //ngram ng(lmtable::getDict()); //avoid dictionary transfer
   //ng.trans(ong);
@@ -1246,16 +1254,20 @@ double lmtable::lprob(ngram ong){
       return -log(UNIGRAM_RESOLUTION)/M_LN10;
     else{ //compute backoff
           //set backoff state, shift n-gram, set default bow prob 
-      bo_state(bo_state()==-11?1:bo_state()+1); rbow=0.0; 			
+      bo_state(bo_state()==-11?1:bo_state()+1); rbow=0.0; 
+			if (bol) (*bol)++; //increase backoff level
       if ((ng.lev==(ng.size-1)) && (*ng.wordp(2)!=dict->oovcode())){ 
         //found history in table: use its bo weight 
         //avoid wrong quantization of bow of <unk>
         ibow=ng.bow; 
         rbow= (double) (isQtable?Bcenters[ng.lev][ibow]:*((float *)&ibow));
       }
+          
+      if (bow) (*bow)+=rbow;
+      
       //prepare recursion step
       ong.size--;      
-      return rbow + lmtable::lprob(ong);
+      return rbow + lmtable::lprob(ong,bow,bol,internalcall=1);
     }
   }
 }
@@ -1335,6 +1347,12 @@ void lmtable::reset_mmap(){
     }
 #endif
 }
+
+// ng: input n-gram
+
+// *lk: prob of n-(*bol) gram
+// *boff: backoff weight
+// *bol:  backoff level
 
 double lmtable::lprobx(ngram    ong,
                        double   *lkp,
