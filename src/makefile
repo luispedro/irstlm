@@ -18,7 +18,7 @@ endif
 
 
 #CPPFLAGS = -g -DMYCODESIZE=3  -Wall
-CPPFLAGS = -O3 -DMYCODESIZE=3  -Wall
+CPPFLAGS = -O3 -DMYCODESIZE=3  -Wall --no-strict-aliasing
 
 #IRSTLM LIBRARY
 LIBOBJ = cmd.o util.o mempool.o htable.o dictionary.o n_gram.o ngramcache.o lmtable.o lmmacro.o mfstream.o ngramtable.o
