@@ -1485,8 +1485,8 @@ int lmtable::wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epo
 			ngram	bng = ng; --bng.size;
 			double blk = lprob(bng);
 
-			double wd = pow(10., tlk+lk)*(lk-bo-blk);
-			if(wd>thr[elev-1]) {	// kept
+			double wd = pow(10., tlk+lk) * (lk-bo-blk);
+			if(wd > thr[elev-1]) {	// kept
 				*ts += pow(10., lk);
 				*tbs += pow(10., blk);
 			} else {		// discarded
