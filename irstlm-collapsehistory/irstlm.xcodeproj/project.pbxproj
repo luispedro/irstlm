@@ -1,0 +1,919 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D701C7880B2EB27C007D2774 /* cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = D701C7870B2EB27C007D2774 /* cmd.c */; };
+		D701C7940B2EB37D007D2774 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C78D0B2EB37D007D2774 /* dictionary.cpp */; };
+		D701C7950B2EB37D007D2774 /* htable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C78E0B2EB37D007D2774 /* htable.cpp */; };
+		D701C7960B2EB37D007D2774 /* lmtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C78F0B2EB37D007D2774 /* lmtable.cpp */; };
+		D701C7970B2EB37D007D2774 /* mempool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7900B2EB37D007D2774 /* mempool.cpp */; };
+		D701C7980B2EB37D007D2774 /* n_gram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7910B2EB37D007D2774 /* n_gram.cpp */; };
+		D701C7990B2EB37D007D2774 /* ngramcache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7920B2EB37D007D2774 /* ngramcache.cpp */; };
+		D701C79A0B2EB37D007D2774 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C7930B2EB37D007D2774 /* util.cpp */; };
+		D701C7A60B2EB472007D2774 /* cmd.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C79C0B2EB472007D2774 /* cmd.h */; };
+		D701C7A70B2EB472007D2774 /* dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C79D0B2EB472007D2774 /* dictionary.h */; };
+		D701C7A80B2EB472007D2774 /* gzfilebuf.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C79E0B2EB472007D2774 /* gzfilebuf.h */; };
+		D701C7A90B2EB472007D2774 /* htable.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C79F0B2EB472007D2774 /* htable.h */; };
+		D701C7AA0B2EB472007D2774 /* index.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A00B2EB472007D2774 /* index.h */; };
+		D701C7AB0B2EB472007D2774 /* lmtable.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A10B2EB472007D2774 /* lmtable.h */; };
+		D701C7AC0B2EB472007D2774 /* mempool.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A20B2EB472007D2774 /* mempool.h */; };
+		D701C7AD0B2EB472007D2774 /* n_gram.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A30B2EB472007D2774 /* n_gram.h */; };
+		D701C7AE0B2EB472007D2774 /* ngramcache.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A40B2EB472007D2774 /* ngramcache.h */; };
+		D701C7AF0B2EB472007D2774 /* util.h in Headers */ = {isa = PBXBuildFile; fileRef = D701C7A50B2EB472007D2774 /* util.h */; };
+		D77D1C430B2F1FCA00D79D16 /* quantize-lm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D77D1C420B2F1FCA00D79D16 /* quantize-lm.cpp */; };
+		D77D1C670B3030E100D79D16 /* mfstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D77D1C620B3030E100D79D16 /* mfstream.cpp */; };
+		D77D1C680B3030E100D79D16 /* mfstream.h in Headers */ = {isa = PBXBuildFile; fileRef = D77D1C630B3030E100D79D16 /* mfstream.h */; };
+		D77D1C690B3030E100D79D16 /* ngramtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D77D1C640B3030E100D79D16 /* ngramtable.cpp */; };
+		D77D1C6A0B3030E100D79D16 /* ngramtable.h in Headers */ = {isa = PBXBuildFile; fileRef = D77D1C650B3030E100D79D16 /* ngramtable.h */; };
+		D77D1C7D0B3032EC00D79D16 /* dict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D77D1C7C0B3032EC00D79D16 /* dict.cpp */; };
+		D7F00B650B38508400A1FF7A /* ngt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7F00B640B38508400A1FF7A /* ngt.cpp */; };
+		D7F00C720B3AF17800A1FF7A /* compile-lm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7F00C710B3AF17800A1FF7A /* compile-lm.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D701C74E0B2EAEDB007D2774 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D733D3F30B1F3B0800565249;
+			remoteInfo = irstlm;
+		};
+		D77D1C730B30325900D79D16 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D733D3F30B1F3B0800565249;
+			remoteInfo = irstlm;
+		};
+		D7F00B620B38505800A1FF7A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D733D3F30B1F3B0800565249;
+			remoteInfo = irstlm;
+		};
+		D7F00CDB0B3BCBF200A1FF7A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D733D3F30B1F3B0800565249;
+			remoteInfo = irstlm;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		ADCFA0280E4872FC00E351DB /* dict */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dict; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCFA02A0E4872FC00E351DB /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirstlm.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCFA02B0E4872FC00E351DB /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "compile-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCFA02D0E4872FC00E351DB /* quantize-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "quantize-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCFA02F0E4872FC00E351DB /* ngt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngt; sourceTree = BUILT_PRODUCTS_DIR; };
+		D701C7870B2EB27C007D2774 /* cmd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd.c; path = src/cmd.c; sourceTree = "<group>"; };
+		D701C78D0B2EB37D007D2774 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dictionary.cpp; path = src/dictionary.cpp; sourceTree = "<group>"; };
+		D701C78E0B2EB37D007D2774 /* htable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htable.cpp; path = src/htable.cpp; sourceTree = "<group>"; };
+		D701C78F0B2EB37D007D2774 /* lmtable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lmtable.cpp; path = src/lmtable.cpp; sourceTree = "<group>"; };
+		D701C7900B2EB37D007D2774 /* mempool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mempool.cpp; path = src/mempool.cpp; sourceTree = "<group>"; };
+		D701C7910B2EB37D007D2774 /* n_gram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = n_gram.cpp; path = src/n_gram.cpp; sourceTree = "<group>"; };
+		D701C7920B2EB37D007D2774 /* ngramcache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ngramcache.cpp; path = src/ngramcache.cpp; sourceTree = "<group>"; };
+		D701C7930B2EB37D007D2774 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = src/util.cpp; sourceTree = "<group>"; };
+		D701C79C0B2EB472007D2774 /* cmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cmd.h; path = src/cmd.h; sourceTree = "<group>"; };
+		D701C79D0B2EB472007D2774 /* dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dictionary.h; path = src/dictionary.h; sourceTree = "<group>"; };
+		D701C79E0B2EB472007D2774 /* gzfilebuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gzfilebuf.h; path = src/gzfilebuf.h; sourceTree = "<group>"; };
+		D701C79F0B2EB472007D2774 /* htable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = htable.h; path = src/htable.h; sourceTree = "<group>"; };
+		D701C7A00B2EB472007D2774 /* index.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = index.h; path = src/index.h; sourceTree = "<group>"; };
+		D701C7A10B2EB472007D2774 /* lmtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lmtable.h; path = src/lmtable.h; sourceTree = "<group>"; };
+		D701C7A20B2EB472007D2774 /* mempool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mempool.h; path = src/mempool.h; sourceTree = "<group>"; };
+		D701C7A30B2EB472007D2774 /* n_gram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = n_gram.h; path = src/n_gram.h; sourceTree = "<group>"; };
+		D701C7A40B2EB472007D2774 /* ngramcache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ngramcache.h; path = src/ngramcache.h; sourceTree = "<group>"; };
+		D701C7A50B2EB472007D2774 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = src/util.h; sourceTree = "<group>"; };
+		D731CBD70B5505EA003E1AF3 /* command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = command; sourceTree = "<group>"; };
+		D731CBD80B5505EA003E1AF3 /* filter-stderr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stderr"; sourceTree = "<group>"; };
+		D731CBD90B5505EA003E1AF3 /* filter-stdout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stdout"; sourceTree = "<group>"; };
+		D731CBDA0B5505EA003E1AF3 /* input */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input; sourceTree = "<group>"; };
+		D731CBDC0B5505EA003E1AF3 /* results.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = results.dat; sourceTree = "<group>"; };
+		D731CBDE0B5505EA003E1AF3 /* command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = command; sourceTree = "<group>"; };
+		D731CBDF0B5505EA003E1AF3 /* filter-stderr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stderr"; sourceTree = "<group>"; };
+		D731CBE00B5505EA003E1AF3 /* filter-stdout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stdout"; sourceTree = "<group>"; };
+		D731CBE10B5505EA003E1AF3 /* input */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input; sourceTree = "<group>"; };
+		D731CBE30B5505EA003E1AF3 /* results.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = results.dat; sourceTree = "<group>"; };
+		D731CBE50B5505EA003E1AF3 /* command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = command; sourceTree = "<group>"; };
+		D731CBE60B5505EA003E1AF3 /* filter-stderr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stderr"; sourceTree = "<group>"; };
+		D731CBE70B5505EA003E1AF3 /* filter-stdout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stdout"; sourceTree = "<group>"; };
+		D731CBE80B5505EA003E1AF3 /* input */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input; sourceTree = "<group>"; };
+		D731CBEA0B5505EA003E1AF3 /* results.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = results.dat; sourceTree = "<group>"; };
+		D731CBEC0B5505EA003E1AF3 /* command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = command; sourceTree = "<group>"; };
+		D731CBED0B5505EA003E1AF3 /* filter-stderr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stderr"; sourceTree = "<group>"; };
+		D731CBEE0B5505EA003E1AF3 /* filter-stdout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stdout"; sourceTree = "<group>"; };
+		D731CBEF0B5505EA003E1AF3 /* input.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = input.gz; sourceTree = "<group>"; };
+		D731CBF10B5505EA003E1AF3 /* results.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = results.dat; sourceTree = "<group>"; };
+		D731CBF30B5505EA003E1AF3 /* command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = command; sourceTree = "<group>"; };
+		D731CBF40B5505EA003E1AF3 /* filter-stderr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stderr"; sourceTree = "<group>"; };
+		D731CBF50B5505EA003E1AF3 /* filter-stdout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "filter-stdout"; sourceTree = "<group>"; };
+		D731CBF60B5505EA003E1AF3 /* input.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = input.gz; sourceTree = "<group>"; };
+		D731CBF80B5505EA003E1AF3 /* results.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = results.dat; sourceTree = "<group>"; };
+		D77D1C420B2F1FCA00D79D16 /* quantize-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "quantize-lm.cpp"; path = "src/quantize-lm.cpp"; sourceTree = "<group>"; };
+		D77D1C620B3030E100D79D16 /* mfstream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mfstream.cpp; path = src/mfstream.cpp; sourceTree = "<group>"; };
+		D77D1C630B3030E100D79D16 /* mfstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mfstream.h; path = src/mfstream.h; sourceTree = "<group>"; };
+		D77D1C640B3030E100D79D16 /* ngramtable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ngramtable.cpp; path = src/ngramtable.cpp; sourceTree = "<group>"; };
+		D77D1C650B3030E100D79D16 /* ngramtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ngramtable.h; path = src/ngramtable.h; sourceTree = "<group>"; };
+		D77D1C7C0B3032EC00D79D16 /* dict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dict.cpp; path = src/dict.cpp; sourceTree = "<group>"; };
+		D77D1C810B30331500D79D16 /* compare-results.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "compare-results.pl"; sourceTree = "<group>"; };
+		D77D1C830B30331500D79D16 /* IrstLMRegressionTesting.pm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = IrstLMRegressionTesting.pm; sourceTree = "<group>"; };
+		D77D1C840B30331500D79D16 /* run-single-test.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "run-single-test.pl"; sourceTree = "<group>"; };
+		D77D1C850B30331500D79D16 /* run-test-suite */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "run-test-suite"; sourceTree = "<group>"; };
+		D77D1C940B30332B00D79D16 /* user-manual.4.2 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "user-manual.4.2"; sourceTree = "<group>"; };
+		D7BE45CE0C104DD400B95F19 /* build-lm.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "build-lm.sh"; sourceTree = "<group>"; };
+		D7F00B530B382B8900A1FF7A /* build-sublm.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "build-sublm.pl"; sourceTree = "<group>"; };
+		D7F00B540B382B8900A1FF7A /* merge-sublm.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "merge-sublm.pl"; sourceTree = "<group>"; };
+		D7F00B550B382B8900A1FF7A /* ngram-split.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "ngram-split.pl"; sourceTree = "<group>"; };
+		D7F00B560B382B8900A1FF7A /* split-dict.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "split-dict.pl"; sourceTree = "<group>"; };
+		D7F00B570B382B8900A1FF7A /* split-ngt.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "split-ngt.sh"; sourceTree = "<group>"; };
+		D7F00B640B38508400A1FF7A /* ngt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ngt.cpp; path = src/ngt.cpp; sourceTree = "<group>"; };
+		D7F00C710B3AF17800A1FF7A /* compile-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "compile-lm.cpp"; path = "src/compile-lm.cpp"; sourceTree = "<group>"; };
+		D7FFAE140BFC935500F7F904 /* add-start-end.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "add-start-end.sh"; sourceTree = "<group>"; };
+		D7FFAE150BFC935500F7F904 /* rm-start-end.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "rm-start-end.sh"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D701C7230B2EACC4007D2774 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D733D3F20B1F3B0800565249 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D77D1C1D0B2F1D7200D79D16 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D77D1C6F0B30325000D79D16 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D7F00B5E0B38505100A1FF7A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* irstlm */ = {
+			isa = PBXGroup;
+			children = (
+				D77D1C7F0B3032FB00D79D16 /* other */,
+				D701C78C0B2EB333007D2774 /* src */,
+				ADCFA0280E4872FC00E351DB /* dict */,
+				ADCFA02A0E4872FC00E351DB /* libirstlm.a */,
+				ADCFA02B0E4872FC00E351DB /* compile-lm */,
+				ADCFA02D0E4872FC00E351DB /* quantize-lm */,
+				ADCFA02F0E4872FC00E351DB /* ngt */,
+			);
+			name = irstlm;
+			sourceTree = "<group>";
+		};
+		D701C78C0B2EB333007D2774 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				D7F00C710B3AF17800A1FF7A /* compile-lm.cpp */,
+				D77D1C630B3030E100D79D16 /* mfstream.h */,
+				D77D1C7C0B3032EC00D79D16 /* dict.cpp */,
+				D7F00B640B38508400A1FF7A /* ngt.cpp */,
+				D77D1C620B3030E100D79D16 /* mfstream.cpp */,
+				D77D1C650B3030E100D79D16 /* ngramtable.h */,
+				D77D1C640B3030E100D79D16 /* ngramtable.cpp */,
+				D77D1C420B2F1FCA00D79D16 /* quantize-lm.cpp */,
+				D701C7930B2EB37D007D2774 /* util.cpp */,
+				D701C7910B2EB37D007D2774 /* n_gram.cpp */,
+				D701C78D0B2EB37D007D2774 /* dictionary.cpp */,
+				D701C79C0B2EB472007D2774 /* cmd.h */,
+				D701C79D0B2EB472007D2774 /* dictionary.h */,
+				D701C79E0B2EB472007D2774 /* gzfilebuf.h */,
+				D701C79F0B2EB472007D2774 /* htable.h */,
+				D701C7A00B2EB472007D2774 /* index.h */,
+				D701C7A10B2EB472007D2774 /* lmtable.h */,
+				D701C7A20B2EB472007D2774 /* mempool.h */,
+				D701C7A30B2EB472007D2774 /* n_gram.h */,
+				D701C7A40B2EB472007D2774 /* ngramcache.h */,
+				D701C7A50B2EB472007D2774 /* util.h */,
+				D701C78E0B2EB37D007D2774 /* htable.cpp */,
+				D701C78F0B2EB37D007D2774 /* lmtable.cpp */,
+				D701C7900B2EB37D007D2774 /* mempool.cpp */,
+				D701C7920B2EB37D007D2774 /* ngramcache.cpp */,
+				D701C7870B2EB27C007D2774 /* cmd.c */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		D731CBD50B5505EA003E1AF3 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBD60B5505EA003E1AF3 /* basic-dict */,
+				D731CBDD0B5505EA003E1AF3 /* basic-ngt */,
+				D731CBE40B5505EA003E1AF3 /* build-sublm */,
+				D731CBEB0B5505EA003E1AF3 /* compile-lm */,
+				D731CBF20B5505EA003E1AF3 /* quantize-lm */,
+			);
+			path = tests;
+			sourceTree = "<group>";
+		};
+		D731CBD60B5505EA003E1AF3 /* basic-dict */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBD70B5505EA003E1AF3 /* command */,
+				D731CBD80B5505EA003E1AF3 /* filter-stderr */,
+				D731CBD90B5505EA003E1AF3 /* filter-stdout */,
+				D731CBDA0B5505EA003E1AF3 /* input */,
+				D731CBDB0B5505EA003E1AF3 /* truth */,
+			);
+			path = "basic-dict";
+			sourceTree = "<group>";
+		};
+		D731CBDB0B5505EA003E1AF3 /* truth */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBDC0B5505EA003E1AF3 /* results.dat */,
+			);
+			path = truth;
+			sourceTree = "<group>";
+		};
+		D731CBDD0B5505EA003E1AF3 /* basic-ngt */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBDE0B5505EA003E1AF3 /* command */,
+				D731CBDF0B5505EA003E1AF3 /* filter-stderr */,
+				D731CBE00B5505EA003E1AF3 /* filter-stdout */,
+				D731CBE10B5505EA003E1AF3 /* input */,
+				D731CBE20B5505EA003E1AF3 /* truth */,
+			);
+			path = "basic-ngt";
+			sourceTree = "<group>";
+		};
+		D731CBE20B5505EA003E1AF3 /* truth */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBE30B5505EA003E1AF3 /* results.dat */,
+			);
+			path = truth;
+			sourceTree = "<group>";
+		};
+		D731CBE40B5505EA003E1AF3 /* build-sublm */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBE50B5505EA003E1AF3 /* command */,
+				D731CBE60B5505EA003E1AF3 /* filter-stderr */,
+				D731CBE70B5505EA003E1AF3 /* filter-stdout */,
+				D731CBE80B5505EA003E1AF3 /* input */,
+				D731CBE90B5505EA003E1AF3 /* truth */,
+			);
+			path = "build-sublm";
+			sourceTree = "<group>";
+		};
+		D731CBE90B5505EA003E1AF3 /* truth */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBEA0B5505EA003E1AF3 /* results.dat */,
+			);
+			path = truth;
+			sourceTree = "<group>";
+		};
+		D731CBEB0B5505EA003E1AF3 /* compile-lm */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBEC0B5505EA003E1AF3 /* command */,
+				D731CBED0B5505EA003E1AF3 /* filter-stderr */,
+				D731CBEE0B5505EA003E1AF3 /* filter-stdout */,
+				D731CBEF0B5505EA003E1AF3 /* input.gz */,
+				D731CBF00B5505EA003E1AF3 /* truth */,
+			);
+			path = "compile-lm";
+			sourceTree = "<group>";
+		};
+		D731CBF00B5505EA003E1AF3 /* truth */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBF10B5505EA003E1AF3 /* results.dat */,
+			);
+			path = truth;
+			sourceTree = "<group>";
+		};
+		D731CBF20B5505EA003E1AF3 /* quantize-lm */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBF30B5505EA003E1AF3 /* command */,
+				D731CBF40B5505EA003E1AF3 /* filter-stderr */,
+				D731CBF50B5505EA003E1AF3 /* filter-stdout */,
+				D731CBF60B5505EA003E1AF3 /* input.gz */,
+				D731CBF70B5505EA003E1AF3 /* truth */,
+			);
+			path = "quantize-lm";
+			sourceTree = "<group>";
+		};
+		D731CBF70B5505EA003E1AF3 /* truth */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBF80B5505EA003E1AF3 /* results.dat */,
+			);
+			path = truth;
+			sourceTree = "<group>";
+		};
+		D77D1C7F0B3032FB00D79D16 /* other */ = {
+			isa = PBXGroup;
+			children = (
+				D7F00B520B382B8900A1FF7A /* scripts */,
+				D77D1C930B30332B00D79D16 /* doc */,
+				D77D1C800B30331500D79D16 /* regression-testing */,
+			);
+			name = other;
+			sourceTree = "<group>";
+		};
+		D77D1C800B30331500D79D16 /* regression-testing */ = {
+			isa = PBXGroup;
+			children = (
+				D731CBD50B5505EA003E1AF3 /* tests */,
+				D77D1C810B30331500D79D16 /* compare-results.pl */,
+				D77D1C820B30331500D79D16 /* irstlm-reg-test-data-1.0 */,
+				D77D1C830B30331500D79D16 /* IrstLMRegressionTesting.pm */,
+				D77D1C840B30331500D79D16 /* run-single-test.pl */,
+				D77D1C850B30331500D79D16 /* run-test-suite */,
+			);
+			path = "regression-testing";
+			sourceTree = "<group>";
+		};
+		D77D1C820B30331500D79D16 /* irstlm-reg-test-data-1.0 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "irstlm-reg-test-data-1.0";
+			sourceTree = "<group>";
+		};
+		D77D1C930B30332B00D79D16 /* doc */ = {
+			isa = PBXGroup;
+			children = (
+				D77D1C940B30332B00D79D16 /* user-manual.4.2 */,
+			);
+			path = doc;
+			sourceTree = "<group>";
+		};
+		D7F00B520B382B8900A1FF7A /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				D7BE45CE0C104DD400B95F19 /* build-lm.sh */,
+				D7FFAE140BFC935500F7F904 /* add-start-end.sh */,
+				D7FFAE150BFC935500F7F904 /* rm-start-end.sh */,
+				D7F00B530B382B8900A1FF7A /* build-sublm.pl */,
+				D7F00B540B382B8900A1FF7A /* merge-sublm.pl */,
+				D7F00B550B382B8900A1FF7A /* ngram-split.pl */,
+				D7F00B560B382B8900A1FF7A /* split-dict.pl */,
+				D7F00B570B382B8900A1FF7A /* split-ngt.sh */,
+			);
+			path = scripts;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D733D3F00B1F3B0800565249 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D701C7A60B2EB472007D2774 /* cmd.h in Headers */,
+				D701C7A70B2EB472007D2774 /* dictionary.h in Headers */,
+				D701C7A80B2EB472007D2774 /* gzfilebuf.h in Headers */,
+				D701C7A90B2EB472007D2774 /* htable.h in Headers */,
+				D701C7AA0B2EB472007D2774 /* index.h in Headers */,
+				D701C7AB0B2EB472007D2774 /* lmtable.h in Headers */,
+				D701C7AC0B2EB472007D2774 /* mempool.h in Headers */,
+				D701C7AD0B2EB472007D2774 /* n_gram.h in Headers */,
+				D701C7AE0B2EB472007D2774 /* ngramcache.h in Headers */,
+				D701C7AF0B2EB472007D2774 /* util.h in Headers */,
+				D77D1C680B3030E100D79D16 /* mfstream.h in Headers */,
+				D77D1C6A0B3030E100D79D16 /* ngramtable.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D701C7240B2EACC4007D2774 /* compile-lm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D701C7270B2EACFF007D2774 /* Build configuration list for PBXNativeTarget "compile-lm" */;
+			buildPhases = (
+				D701C7220B2EACC4007D2774 /* Sources */,
+				D701C7230B2EACC4007D2774 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			comments = "Command to compile a LM into a binary format\n";
+			dependencies = (
+				D701C74F0B2EAEDB007D2774 /* PBXTargetDependency */,
+			);
+			name = "compile-lm";
+			productName = "compile-lm";
+			productReference = ADCFA02B0E4872FC00E351DB /* compile-lm */;
+			productType = "com.apple.product-type.tool";
+		};
+		D733D3F30B1F3B0800565249 /* irstlm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D733D3F50B1F3B2600565249 /* Build configuration list for PBXNativeTarget "irstlm" */;
+			buildPhases = (
+				D733D3F00B1F3B0800565249 /* Headers */,
+				D733D3F10B1F3B0800565249 /* Sources */,
+				D733D3F20B1F3B0800565249 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = irstlm;
+			productName = irstlm;
+			productReference = ADCFA02A0E4872FC00E351DB /* libirstlm.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		D77D1C1E0B2F1D7200D79D16 /* quantize-lm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D77D1C230B2F1D9900D79D16 /* Build configuration list for PBXNativeTarget "quantize-lm" */;
+			buildPhases = (
+				D77D1C1C0B2F1D7200D79D16 /* Sources */,
+				D77D1C1D0B2F1D7200D79D16 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D7F00CDC0B3BCBF200A1FF7A /* PBXTargetDependency */,
+			);
+			name = "quantize-lm";
+			productName = "quantize-lm";
+			productReference = ADCFA02D0E4872FC00E351DB /* quantize-lm */;
+			productType = "com.apple.product-type.tool";
+		};
+		D77D1C700B30325000D79D16 /* dict */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D77D1C750B30329200D79D16 /* Build configuration list for PBXNativeTarget "dict" */;
+			buildPhases = (
+				D77D1C6E0B30325000D79D16 /* Sources */,
+				D77D1C6F0B30325000D79D16 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D77D1C740B30325900D79D16 /* PBXTargetDependency */,
+			);
+			name = dict;
+			productName = dict;
+			productReference = ADCFA0280E4872FC00E351DB /* dict */;
+			productType = "com.apple.product-type.tool";
+		};
+		D7F00B5F0B38505100A1FF7A /* ngt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D7F00B660B38508400A1FF7A /* Build configuration list for PBXNativeTarget "ngt" */;
+			buildPhases = (
+				D7F00B5D0B38505100A1FF7A /* Sources */,
+				D7F00B5E0B38505100A1FF7A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D7F00B630B38505800A1FF7A /* PBXTargetDependency */,
+			);
+			name = ngt;
+			productName = ngt;
+			productReference = ADCFA02F0E4872FC00E351DB /* ngt */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "irstlm" */;
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* irstlm */;
+			productRefGroup = 08FB7794FE84155DC02AAC07 /* irstlm */;
+			projectDirPath = "";
+			targets = (
+				D733D3F30B1F3B0800565249 /* irstlm */,
+				D701C7240B2EACC4007D2774 /* compile-lm */,
+				D77D1C1E0B2F1D7200D79D16 /* quantize-lm */,
+				D77D1C700B30325000D79D16 /* dict */,
+				D7F00B5F0B38505100A1FF7A /* ngt */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D701C7220B2EACC4007D2774 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7F00C720B3AF17800A1FF7A /* compile-lm.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D733D3F10B1F3B0800565249 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D701C7880B2EB27C007D2774 /* cmd.c in Sources */,
+				D701C7940B2EB37D007D2774 /* dictionary.cpp in Sources */,
+				D701C7950B2EB37D007D2774 /* htable.cpp in Sources */,
+				D701C7960B2EB37D007D2774 /* lmtable.cpp in Sources */,
+				D701C7970B2EB37D007D2774 /* mempool.cpp in Sources */,
+				D701C7980B2EB37D007D2774 /* n_gram.cpp in Sources */,
+				D701C7990B2EB37D007D2774 /* ngramcache.cpp in Sources */,
+				D701C79A0B2EB37D007D2774 /* util.cpp in Sources */,
+				D77D1C670B3030E100D79D16 /* mfstream.cpp in Sources */,
+				D77D1C690B3030E100D79D16 /* ngramtable.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D77D1C1C0B2F1D7200D79D16 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D77D1C430B2F1FCA00D79D16 /* quantize-lm.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D77D1C6E0B30325000D79D16 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D77D1C7D0B3032EC00D79D16 /* dict.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D7F00B5D0B38505100A1FF7A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7F00B650B38508400A1FF7A /* ngt.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D701C74F0B2EAEDB007D2774 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D733D3F30B1F3B0800565249 /* irstlm */;
+			targetProxy = D701C74E0B2EAEDB007D2774 /* PBXContainerItemProxy */;
+		};
+		D77D1C740B30325900D79D16 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D733D3F30B1F3B0800565249 /* irstlm */;
+			targetProxy = D77D1C730B30325900D79D16 /* PBXContainerItemProxy */;
+		};
+		D7F00B630B38505800A1FF7A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D733D3F30B1F3B0800565249 /* irstlm */;
+			targetProxy = D7F00B620B38505800A1FF7A /* PBXContainerItemProxy */;
+		};
+		D7F00CDC0B3BCBF200A1FF7A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D733D3F30B1F3B0800565249 /* irstlm */;
+			targetProxy = D7F00CDB0B3BCBF200A1FF7A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB923608733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = NO;
+				GCC_WARN_EFFECTIVE_CPLUSPLUS_VIOLATIONS = NO;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
+				GCC_WARN_PEDANTIC = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Wall",
+				);
+			};
+			name = Debug;
+		};
+		1DEB923708733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = NO;
+				GCC_WARN_EFFECTIVE_CPLUSPLUS_VIOLATIONS = NO;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = NO;
+				GCC_WARN_PEDANTIC = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VALUE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Wall",
+				);
+			};
+			name = Release;
+		};
+		D701C7280B2EACFF007D2774 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/build/Debug\"";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "compile-lm";
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		D701C7290B2EACFF007D2774 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/build/Debug\"";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "compile-lm";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		D733D3F60B1F3B2600565249 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/src\"";
+				PREBINDING = NO;
+				PRODUCT_NAME = irstlm;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		D733D3F70B1F3B2600565249 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/src\"";
+				PREBINDING = NO;
+				PRODUCT_NAME = irstlm;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		D77D1C240B2F1D9900D79D16 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "quantize-lm";
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		D77D1C250B2F1D9900D79D16 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "quantize-lm";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		D77D1C760B30329200D79D16 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = dict;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		D77D1C770B30329200D79D16 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = dict;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		D7F00B670B38508400A1FF7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ngt;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		D7F00B680B38508400A1FF7A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ngt;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "irstlm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923608733DC60010E9CD /* Debug */,
+				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D701C7270B2EACFF007D2774 /* Build configuration list for PBXNativeTarget "compile-lm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D701C7280B2EACFF007D2774 /* Debug */,
+				D701C7290B2EACFF007D2774 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D733D3F50B1F3B2600565249 /* Build configuration list for PBXNativeTarget "irstlm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D733D3F60B1F3B2600565249 /* Debug */,
+				D733D3F70B1F3B2600565249 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D77D1C230B2F1D9900D79D16 /* Build configuration list for PBXNativeTarget "quantize-lm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D77D1C240B2F1D9900D79D16 /* Debug */,
+				D77D1C250B2F1D9900D79D16 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D77D1C750B30329200D79D16 /* Build configuration list for PBXNativeTarget "dict" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D77D1C760B30329200D79D16 /* Debug */,
+				D77D1C770B30329200D79D16 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D7F00B660B38508400A1FF7A /* Build configuration list for PBXNativeTarget "ngt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D7F00B670B38508400A1FF7A /* Debug */,
+				D7F00B680B38508400A1FF7A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}
