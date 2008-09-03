@@ -407,7 +407,7 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
         if (parseline(inp,Order,ng,pb,bow)){
           //if table is in incomplete ARPA format pb is just the
           //discounted frequency, so we need to add bow * Pr(n-1 gram)
-          if (isItable & Order>1){
+          if (isItable && Order>1){
             //get bow of lower of context
             get(ng,ng.size,ng.size-1);
             float rbow=0.0;
@@ -569,9 +569,9 @@ void lmtable::loadtxt(istream& inp,const char* header){
 
         if (parseline(inp,Order,ng,prob,bow)){
 
-          //if table is in incomplete ARPA format pb is just the
+          //if table is in incomplete ARPA format prob is just the
           //discounted frequency, so we need to add bow * Pr(n-1 gram)
-          if (isItable & Order>1){
+          if (isItable && Order>1) {
             //get bow of lower of context
             get(ng,ng.size,ng.size-1);
             float rbow=0.0;
@@ -1450,7 +1450,7 @@ int lmtable::wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epo
 
 		//get probability
 		ipr = prob(ndp, ndt);
-		if(ipr==NOPROB) continue;	// Has been already pruned ??
+		if(ipr==NOPROB) continue;	// Has it been already pruned ??
 		lk = *(float*)&ipr;
 
 		if(ilev<elev) { //there is an higher order
@@ -1466,19 +1466,29 @@ int lmtable::wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epo
 
 			//look for n-grams to be pruned with this context (see
 			//back-off weight)
-			double ts=0, tbs=0;
+		prune:	double ts=0, tbs=0;
 			k = wdprune(thr, ng, ilev+1, elev, isucc, esucc,
 				    tlk+lk, bo, &ts, &tbs);
-
 			//k  is the number of pruned n-grams with this context
-
-			if(ilev==elev-1){
-				// adjusts backoff:
-				// 1-sum_succ(pr(w|ng)) / 1-sum_succ(pr(w|bng))
-				bo = log((1-ts)/(1-tbs))/M_LN10;
-				*(float*)&ibo=bo;
-				bow(ndp, ndt, ibo);
+			if(ilev!=elev-1) continue;
+			if(ts>=1 || tbs>=1) {
+				cerr << "ng: " << ng
+					<<" ts=" << ts
+					<<" tbs=" << tbs
+					<<" k=" << k
+					<<" ns=" << esucc-isucc
+					<< "\n";
+				if(ts>=1) {
+					pscale(ilev+1, isucc, esucc,
+					       0.999999/ts);
+					goto prune;
+				}
 			}
+			// adjusts backoff:
+			// 1-sum_succ(pr(w|ng)) / 1-sum_succ(pr(w|bng))
+			bo = log((1-ts)/(1-tbs))/M_LN10;
+			*(float*)&ibo=bo;
+			bow(ndp, ndt, ibo);
 		} else { //we are at the highest level
 
 			//get probability of lower order n-gram
@@ -1496,6 +1506,24 @@ int lmtable::wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epo
 		}
 	}
 	return nk;
+}
+
+int lmtable::pscale(int lev, int        ipos, int       epos, double s)
+{
+	LMT_TYPE        ndt=tbltype[lev];
+	int             ndsz=nodesize(ndt);
+	char            *ndp;
+	int             i, ipr;
+
+	s=log(s)/M_LN10;
+	ndp = table[lev]+(long long)ipos*ndsz;
+	for(i=ipos; i<epos; ndp+=ndsz,i++) {
+		ipr = prob(ndp, ndt);
+		if(ipr==NOPROB) continue;
+		*(float*)&ipr+=s;
+		prob(ndp, ndt, ipr);
+	}
+	return 0;
 }
 
 //recompute table size by excluding pruned n-grams

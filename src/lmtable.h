@@ -169,6 +169,7 @@ public:
 
   int ngcnt(int		*cnt);
   int ngcnt(int		*cnt, ngram	ng, int l, int ipos, int epos);
+  int pscale(int        lev, int        ipos, int       epos, double s);
     
   void init_probcache();
   void init_statecache();
