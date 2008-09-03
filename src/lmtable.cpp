@@ -418,7 +418,7 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
             int tmp=maxlev;
             maxlev=Order-1;
             //cerr << ng << "rbow: " << rbow << "prob: " << pb << "low-prob: " << lprob(ng) << "\n";
-            pb= log(exp(pb * M_LN10) +  exp((rbow + lprob(ng)) * M_LN10))/M_LN10;
+            pb= log(exp((double)pb * M_LN10) +  exp(((double)rbow + lprob(ng)) * M_LN10))/M_LN10;
             maxlev=tmp;
           }
           add(ng,
@@ -582,7 +582,7 @@ void lmtable::loadtxt(istream& inp,const char* header){
             int tmp=maxlev;
             maxlev=Order-1;
             //cerr << ng << "rbow: " << rbow << "prob: " << prob << "low-prob: " << lprob(ng) << "\n";
-            prob= log(exp(prob * M_LN10) +  exp((rbow + lprob(ng)) * M_LN10))/M_LN10;
+            prob= log(exp((double)prob * M_LN10) +  exp(((double)rbow + lprob(ng)) * M_LN10))/M_LN10;
             //cerr << "new prob: " << prob << "\n";
 
             maxlev=tmp;
