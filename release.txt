@@ -1,1 +1,1 @@
-This is the release 5.10.03 of the Open Source IRSTLM Toolkit.
+This is the release 5.20.00 of the Open Source IRSTLM Toolkit.
