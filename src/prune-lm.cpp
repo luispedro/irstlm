@@ -36,9 +36,9 @@ std::string spthr = "0";
 
 void usage(const char *msg = 0) {
   if (msg) { std::cerr << msg << std::endl; }
-  std::cerr << "Usage: prune-lm [--threshold=th1,th2,...] input-file [output-file]" << std::endl << std::endl;
+  std::cerr << "Usage: prune-lm [--threshold=th2,th3,...] input-file [output-file]" << std::endl << std::endl;
   std::cerr << "    prune-lm reads a LM in either ARPA or compiled format and" << std::endl;
-  std::cerr << "    prunes out n-grams, with n > 2, for which backing-off to the" << std::endl;
+  std::cerr << "    prunes out n-grams (n=2,3,..) for which backing-off to the" << std::endl;
   std::cerr << "    lower order n-gram results in a small difference in probabiliy." << std::endl;
   std::cerr << "    The pruned LM is saved in ARPA format" << std::endl << std::endl;
   std::cerr << "    Options:" << std::endl;
