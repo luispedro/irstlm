@@ -162,8 +162,8 @@ public:
   };
 
 
-  int wdprune(float *thr);
-  int wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epos,
+  int wdprune(float *thr, int	aflag=0);
+  int wdprune(float	*thr, int aflag, ngram	ng, int	ilev, int	elev, int	ipos, int	epos,
                 double	lk=0, double	bo=0, double	*ts=0, double	*tbs=0);
   double lprobx(ngram	ong, double	*lkp=0, double	*bop=0, int	*bol=0);
 

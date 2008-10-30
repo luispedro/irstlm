@@ -31,12 +31,13 @@ using namespace std;
 
 
 /* GLOBAL OPTIONS ***************/
-std::string spthr = "0";
+std::string	spthr = "0";
+int		aflag=0;
 /********************************/
 
 void usage(const char *msg = 0) {
   if (msg) { std::cerr << msg << std::endl; }
-  std::cerr << "Usage: prune-lm [--threshold=th2,th3,...] input-file [output-file]" << std::endl << std::endl;
+  std::cerr << "Usage: prune-lm [--threshold=th2,th3,...] [--abs=1|0] input-file [output-file]" << std::endl << std::endl;
   std::cerr << "    prune-lm reads a LM in either ARPA or compiled format and" << std::endl;
   std::cerr << "    prunes out n-grams (n=2,3,..) for which backing-off to the" << std::endl;
   std::cerr << "    lower order n-gram results in a small difference in probabiliy." << std::endl;
@@ -45,12 +46,13 @@ void usage(const char *msg = 0) {
   std::cerr << "    --threshold=th2,th3,th4,... (pruning threshods for 2-grams, 3-grams, 4-grams,..." << std::endl;
   std::cerr << "                                 If less thresholds are specified, the last one is  " << std::endl;
   std::cerr << "                                 applied to all following n-gram levels.            " << std::endl << std::endl;
-                                  
+  std::cerr << "    --abs=1|0 	if 1, use absolute value of weighted difference"<< std::endl;
+
 }
 
 bool starts_with(const std::string &s, const std::string &pre) {
   if (pre.size() > s.size()) return false;
-  
+
   if (pre == s) return true;
   std::string pre_equals(pre+'=');
   if (pre_equals.size() > s.size()) return false;
@@ -76,10 +78,12 @@ std::string get_param(const std::string& opt, int argc, const char **argv, int& 
 void handle_option(const std::string& opt, int argc, const char **argv, int& argi)
 {
   if (opt == "--help" || opt == "-h") { usage(); exit(1); }
-  
+
   if (starts_with(opt, "--threshold") || starts_with(opt, "-t"))
     spthr = get_param(opt, argc, argv, argi);
-  
+  else if (starts_with(opt, "--abs"))
+    aflag = atoi(get_param(opt, argc, argv, argi).c_str());
+
   else {
     usage(("Don't understand option " + opt).c_str());
     exit(1);
@@ -92,7 +96,7 @@ void s2t(string	cps,
 	int	i;
 	char	*s=strdup(cps.c_str()),
 		*tk;
-  
+
 	thr[0]=0;
 	for(i=1,tk=strtok(s, ","); tk; tk=strtok(0, ","),i++) thr[i]=atof(tk);
 	for(; i<MAX_NGRAM; i++) thr[i]=thr[i-1];
@@ -101,7 +105,7 @@ void s2t(string	cps,
 int main(int argc, const char **argv)
 {
 	float		thr[MAX_NGRAM];
-  
+
 	if (argc < 2) { usage(); exit(1); }
 	std::vector<std::string> files;
 	for(int i=1; i < argc; i++) {
@@ -116,37 +120,37 @@ int main(int argc, const char **argv)
 	std::string infile = files[0];
 	std::string outfile= "";
 
-  if (files.size() == 1) {  
+  if (files.size() == 1) {
     outfile=infile;
-    
+
     //remove path information
     std::string::size_type p = outfile.rfind('/');
-    if (p != std::string::npos && ((p+1) < outfile.size()))           
+    if (p != std::string::npos && ((p+1) < outfile.size()))
       outfile.erase(0,p+1);
-    
-    //eventually strip .gz 
+
+    //eventually strip .gz
     if (outfile.compare(outfile.size()-3,3,".gz")==0)
       outfile.erase(outfile.size()-3,3);
-    
+
     outfile+=".plm";
   }
   else
     outfile = files[1];
-  
-  
+
+
 	lmtable lmt;
 	inputfilestream inp(infile.c_str());
 	if (!inp.good()) {
 		std::cerr << "Failed to open " << infile << "!" << std::endl;
 		exit(1);
 	}
-  
+
 	lmt.load(inp,infile.c_str(),outfile.c_str(),0,NONE);
   std::cerr << "pruning LM with thresholds: \n";
 
   for (int i=1;i<lmt.maxlevel();i++) std::cerr<< " " << thr[i];
   std::cerr << "\n";
-	lmt.wdprune((float*)thr);
+	lmt.wdprune((float*)thr, aflag);
 	lmt.savetxt(outfile.c_str());
 	return 0;
 }

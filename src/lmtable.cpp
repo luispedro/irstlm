@@ -1416,19 +1416,20 @@ double lmtable::lprobx(ngram	ong,
 
 
 // FABIO
-int lmtable::wdprune(float	*thr)
+int lmtable::wdprune(float	*thr,
+		     int	aflag)
 {
 	int	l;
 	ngram	ng(lmtable::getDict(),0);
 
 	ng.size=0;
-	for(l=2; l<=maxlev; l++) wdprune(thr, ng, 1, l, 0, cursize[1]);
+	for(l=2; l<=maxlev; l++) wdprune(thr, aflag, ng, 1, l, 0, cursize[1]);
 	return 0;
 }
 
 // FABIO: LM pruning method
 
-int lmtable::wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epos, double	tlk,
+int lmtable::wdprune(float	*thr, int aflag, ngram	ng, int	ilev, int	elev, int	ipos, int	epos, double	tlk,
                      double	bo, double	*ts, double	*tbs)
 {
 	LMT_TYPE	ndt=tbltype[ilev];
@@ -1467,7 +1468,7 @@ int lmtable::wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epo
 			//look for n-grams to be pruned with this context (see
 			//back-off weight)
 		prune:	double ts=0, tbs=0;
-			k = wdprune(thr, ng, ilev+1, elev, isucc, esucc,
+			k = wdprune(thr, aflag, ng, ilev+1, elev, isucc, esucc,
 				    tlk+lk, bo, &ts, &tbs);
 			//k  is the number of pruned n-grams with this context
 			if(ilev!=elev-1) continue;
@@ -1496,6 +1497,7 @@ int lmtable::wdprune(float	*thr, ngram	ng, int	ilev, int	elev, int	ipos, int	epo
 			double blk = lprob(bng);
 
 			double wd = pow(10., tlk+lk) * (lk-bo-blk);
+			if(aflag&&wd<0) wd=-wd;
 			if(wd > thr[elev-1]) {	// kept
 				*ts += pow(10., lk);
 				*tbs += pow(10., blk);
