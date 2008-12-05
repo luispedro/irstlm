@@ -78,7 +78,7 @@ void lmtable::init_probcache(){
     assert(probcache==NULL);
     probcache=new ngramcache(maxlev,sizeof(double),400000);
 #ifdef TRACE_CACHE
-    cacheout=new std::fstream("/tmp/tracecache",std::ios::out);
+    cacheout=new std::fstream(get_temp_folder()++"tracecache",std::ios::out);
     sentence_id=0;
 #endif
 }
