@@ -1,1 +1,0 @@
-This is the release 5.10.03 of the Open Source IRSTLM Toolkit.
