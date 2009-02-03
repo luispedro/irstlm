@@ -22,6 +22,9 @@
 // by M. Federico 
 // Copyright Marcello Federico, ITC-irst, 1998
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include <iostream>
 #include <ostream>
 #include <cassert>

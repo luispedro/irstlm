@@ -19,6 +19,8 @@
 ******************************************************************************/
 
 #include "mfstream.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <iomanip>
 #include <iostream>
 #include <fstream>

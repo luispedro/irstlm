@@ -2,6 +2,7 @@
 #define _GZFILEBUF_H_
 
 #include <streambuf>
+#include <cstring> 
 #include <zlib.h>
 
 class gzfilebuf : public std::streambuf {

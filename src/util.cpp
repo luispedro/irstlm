@@ -1,8 +1,11 @@
 
 #ifdef WIN32
 #include <windows.h>
+#include <string.h> 
 #include <io.h>
 #else
+#include <cstring> 
+#include <stdlib.h>
 #include <iostream>
 #include <sys/types.h>
 #include <sys/mman.h>
