@@ -1,3 +1,5 @@
+// $Id$
+
 /******************************************************************************
  IrstLM: IRST Language Model Toolkit, prune LM
  Copyright (C) 2008 Fabio Brugnara, FBK-irst Trento, Italy
