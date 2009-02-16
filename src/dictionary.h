@@ -1,3 +1,5 @@
+// $Id$
+
 /******************************************************************************
  IrstLM: IRST Language Model Toolkit
  Copyright (C) 2006 Marcello Federico, ITC-irst Trento, Italy
@@ -157,7 +159,6 @@ class dictionary{
   ~dictionary();
   void generate(char *filename);
   void load(char *filename);
-//  void load(char* filename, int curveflag=1);
   void save(char *filename, int freqflag=0);
   void load(std::istream& fd);
   void save(std::ostream& fd);

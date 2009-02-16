@@ -1,3 +1,5 @@
+// $Id$
+
 /******************************************************************************
  IrstLM: IRST Language Model Toolkit
  Copyright (C) 2006 Marcello Federico, ITC-irst Trento, Italy
@@ -19,6 +21,8 @@
 ******************************************************************************/
 
 #include "mfstream.h"
+#include <stdio.h> 	 
+#include <stdlib.h>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -110,6 +114,7 @@ void dictionary::generate(char *filename){
       continue;
     }
 
+    //if (is && (strlen(buffer)==1) && !index(is,buffer[0]))
     if (is && (strlen(buffer)==1) && (index(is,buffer[0])!=NULL))  
       continue; //skip over the interruption symbol
 
@@ -264,8 +269,8 @@ void dictionary::load(char* filename){
     if (strlen(buffer)==(MAX_WORD-1)){
       cerr << "\ndictionary: a too long word was read (" 
 	   << buffer << ")\n";
- //     exit(1);	// TODO : why exit??
-      continue; 
+//    exit(1);	
+      continue; // continue loading dictionary
     };
     
     tb[n].word=st->push(buffer);
@@ -280,8 +285,8 @@ void dictionary::load(char* filename){
       if (addr!=(char *)&tb[n].word){
         cerr << "dictionary::loadtxt wrong entry was found (" 
         <<  buffer << ") in position " << n << "\n";
- //     exit(1);	// TODO : why exit??
-	continue;
+//      exit(1);
+	continue;  // continue loading dictionary
       }
 
     N+=tb[n].freq;

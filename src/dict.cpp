@@ -1,3 +1,5 @@
+// $Id$
+
 using namespace std;
 
 #include "mfstream.h"
