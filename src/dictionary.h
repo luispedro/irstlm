@@ -1,5 +1,3 @@
-// $Id$
-
 /******************************************************************************
  IrstLM: IRST Language Model Toolkit
  Copyright (C) 2006 Marcello Federico, ITC-irst Trento, Italy
@@ -75,7 +73,7 @@ class dictionary{
   int        dubv; //!< dictionary size upper bound
   int in_oov_lex;  //!< flag
   int oov_lex_code; //!< dictionary
-  char* oov_str;   //!< oov string
+  char* oov_str;    //!< oov string
 
  public:
 
@@ -159,7 +157,8 @@ class dictionary{
   ~dictionary();
   void generate(char *filename);
   void load(char *filename);
-  void save(char *filename,int freqflag=0);
+//  void load(char* filename, int curveflag=1);
+  void save(char *filename, int freqflag=0);
   void load(std::istream& fd);
   void save(std::ostream& fd);
 
@@ -168,6 +167,9 @@ class dictionary{
   int encode(const char *w);
   char *decode(int c);
   void stat();
+
+  void print_curve(int curvesize, float* testOOV=NULL);
+  float* test(int curvesize, char *filename);	// return OOV statistics computed on test set
 
   void cleanfreq(){
     for (int i=0;i<n;tb[i++].freq=0); 

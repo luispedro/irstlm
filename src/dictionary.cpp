@@ -1,5 +1,3 @@
-// $Id$
-
 /******************************************************************************
  IrstLM: IRST Language Model Toolkit
  Copyright (C) 2006 Marcello Federico, ITC-irst Trento, Italy
@@ -21,8 +19,6 @@
 ******************************************************************************/
 
 #include "mfstream.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -78,9 +74,8 @@ dictionary::dictionary(char *filename,int size,char* isymb,char* oovlexfile){
     load(filename);
   else
     generate(filename);
-  
+ 
   cerr << "loaded \n";
-
 
 }
 
@@ -106,6 +101,7 @@ void dictionary::generate(char *filename){
     if (strlen(buffer)==(MAX_WORD-1)){
       cerr << "dictionary: a too long word was read (" 
 	   << buffer << ")\n";
+      continue;
     };
     
     
@@ -114,7 +110,6 @@ void dictionary::generate(char *filename){
       continue;
     }
 
-    //if (is && (strlen(buffer)==1) && !index(is,buffer[0]))  
     if (is && (strlen(buffer)==1) && (index(is,buffer[0])!=NULL))  
       continue; //skip over the interruption symbol
 
@@ -127,6 +122,116 @@ void dictionary::generate(char *filename){
 
   inp.close();
 
+}
+
+/*
+	print_curve : show statistics on dictionary growth and (optionally) on 
+		      OOV rates computed on test corpus
+*/
+void dictionary::print_curve(int curvesize, float* testOOV) {
+
+     int* curve = new int[curvesize];
+     for (int i=0;i<curvesize;i++) curve[i]=0;
+
+  // filling the curve
+  for (int i=0;i<n;i++){
+    if(tb[i].freq > curvesize-1) 
+	curve[curvesize-1]++;
+    else
+	curve[tb[i].freq-1]++;
+    }
+
+  //cumulating results
+  for (int i=curvesize-2; i>=0; i--) {
+	curve[i] = curve[i] + curve[i+1];
+  }
+
+  cout.setf(ios::fixed);
+  cout << "Dict size: " << n << "\n";
+  cout << "**************** DICTIONARY GROWTH CURVE ****************\n";
+  cout << "Freq\tDictEntries(nb)\tDictEntries(%)";
+  if(testOOV!=NULL) 
+	cout << "\tOOV onTest";
+  cout << "\n";
+
+  for (int i=0;i<curvesize;i++) {
+
+  cout << ">" << i << "\t" << curve[i] << "\t\t" << setprecision(2) << (float)curve[i]/n * 100.0 << "%";
+
+  // display OOV rates on test
+  if(testOOV!=NULL)
+	cout << "\t\t" << testOOV[i] << "%";
+	cout << "\n";
+  }
+  cout << "*********************************************************\n";
+}
+
+/*
+	test : compute OOV rates on test corpus using dictionaries of different sizes
+*/
+float* dictionary::test(int curvesize, char *filename) {
+
+  int NwTest=0;
+  int* OOVchart = new int[curvesize];
+  for (int j=0; j<curvesize; j++) OOVchart[j]=0; 
+  char buffer[MAX_WORD];
+
+  char* bos = BoS();
+
+  int k;
+  mfstream inp(filename,ios::in);
+
+  if (!inp){
+    cerr << "cannot open test: " << filename << "\n";
+//    print_curve(curvesize);
+    return NULL;
+  }
+  cerr << "test:";
+
+  k=0;
+  while (inp >> setw(MAX_WORD) >> buffer){
+
+// skip 'beginning of sentence' symbol
+    if (strcmp(buffer,bos)==0)
+      continue;
+
+    if (strlen(buffer)==(MAX_WORD-1)){
+      cerr << "test: a too long word was read (" 
+	   << buffer << ")\n";
+      continue;
+    }
+    if (strlen(buffer)==0){
+      cerr << "zero lenght word!\n";
+      continue;
+    }
+    if (is && (strlen(buffer)==1) && (index(is,buffer[0])!=NULL))
+      continue;
+
+   int freq = 0;   int wCode = getcode(buffer);
+   if(wCode!=-1) freq = tb[wCode].freq;
+	
+   if(freq==0)
+	OOVchart[0]++;
+    else{
+ 	if(freq < curvesize) OOVchart[freq]++;
+   }
+   NwTest++;
+   if (!(++k % 1000000)) cerr << ".";
+  }
+  cerr << "\n";
+  inp.close();
+  cout << "nb words of test: " << NwTest << "\n";
+
+ // cumulating results 
+  for (int i=1; i<curvesize; i++)
+	OOVchart[i] = OOVchart[i] + OOVchart[i-1];
+
+ // computing percentages from word numbers
+  float* OOVrates = new float[curvesize];
+  for (int i=0; i<curvesize; i++) 
+	OOVrates[i] = (float)OOVchart[i]/NwTest * 100.0;
+
+  return OOVrates;
 }
 
 void dictionary::load(char* filename){
@@ -159,7 +264,8 @@ void dictionary::load(char* filename){
     if (strlen(buffer)==(MAX_WORD-1)){
       cerr << "\ndictionary: a too long word was read (" 
 	   << buffer << ")\n";
-      exit(1); 
+ //     exit(1);	// TODO : why exit??
+      continue; 
     };
     
     tb[n].word=st->push(buffer);
@@ -174,7 +280,8 @@ void dictionary::load(char* filename){
       if (addr!=(char *)&tb[n].word){
         cerr << "dictionary::loadtxt wrong entry was found (" 
         <<  buffer << ") in position " << n << "\n";
-        exit(1);
+ //     exit(1);	// TODO : why exit??
+	continue;
       }
 
     N+=tb[n].freq;
@@ -232,7 +339,6 @@ void dictionary::save(std::ostream& out){
   for (int i=0;i<n;i++)
     out << tb[i].word << " " << tb[i].freq << "\n";
 }
-
 
 int cmpdictentry(const void *a,const void *b){
   dict_entry *ae=(dict_entry *)a;
@@ -419,6 +525,7 @@ dictionary_iter::dictionary_iter(dictionary *dict) : m_dict(dict) {
 dict_entry* dictionary_iter::next() {
   return (dict_entry*)m_dict->htb->scan(HT_CONT);
 }
+
 
 
 
