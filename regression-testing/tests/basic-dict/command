@@ -7,15 +7,19 @@ cd $testdir
 
 inputfile="gunzip -c input.gz"
 
-echo "dict without frequency" > tmperr$$
-($bin/dict -i="$inputfile" -o=tmp$$) 2>> tmperr$$
+echo "dict without frequency, sorted" > tmperr$$
+($bin/dict -i="$inputfile" -o=tmp$$ -sort=y) 2>> tmperr$$
 cat tmp$$ > /dev/stdout
 
-echo "dict with frequency, sorted" >> tmperr$$
-($bin/dict -i="$inputfile" -o=tmp$$ -f=y) 2>> tmperr$$
+echo "dict without frequency, not sorted" >> tmperr$$
+($bin/dict -i="$inputfile" -o=tmp$$ -sort=n) 2>> tmperr$$
 cat tmp$$ >> /dev/stdout
 
-echo "dict with frequency, no sorted" >> tmperr$$
+echo "dict with frequency, sorted" >> tmperr$$
+($bin/dict -i="$inputfile" -o=tmp$$ -f=y -sort=y) 2>> tmperr$$
+cat tmp$$ >> /dev/stdout
+
+echo "dict with frequency, not sorted" >> tmperr$$
 ($bin/dict -i="$inputfile" -o=tmp$$ -f=y -sort=n) 2>> tmperr$$
 cat tmp$$ >> /dev/stdout
 cat tmperr$$ > /dev/stderr

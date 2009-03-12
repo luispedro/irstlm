@@ -10,7 +10,7 @@ if ! -d $ENV{IRSTLM};
 
 # if your tests need a new version of the test data, increment this
 # and make sure that a irstlm-regression-tests-vX.Y is available
-use constant TESTING_DATA_VERSION => '0.1';
+use constant TESTING_DATA_VERSION => '1.0';
 
 # find the data directory in a few likely locations and make sure
 # that it is the correct version
@@ -39,9 +39,7 @@ standard locations: $test_script_root, /tmp, or /var/tmp with these
 commands:
   cd <DESIRED_INSTALLATION_DIRECTORY>
  MODIFY ACCORDING TO IRSTLM  
-  wget http://www.statmt.org/moses/reg-testing/moses-regression-tests-v$data_version.tar
-  tar xf irstlm-regression-tests-v$data_version.tar
-  rm irstlm-regression-tests-v$data_version.tar
+  You just need an empty dir with this name irstlm-reg-test-data-$data_version
 
 EOT
 	exit 1;
