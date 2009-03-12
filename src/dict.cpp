@@ -71,7 +71,7 @@ int main(int argc, char **argv)
       std::cerr << "Options:\n";
       std::cerr << "-o=outputfile\n";
       std::cerr << "-f=[yes|no] (compute word frequencies)\n";
-      std::cerr << "-s=[yes|no] (sort dictionary by frequency)\n";
+      std::cerr << "-sort=[yes|no] (sort dictionary by frequency)\n";
       std::cerr << "-is= (interruption symbol) \n";
       std::cerr << "-c=[yes|no] (show dictionary growth curve)\n";
       std::cerr << "-cs=curvesize (default 10)\n";
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 
 // options compatibility issues:
   if (sortflag && !freqflag)
-		sortflag=0;
+		freqflag=1;
   if (curveflag && !freqflag)
 		freqflag=1;
   if (testfile!=NULL && !freqflag) {
