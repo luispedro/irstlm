@@ -34,7 +34,7 @@ int main(int argc, char **argv)
   char *testfile=NULL;
   char *intsymb=NULL;
   int freqflag=0;
-  int sortflag=1;
+  int sortflag=0;
   int curveflag=0;
   int curvesize=10;
   int size=100000;
@@ -70,8 +70,8 @@ int main(int argc, char **argv)
       std::cerr << "(inputfile can be a corpus or a dictionary)\n\n";
       std::cerr << "Options:\n";
       std::cerr << "-o=outputfile\n";
-      std::cerr << "-f=[yes|no] (compute word frequencies)\n";
-      std::cerr << "-sort=[yes|no] (sort dictionary by frequency)\n";
+      std::cerr << "-f=[yes|no] (output word frequencies, default is false)\n";
+      std::cerr << "-sort=[yes|no] (sort dictionary by frequency, default is false)\n";
       std::cerr << "-is= (interruption symbol) \n";
       std::cerr << "-c=[yes|no] (show dictionary growth curve)\n";
       std::cerr << "-cs=curvesize (default 10)\n";
@@ -80,8 +80,6 @@ int main(int argc, char **argv)
     };
 
 // options compatibility issues:
-  if (sortflag && !freqflag)
-		freqflag=1;
   if (curveflag && !freqflag)
 		freqflag=1;
   if (testfile!=NULL && !freqflag) {
@@ -94,7 +92,6 @@ int main(int argc, char **argv)
 		test.close();
 
   }
-  
   
 // create dictionary: generating it from training corpus, or loading it from a dictionary file
   dictionary d(inp,size,intsymb);
