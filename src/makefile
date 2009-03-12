@@ -6,18 +6,15 @@
 # Created by Marcello Federico on 12/12/06.
 # Copyright 2006 ITC-irst. All rights reserved.
 
-#CPP=g++ -static -O3 -DMYCODESIZE=3 -DBOS_="\"_start_\"" -DEOS_="\"_end_\"" 
-#CPP=g++ -static -O3 -DMYCODESIZE=3 -DBOS_="\"<S>\"" -DEOS_="\"</S>\"" -DOOV_="\"<unkn>\""
-#CPP=g++ -pg -g  -DMYCODESIZE=3 
+CPPEXE=g++
+
 
 #MAC OS X cannot handle -static compilation
-
 ifeq ($(OSTYPE),darwin)
-       CPP=g++ 
+       CPP=$(CPPEXE) 
      else
-       CPP=g++ -static
+       CPP=$(CPPEXE) -static
 endif
-
 
 #CPPFLAGS = -g -DMYCODESIZE=3  -Wall
 CPPFLAGS = -O3 -DMYCODESIZE=3  -Wall --no-strict-aliasing
@@ -36,7 +33,7 @@ $(LIB): $(LIBOBJ)
 	ar r $(LIB) $?
 
 #TARGET COMMANDS
-all: compile-lm quantize-lm prune-lm dict ngt
+all: version compile-lm quantize-lm prune-lm dict ngt
 clean:;rm *.o
 
 compile-lm: compile-lm.cpp  $(LIB)
@@ -52,4 +49,7 @@ dict: dict.cpp  $(LIB)
 	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz	
 
 ngt: ngt.cpp  $(LIB)
-	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz	
+	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz
+
+version: 
+	$(CPP) --version	
