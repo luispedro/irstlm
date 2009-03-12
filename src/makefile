@@ -8,7 +8,6 @@
 
 CPPEXE=g++
 
-
 #MAC OS X cannot handle -static compilation
 ifeq ($(OSTYPE),darwin)
        CPP=$(CPPEXE) 

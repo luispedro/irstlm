@@ -78,7 +78,7 @@
 		ADAA6FBF0E62EF12002B3D41 /* prune-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "prune-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADAA6FC90E62F00D002B3D41 /* prune-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "prune-lm.cpp"; path = "src/prune-lm.cpp"; sourceTree = "<group>"; };
 		ADCFA0280E4872FC00E351DB /* dict */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dict; sourceTree = BUILT_PRODUCTS_DIR; };
-		ADCFA02A0E4872FC00E351DB /* libirstlm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirstlm.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADCFA02A0E4872FC00E351DB /* libirstlm.dylib */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libirstlm.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADCFA02B0E4872FC00E351DB /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "compile-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADCFA02D0E4872FC00E351DB /* quantize-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "quantize-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADCFA02F0E4872FC00E351DB /* ngt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngt; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -200,7 +200,7 @@
 				D77D1C7F0B3032FB00D79D16 /* other */,
 				D701C78C0B2EB333007D2774 /* src */,
 				ADCFA0280E4872FC00E351DB /* dict */,
-				ADCFA02A0E4872FC00E351DB /* libirstlm.a */,
+				ADCFA02A0E4872FC00E351DB /* libirstlm.dylib */,
 				ADCFA02B0E4872FC00E351DB /* compile-lm */,
 				ADCFA02D0E4872FC00E351DB /* quantize-lm */,
 				ADCFA02F0E4872FC00E351DB /* ngt */,
@@ -482,7 +482,7 @@
 			);
 			name = irstlm;
 			productName = irstlm;
-			productReference = ADCFA02A0E4872FC00E351DB /* libirstlm.a */;
+			productReference = ADCFA02A0E4872FC00E351DB /* libirstlm.dylib */;
 			productType = "com.apple.product-type.library.static";
 		};
 		D77D1C1E0B2F1D7200D79D16 /* quantize-lm */ = {
@@ -788,6 +788,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_EXTENSION = dylib;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -799,6 +800,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/src\"";
+				MACH_O_TYPE = mh_dylib;
 				PREBINDING = NO;
 				PRODUCT_NAME = irstlm;
 				ZERO_LINK = YES;
@@ -809,6 +811,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				EXECUTABLE_EXTENSION = dylib;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
@@ -818,6 +821,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/src\"";
+				MACH_O_TYPE = mh_dylib;
 				PREBINDING = NO;
 				PRODUCT_NAME = irstlm;
 				ZERO_LINK = NO;
