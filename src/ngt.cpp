@@ -41,12 +41,12 @@ using namespace std;
 #define END_ENUM    {   (char*)0,  0 }
 
 static Enum_T BooleanEnum [] = {
-{    "Yes",    YES }, 
-{    "No",     NO},
-{    "yes",    YES }, 
-{    "no",     NO},
-{    "y",    YES }, 
-{    "n",     NO},
+{    (char*)"Yes",    YES }, 
+{    (char*)"No",     NO},
+{    (char*)"yes",    YES }, 
+{    (char*)"no",     NO},
+{    (char*)"y",    YES }, 
+{    (char*)"n",     NO},
   END_ENUM
 };
 
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
   char* ftlm=NULL;     //file to test LM table
   int memuse=NO;
 	
-  DeclareParams(
+  DeclareParams((char*)
                 "Dictionary", CMDSTRINGTYPE, &dic,
                 "d", CMDSTRINGTYPE, &dic,
                 "IntSymb", CMDSTRINGTYPE, &isym,

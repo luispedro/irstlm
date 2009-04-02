@@ -17,12 +17,12 @@ using namespace std;
 
 
 static Enum_T BooleanEnum [] = {
-  {    "Yes",    YES }, 
-  {    "No",     NO},
-  {    "yes",    YES }, 
-  {    "no",     NO},
-  {    "y",    YES }, 
-  {    "n",     NO},
+  {    (char*)"Yes",    YES }, 
+  {    (char*)"No",     NO},
+  {    (char*)"yes",    YES }, 
+  {    (char*)"no",     NO},
+  {    (char*)"y",    YES }, 
+  {    (char*)"n",     NO},
   END_ENUM
 };
 
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
   int curvesize=10;
   int size=100000;
 
-  DeclareParams(
+  DeclareParams((char*)
 						"InputFile", CMDSTRINGTYPE, &inp,
 						"i", CMDSTRINGTYPE, &inp,
 						"OutputFile", CMDSTRINGTYPE, &out,
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 
 						"TestFile", CMDSTRINGTYPE, &testfile,
 						"t", CMDSTRINGTYPE, &testfile,
-						(char *)NULL
+						(char*)NULL
 						);
   
   GetParams(&argc, &argv, (char*) NULL);

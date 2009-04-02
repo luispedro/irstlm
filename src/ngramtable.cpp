@@ -915,7 +915,7 @@ char **ngramtable::grow(table *tb,NODETYPE ndt,int lev,
 	
   if (oldndt==0){
     
-    if ((*tb==NULL) & n>0){ 
+    if ((*tb==NULL) && n>0){ 
       // n is the target number of entries
       //first allocation 
       

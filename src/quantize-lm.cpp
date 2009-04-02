@@ -448,7 +448,7 @@ int parseWords(char *sentence, char **words, int max)
   char *word;
   int i = 0;
   
-  char *const wordSeparators = " \t\r\n";
+  const char *const wordSeparators = " \t\r\n";
   
   for (word = strtok(sentence, wordSeparators);
        i < max && word != 0;

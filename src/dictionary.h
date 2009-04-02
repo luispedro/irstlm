@@ -86,9 +86,9 @@ class dictionary{
   inline int dub(){return dubv;}
   inline int dub(int value){return (dubv=value);}
 
-  inline char *OOV(){return (OOV_);} 
-  inline char *BoS(){return (BOS_);}
-  inline char *EoS(){return (EOS_);}
+  inline char *OOV(){return ((char*)OOV_);} 
+  inline char *BoS(){return ((char*)BOS_);}
+  inline char *EoS(){return ((char*)EOS_);}
 
   inline int oovcode(int v=-1){return oov_code=(v>=0?v:oov_code);}
   

@@ -78,7 +78,7 @@ lmmacro::lmmacro(string lmfilename, istream& inp, istream& inpMap){
   lexicaltoken2classMapN = 0;
 
   if (!loadmap(lmfilename, inp, inpMap))
-    error("Error in loadmap\n");
+    error((char*)"Error in loadmap\n");
 
 };
 
@@ -106,7 +106,7 @@ bool lmmacro::loadmap(string lmfilename, istream& inp, istream& inpMap) {
   inpMap.getline(line,MAX_LINE,'\n');
   tokenN = parseWords(line,words,MAX_TOKEN_N_MAP);
   if (tokenN < 2 || strcmp(words[0],"FIELD")!=0)
-    error("ERROR: wrong header format of map file\n[correct: FIELD <int> (file of lexical classes, only if <int> > 9)]\n");
+    error((char*)"ERROR: wrong header format of map file\n[correct: FIELD <int> (file of lexical classes, only if <int> > 9)]\n");
   selectedField = atoi(words[1]);
   if ( (selectedField==-1 || selectedField==-2) && tokenN==2)
     cerr << "no selected field: the whole string is used\n";
@@ -117,7 +117,7 @@ bool lmmacro::loadmap(string lmfilename, istream& inp, istream& inpMap) {
   else if (selectedField>9 && selectedField<100 && tokenN==3)
     cerr << "selected field is " << selectedField/10 << " lexicalized with classes from field " << selectedField%10 << "\n";
   else
-    error("ERROR: wrong header format of map file\n[correct: FIELD <int> (file of lexical classes, only if <int> > 9)]\n");
+    error((char*)"ERROR: wrong header format of map file\n[correct: FIELD <int> (file of lexical classes, only if <int> > 9)]\n");
 
   // Load the classes of lexicalization tokens:
   if (tokenN==3)
@@ -128,7 +128,7 @@ bool lmmacro::loadmap(string lmfilename, istream& inp, istream& inpMap) {
   while (inpMap.getline(line,MAX_LINE,'\n')){
     tokenN = parseWords(line,words,MAX_TOKEN_N_MAP);
     if (tokenN != 2)
-      error("ERROR: wrong format of map file\n");
+      error((char*)"ERROR: wrong format of map file\n");
     microW = words[0];
     macroW = words[1];
     getDict()->encode(microW);
@@ -179,7 +179,7 @@ void lmmacro::loadLexicalClasses(char *fn)
   while (inp.getline(line,MAX_LINE,'\n')){
     tokenN = parseWords(line,words,MAX_TOKEN_N_MAP);
     if (tokenN != 2)
-      error("ERROR: wrong format of lexical classes file\n");
+      error((char*)"ERROR: wrong format of lexical classes file\n");
     else {
       int classIdx = atoi(words[1]);
       int wordCode = lmtable::getDict()->encode(words[0]);
@@ -444,9 +444,9 @@ void lmmacro::map(ngram *in, ngram *out)
       if (field)
 	field_ng.pushw(field);
       else {
-	field_ng.pushw("_unk_");
+	field_ng.pushw((char*)"_unk_");
 	//      cerr << *in << "\n";
-	//	error("ERROR: no separator # in token\n");
+	//	error((char*)"ERROR: no separator # in token\n");
       }
     }
     if (microMacroMapN>0) 
@@ -503,10 +503,10 @@ void lmmacro::map(ngram *in, ngram *out)
 	tag_ng.pushw(tag);
 	lemmas[i] = strdup(lemma);
       } else {
-	tag_ng.pushw("_unk_");
+	tag_ng.pushw((char*)"_unk_");
 	lemmas[i] = strdup("_unk_");
 	//      cerr << *in << "\n";
-	//	error("ERROR: no separator # in token\n");
+	//	error((char*)"ERROR: no separator # in token\n");
       }
     }
     if (microMacroMapN>0) 
