@@ -13,10 +13,10 @@
 #
 #    Copyright (c) 1995, SRI International.  All Rights Reserved.
 #
-#    RCS ID: $Id: machine-typei.bash,v 1.10 2006/03/04 06:25:37 stolcke Exp $
+#    RCS ID: $Id: machine-type.bash,v 1.10 2006/03/04 06:25:37 stolcke Exp $
 #
 #    $Log: machine-type.bash,v $
-#    Revision 1.11  2006/03/04 06:25:37  bertoldi
+#    Revision 1.11  2009/04/13 bertoldi
 #    bash version of the csh version of machine-type script from SRILM
 #    NOTE: Under MAC OSX: incompatible with bash versions older than 3.0  
 #
@@ -110,17 +110,17 @@ if [[ ${#RESULT[@]} -gt 0 ]] ; then
 	MACHINE_TYPE=i386-solaris
     elif [[ $RESULT[5] == alpha ]] ; then
 	MACHINE_TYPE=alpha
-    elif [[ $UNAME_M == ppc64 ]] ; then
+    elif [[ ${UNAME_M} == ppc64 ]] ; then
 	MACHINE_TYPE=ppc64
-    elif [[ $UNAME_S =~ CYGWIN* ]] ; then
+    elif [[ ${UNAME_S} =~ CYGWIN* ]] ; then
 	MACHINE_TYPE=cygwin
-    elif [[ $UNAME_S =~ FreeBSD* ]] ; then
+    elif [[ ${UNAME_S} =~ FreeBSD* ]] ; then
 	MACHINE_TYPE=freebsd
     elif [[ ${UNAME_S} =~ Darwin* ]] ; then
 	MACHINE_TYPE=macosx
-    elif [[ $UNAME_M == i686 ]] ; then
+    elif [[ ${UNAME_M} == i686 ]] ; then
 	MACHINE_TYPE=i686
-    elif [[ $UNAME_M == x86_64 ]] ; then
+    elif [[ ${UNAME_M} == x86_64 ]] ; then
 	#MACHINE_TYPE=i686-m64
 	MACHINE_TYPE=i686
     else
