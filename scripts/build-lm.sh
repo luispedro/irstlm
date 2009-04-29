@@ -152,6 +152,9 @@ echo "Splitting dictionary into $parts lists"
 $scr/split-dict.pl --input $tmpdir/dictionary --output $tmpdir/dict. --parts $parts >> $logfile 2>&1
 
 echo "Extracting n-gram statistics for each word list"
+echo "Impotant: dictionary must be ordered according to order of appearance of words in data"
+echo "used to generate n-gram blocks,  so that sub language model blocks results ordered too"
+
 for sdict in $tmpdir/dict.*;do
 sdict=`basename $sdict $tmpdir`
 echo $sdict;
