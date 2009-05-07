@@ -335,7 +335,7 @@ double lmmacro::clprob(ngram micro_ng) {
 //(n-1)-gram state of a n-gram LM. if the input k-gram has k>=n then it 
 //is trimmed to its n-1 suffix.
 
-const char *lmmacro::maxsuffptr(ngram micro_ng){  
+const char *lmmacro::maxsuffptr(ngram micro_ng,int* size){  
 //cerr << "lmmacro::maxsuffptr\n";
 //cerr << "micro_ng: " << micro_ng	
 //	<< " -> micro_ng.size: " << micro_ng.size << "\n";
@@ -356,22 +356,11 @@ const char *lmmacro::maxsuffptr(ngram micro_ng){
   cout <<  "lmmacro::lprob: macro_ng = " << macro_ng << "\n";
 #endif
 
-  if (macro_ng.size==0) return (char*) NULL;
-  if (macro_ng.size>=maxlev) macro_ng.size=maxlev-1;
+  return lmtable::maxsuffptr(macro_ng,size);
   
-  ngram ng=macro_ng;
-  //ngram ng(lmtable::getDict()); //eventually use the <unk> word
-  //ng.trans(macro_ng);
-  
-  if (get(ng,ng.size,ng.size))
-    return ng.link;
-  else{ 
-    macro_ng.size--;
-    return maxsuffptr(macro_ng);
-  }
 }
 
-const char *lmmacro::cmaxsuffptr(ngram micro_ng){
+const char *lmmacro::cmaxsuffptr(ngram micro_ng,int* size){
 //cerr << "lmmacro::CMAXsuffptr\n";
 //cerr << "micro_ng: " << micro_ng	
 //	<< " -> micro_ng.size: " << micro_ng.size << "\n";
@@ -392,22 +381,8 @@ const char *lmmacro::cmaxsuffptr(ngram micro_ng){
   cout <<  "lmmacro::lprob: macro_ng = " << macro_ng << "\n";
 #endif
 
-  if (macro_ng.size==0) return (char*) NULL;
-  if (macro_ng.size>=maxlev) macro_ng.size=maxlev-1;
-
-  char* found;
-  
-  if (statecache && (macro_ng.size==maxlev-1) && statecache->get(macro_ng.wordp(maxlev-1),(char *)&found))
-    return found;
-  
-  found=(char *)maxsuffptr(macro_ng);
-  
-  if (statecache && macro_ng.size==maxlev-1){
-    //if (statecache->isfull()) statecache->reset();
-    statecache->add(macro_ng.wordp(maxlev-1),(char *)&found);    
-  }; 
-  
-  return found;
+  return lmtable::cmaxsuffptr(macro_ng,size);
+ 
 }
 
 

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AD57B1CC0FB3103C00064698 /* lmmacro.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD57B1CA0FB3103C00064698 /* lmmacro.cpp */; };
+		AD57B1CD0FB3103C00064698 /* lmmacro.h in Headers */ = {isa = PBXBuildFile; fileRef = AD57B1CB0FB3103C00064698 /* lmmacro.h */; };
 		ADAA6FCA0E62F00D002B3D41 /* prune-lm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADAA6FC90E62F00D002B3D41 /* prune-lm.cpp */; };
 		D701C7880B2EB27C007D2774 /* cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = D701C7870B2EB27C007D2774 /* cmd.c */; };
 		D701C7940B2EB37D007D2774 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C78D0B2EB37D007D2774 /* dictionary.cpp */; };
@@ -75,6 +77,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AD57B1CA0FB3103C00064698 /* lmmacro.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lmmacro.cpp; path = src/lmmacro.cpp; sourceTree = "<group>"; };
+		AD57B1CB0FB3103C00064698 /* lmmacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lmmacro.h; path = src/lmmacro.h; sourceTree = "<group>"; };
 		ADAA6FBF0E62EF12002B3D41 /* prune-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "prune-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADAA6FC90E62F00D002B3D41 /* prune-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "prune-lm.cpp"; path = "src/prune-lm.cpp"; sourceTree = "<group>"; };
 		ADCFA0280E4872FC00E351DB /* dict */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dict; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -212,6 +216,8 @@
 		D701C78C0B2EB333007D2774 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				AD57B1CA0FB3103C00064698 /* lmmacro.cpp */,
+				AD57B1CB0FB3103C00064698 /* lmmacro.h */,
 				ADAA6FC90E62F00D002B3D41 /* prune-lm.cpp */,
 				D7F00C710B3AF17800A1FF7A /* compile-lm.cpp */,
 				D77D1C630B3030E100D79D16 /* mfstream.h */,
@@ -427,6 +433,7 @@
 				D701C7AF0B2EB472007D2774 /* util.h in Headers */,
 				D77D1C680B3030E100D79D16 /* mfstream.h in Headers */,
 				D77D1C6A0B3030E100D79D16 /* ngramtable.h in Headers */,
+				AD57B1CD0FB3103C00064698 /* lmmacro.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,6 +597,7 @@
 				D701C79A0B2EB37D007D2774 /* util.cpp in Sources */,
 				D77D1C670B3030E100D79D16 /* mfstream.cpp in Sources */,
 				D77D1C690B3030E100D79D16 /* ngramtable.cpp in Sources */,
+				AD57B1CC0FB3103C00064698 /* lmmacro.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
