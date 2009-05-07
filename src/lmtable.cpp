@@ -55,7 +55,7 @@ lmtable::lmtable(){
 
   dict=new dictionary((char *)NULL,1000000,(char*)NULL,(char*)NULL);
 
-  memset(cursize, 0, sizeof(cursize));
+    memset(cursize, 0, sizeof(cursize));
 	memset(tbltype, 0, sizeof(tbltype));
 	memset(maxsize, 0, sizeof(maxsize));
 	memset(info, 0, sizeof(info));
@@ -66,7 +66,8 @@ lmtable::lmtable(){
 
   probcache=NULL;
   statecache=NULL;
-
+  statesizecache=NULL;
+  
   memmap=0;
 
   //statistics
@@ -90,6 +91,7 @@ void lmtable::init_probcache(){
 void lmtable::init_statecache(){
     assert(statecache==NULL);
     statecache=new ngramcache(maxlev-1,sizeof(char *),200000);
+	statesizecache=new ngramcache(maxlev-1,sizeof(int),200000);
 }
 
 void lmtable::init_lmtcaches(int uptolev){
@@ -102,14 +104,20 @@ void lmtable::init_lmtcaches(int uptolev){
 
 void lmtable::check_cache_levels(){
     if (probcache && probcache->isfull()) probcache->reset(probcache->cursize());
-    if (statecache && statecache->isfull()) statecache->reset(statecache->cursize());
+    if (statecache && statecache->isfull()) { 
+		statecache->reset(statecache->cursize());
+		statesizecache->reset(statesizecache->cursize());
+	}
     for (int i=2;i<=max_cache_lev;i++)
       if (lmtcache[i]->isfull()) lmtcache[i]->reset(lmtcache[i]->cursize());
 }
 
 void lmtable::reset_caches(){
       if (probcache) probcache->reset(MAX(probcache->cursize(),probcache->maxsize()));
-      if (statecache) statecache->reset(MAX(statecache->cursize(),statecache->maxsize()));
+      if (statecache){
+	   statecache->reset(MAX(statecache->cursize(),statecache->maxsize()));
+	   statesizecache->reset(MAX(statesizecache->cursize(),statesizecache->maxsize()));
+	   }
       for (int i=2;i<=max_cache_lev;i++)
         lmtcache[i]->reset(MAX(lmtcache[i]->cursize(),lmtcache[i]->maxsize()));
 }
@@ -1190,10 +1198,12 @@ int lmtable::succscan(ngram& h,ngram& ng,LMT_ACTION action,int lev){
 //(n-1)-gram state of a n-gram LM. if the input k-gram has k>=n then it
 //is trimmed to its n-1 suffix.
 
-const char *lmtable::maxsuffptr(ngram ong){
+const char *lmtable::maxsuffptr(ngram ong,int* size){
 //cerr << "lmtable::maxsuffptr\n";
 //cerr << "ong: " << ong
 //	<< " -> ong.size: " << ong.size << "\n";
+
+  if (size!=NULL) *size=ong.size; //will return the largest found ong.size
 
   if (ong.size==0) return (char*) NULL;
   if (ong.size>=maxlev) ong.size=maxlev-1;
@@ -1211,26 +1221,33 @@ const char *lmtable::maxsuffptr(ngram ong){
 }
 
 
-const char *lmtable::cmaxsuffptr(ngram ong){
+const char *lmtable::cmaxsuffptr(ngram ong,int* size){
 //cerr << "lmtable::CMAXsuffptr\n";
 //cerr << "ong: " << ong
 //	<< " -> ong.size: " << ong.size << "\n";
 
+  if (size!=NULL) *size=ong.size; //will return the largest found ong.size
   if (ong.size==0) return (char*) NULL;
   if (ong.size>=maxlev) ong.size=maxlev-1;
 
   char* found;
+  int isize; //internal state size variable
 
-  if (statecache && (ong.size==maxlev-1) && statecache->get(ong.wordp(maxlev-1),(char *)&found))
-    return found;
-
-  found=(char *)maxsuffptr(ong);
+  if (statecache && (ong.size==maxlev-1) && statecache->get(ong.wordp(maxlev-1),(char *)&found)){
+    if (size!=NULL) statesizecache->get(ong.wordp(maxlev-1),(char *)size);
+	return found;
+  }
+  
+  found=(char *)maxsuffptr(ong,&isize);
 
   if (statecache && ong.size==maxlev-1){
     //if (statecache->isfull()) statecache->reset();
     statecache->add(ong.wordp(maxlev-1),(char *)&found);
+    statesizecache->add(ong.wordp(maxlev-1),(char *)&isize);
   };
 
+  if (size!=NULL) *size=isize;
+  
   return found;
 }
 

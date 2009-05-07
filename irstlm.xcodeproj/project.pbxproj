@@ -542,10 +542,12 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "irstlm" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 08FB7794FE84155DC02AAC07 /* irstlm */;
 			productRefGroup = 08FB7794FE84155DC02AAC07 /* irstlm */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				D733D3F30B1F3B0800565249 /* irstlm */,
 				D701C7240B2EACC4007D2774 /* compile-lm */,
