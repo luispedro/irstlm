@@ -1203,12 +1203,17 @@ const char *lmtable::maxsuffptr(ngram ong,int* size){
 //cerr << "ong: " << ong
 //	<< " -> ong.size: " << ong.size << "\n";
 
-  if (size!=NULL) *size=ong.size; //will return the largest found ong.size
-
-  if (ong.size==0) return (char*) NULL;
+	if (ong.size==0){
+		if (size!=NULL) *size=0;
+		return (char*) NULL;
+	}
+	
   if (ong.size>=maxlev) ong.size=maxlev-1;
 
+  if (size!=NULL) *size=ong.size; //will return the largest found ong.size
+  
   ngram ng=ong;
+  
   //ngram ng(lmtable::getDict()); //eventually use the <unk> word
   //ng.trans(ong);
 
@@ -1216,7 +1221,7 @@ const char *lmtable::maxsuffptr(ngram ong,int* size){
     return ng.link;
   else{
     ong.size--;
-    return maxsuffptr(ong);
+    return maxsuffptr(ong,size);
   }
 }
 

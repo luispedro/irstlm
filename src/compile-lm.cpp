@@ -191,7 +191,8 @@ int main(int argc, const char **argv)
     
     int Nbo=0,Nw=0,Noov=0;
     double logPr=0,PP=0,PPwp=0,Pr;
-    
+    int statesize=0;
+	
     ng.dict->incflag(1);
     int bos=ng.dict->encode(ng.dict->BoS());
     int eos=ng.dict->encode(ng.dict->EoS());
@@ -224,7 +225,8 @@ int main(int argc, const char **argv)
           std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << " bow:" << bow << std::endl; 
         
         if (debug>3){
-          std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << " bow:" << bow;
+		  lmt.maxsuffptr(ng,&statesize);	
+          std::cout << ng << "[" << ng.size-bol << "-gram: recombine:" << statesize << "]" << " " << Pr << " bow:" << bow;
           double totp=0.0; int oldw=*ng.wordp(1);
           double oovp=lmt.getlogOOVpenalty();lmt.setlogOOVpenalty2(0);
           
