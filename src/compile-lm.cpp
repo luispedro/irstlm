@@ -55,7 +55,7 @@ void usage(const char *msg = 0) {
             << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 0)"<< std::endl
             << "--score [yes|no] -s=[yes|no] (computes log-prob scores from standard input)"<< std::endl
             << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
-            << "--memmap 1 --mm 1 (uses memory map to read a binary LM)\n" ;
+            << "--memmap 1 -mm 1 (uses memory map to read a binary LM)\n" ;
 }
 
 bool starts_with(const std::string &s, const std::string &pre) {

@@ -29,8 +29,8 @@ using namespace std;
 #include <stdlib.h>
 #include "util.h"
 #include "math.h"
+//#include "dictionary.h"
 #include "lmtable.h"
-
 
 /* GLOBAL OPTIONS ***************/
 
@@ -57,7 +57,7 @@ void usage(const char *msg = 0) {
             << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 0)"<< std::endl
             << "--score [yes|no] -s=[yes|no] (computes log-prob scores with the interpolated LM)"<< std::endl
             << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
-            << "--memmap 1 --mm 1 (uses memory map to read a binary LM)\n" ;
+            << "--memmap 1 -mm 1 (uses memory map to read a binary LM)\n" ;
 }
 
 bool starts_with(const std::string &s, const std::string &pre) {
@@ -117,67 +117,124 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
 
 int main(int argc, const char **argv)
 {
-  
-  if (argc < 2) { usage(); exit(1); }
-  std::vector<std::string> files;
-  for (int i=1; i < argc; i++) {
-    std::string opt = argv[i];
-    if (opt[0] == '-') { handle_option(opt, argc, argv, i); }
-      else files.push_back(opt);
-  }
-  
-  if (files.size() > 2) { usage("Too many arguments"); exit(1); }
-  if (files.size() < 1) { usage("Please specify a LM list file to read from"); exit(1); }
-
-  bool learn = (slearn == "yes"? true : false);
-  
-  //int debug = atoi(sdebug.c_str()); 
-  //int memmap = atoi(smemmap.c_str());
-  //int dub = atoi(sdub.c_str());
+	
+	if (argc < 2) { usage(); exit(1); }
+	std::vector<std::string> files;
+	for (int i=1; i < argc; i++) {
+		std::string opt = argv[i];
+		if (opt[0] == '-') { handle_option(opt, argc, argv, i); }
+		else files.push_back(opt);
+	}
+	
+	if (files.size() > 2) { usage("Too many arguments"); exit(1); }
+	if (files.size() < 1) { usage("Please specify a LM list file to read from"); exit(1); }
+	
+	bool learn = (slearn != ""? true : false);
+	
+	//int debug = atoi(sdebug.c_str()); 
+	int memmap = atoi(smemmap.c_str());
+	//int dub = atoi(sdub.c_str());
     
-  std::string infile = files[0];
-  std::string outfile="";
-  
-  if (files.size() == 1) {  
-    outfile=infile;    
-    //remove path information
-    std::string::size_type p = outfile.rfind('/');
-    if (p != std::string::npos && ((p+1) < outfile.size()))           
-      outfile.erase(0,p+1);
-      outfile+=".out";
-  }
-  else
-     outfile = files[1];
- 
-  std::cerr << "inpfile: " << infile << std::endl;
-  if (learn) std::cerr << "outfile: " << outfile << std::endl;
-  std::cerr << "interactive: " << sscore << std::endl;
-  
-  lmtable **lmt; //interpolated language models
-  std::string *lmf; //lm filenames
-  float *w; //interpolation weights
-  int N;
-  
-  
-  std::cerr << "Reading " << infile << "..." << std::endl;
-  
-  std::fstream inptxt(infile.c_str(),std::ios::in);
+	std::string infile = files[0];
+	std::string outfile="";
+	
+	if (files.size() == 1) {  
+		outfile=infile;    
+		//remove path information
+		std::string::size_type p = outfile.rfind('/');
+		if (p != std::string::npos && ((p+1) < outfile.size()))           
+			outfile.erase(0,p+1);
+		outfile+=".out";
+	}
+	else
+		outfile = files[1];
+	
+	
+	std::cerr << "inpfile: " << infile << std::endl;
+	std::cerr << "outfile: " << outfile << std::endl;
+	std::cerr << "interactive: " << sscore << std::endl;
+	
+	lmtable* lmt[100]; //interpolated language models
+	std::string lmf[100]; //lm filenames
 
-  inptxt >> N;
-  std::cerr << "Number of LMs: " << N << "..." << std::endl;
-   
-  lmt=new lmtable*[N]; //interpolated language models
-  lmf=new std::string[N]; //lm filenames
-    w=new float[N]; //interpolation weights
-  
-  for (int i=0;i<N;i++) inptxt >> w[i] >> lmf[i];
-  inptxt.close();
+	
+	float w[100]; //interpolation weights
+	int N;
+	
+	
+	//Loading Language Models
+	std::cerr << "Reading " << infile << "..." << std::endl;  
+	std::fstream inptxt(infile.c_str(),std::ios::in);
+	inptxt >> N; std::cerr << "Number of LMs: " << N << "..." << std::endl;   
+		
+	for (int i=0;i<N;i++){
+	 inptxt >> w[i] >> lmf[i];
+	 inputfilestream inplm(lmf[i].c_str());
+	 std::cerr << "xx" << lmf[i].c_str() << "..." << std::endl;  
+	 lmt[i]=new lmtable;
+	 lmt[i]->load(inplm,lmf[i].c_str(),NULL,memmap,NONE);   		
+
+	}
+	inptxt.close();
+	
+	//Learning mixture weights
+	if (learn){
+		float* p; p=new float[N]; //store probabilities
+		float* c; c=new float[N]; //store counts
+		float totcount=0; //total of counts
+		float den; //denominator of EM formula
+		float dist=2.0;
+		dictionary* dict;dict=new dictionary((char*)slearn.c_str(),1000000,(char*)NULL,(char*)NULL);
+		ngram ng(dict); 
+		int bos=ng.dict->encode(ng.dict->BoS());
+				
+		while(dist > 1.01 || dist < 0.99 ){ 
+		
+			std::fstream dev(slearn.c_str(),std::ios::in);
+			for (int i=0;i<N;i++) c[i]=0;	//reset counters
+			
+			while(dev >> ng){     
+			 
+				// reset ngram at begin of sentence
+				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+		  
+				 for (int i=den=0;i<N;i++){
+				 p[i]=pow(10.0,lmt[i]->lprob(ng)); //get lm log-probs	
+ 				 //std::cerr << ng << " LM["<< i << "]=" << p[i] << std::endl; 				 
+				 den+=w[i] * p[i]; //denominator of EM formula
+				}	
+				
+				for (int i=0;i<N;i++) c[i]+=w[i]*p[i]/den;
+			}	
+
+			for (int i=totcount=0;i<N;i++) totcount+=c[i];
+	
+			//update weights and compute distance
+			for (int i=dist=0;i<N;i++){
+			 c[i]/=totcount; //c[i] is now the new parameter!
+			 dist+=w[i]/c[i];
+			 w[i]=c[i];
+	        }
+			dist/=N;	
+			std::cerr << "Distance " << dist << std::endl;  
+			dev.close();
+		}																	
+		
+		std::cerr << "Saving in " << outfile << "..." << std::endl; 
+		//saving result
+		std::fstream outtxt(outfile.c_str(),std::ios::out);
+		outtxt << N << "\n";
+		for (int i=0;i<N;i++) outtxt << w[i] << " " << lmf[i] << "\n";
+		outtxt.close();
 
 
+		delete []p;
+		delete []c;	
+	
+		}
+	
 
-  
-
-  
-  return 0;
+		
+	return 0;
 }
 

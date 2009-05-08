@@ -1587,3 +1587,4 @@ int lmtable::ngcnt(int		*cnt, ngram	ng, int		l, int		ipos, int		epos){
 }
 
 
+
