@@ -32,7 +32,7 @@ $(LIB): $(LIBOBJ)
 	ar r $(LIB) $?
 
 #TARGET COMMANDS
-all: version compile-lm quantize-lm prune-lm dict ngt
+all: version compile-lm quantize-lm prune-lm dict ngt interpolate-lm
 clean:;rm *.o
 
 compile-lm: compile-lm.cpp  $(LIB)
@@ -49,6 +49,10 @@ dict: dict.cpp  $(LIB)
 
 ngt: ngt.cpp  $(LIB)
 	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz
+
+interpolate-lm: interpolate-lm.cpp  $(LIB)
+	$(CPP) $(CPPFLAGS) -o $(BINDIR)/$@ $< $(LIB) -lz
+
 
 version: 
 	$(CPP) --version	
