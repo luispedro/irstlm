@@ -151,16 +151,28 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
 
   if (strncmp(header,"Qblmt",5)==0 || strncmp(header,"blmt",4)==0){
     if (outtype==BINARY) {
-      cerr << "Error: nothing to do. Passed input file: binary. Specified output format: binary.\n";
+      cerr << "Load Error: nothing to do. Passed input file: binary. Specified output format: binary.\n";
       exit(0);
     }
     loadbin(inp,header,filename,keep_on_disk);
   }
-  else{
+  else{ //input is in textual form
     if (strncmp(header,"ARPA",4)==0 && outtype==TEXT) {
-      cerr << "Error: nothing to do. Passed input file: textual. Specified output format: textual.\n";
+      cerr << "Load Error: nothing to do. Passed input file: textual. Specified output format: textual.\n";
       exit(0);
     }
+	
+	if (keep_on_disk && outfilename==NULL) {
+      cerr << "Load Error: inconsistent setting. Passed input file: textual. Memory map: yes. Outfilename: not specified.\n";
+      exit(0);
+    }
+	
+	//if (keep_on_disk && (outtype==TEXT || outtype=NONE)) {
+      //cerr << "Load Error: inconsistent setting. Passed input file: textual. Memory map: yes. Outtype: not specified.\n";
+      
+	//exit(0);
+    //}
+	
     loadtxt(inp,header,outfilename,keep_on_disk);
   }
 

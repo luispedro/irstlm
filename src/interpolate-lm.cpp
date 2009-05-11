@@ -55,7 +55,7 @@ void usage(const char *msg = 0) {
             << "--learn text-file -l=text-file (learns new weights and creates a new lm-list-file)"<< std::endl
             << "--eval text-file -e=text-file (computes perplexity of the interpolated LM on text-file)"<< std::endl
             << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 0)"<< std::endl
-            << "--score [yes|no] -s=[yes|no] (computes log-prob scores with the interpolated LM)"<< std::endl
+            << "--score [yes|no] -s=[yes|no] (computes log-prob scores with the interpolated LM) TO BE IMPLEMENTED"<< std::endl
             << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
             << "--memmap 1 -mm 1 (uses memory map to read a binary LM)\n" ;
 }
