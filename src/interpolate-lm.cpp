@@ -133,7 +133,7 @@ int main(int argc, const char **argv)
 	
 	//int debug = atoi(sdebug.c_str()); 
 	int memmap = atoi(smemmap.c_str());
-	//int dub = atoi(sdub.c_str());
+	int dub = atoi(sdub.c_str()); //dictionary upper bound
     
 	std::string infile = files[0];
 	std::string outfile="";
@@ -156,7 +156,7 @@ int main(int argc, const char **argv)
 	
 	lmtable* lmt[100]; //interpolated language models
 	std::string lmf[100]; //lm filenames
-
+	
 	
 	float w[100]; //interpolation weights
 	int N;
@@ -166,75 +166,111 @@ int main(int argc, const char **argv)
 	std::cerr << "Reading " << infile << "..." << std::endl;  
 	std::fstream inptxt(infile.c_str(),std::ios::in);
 	inptxt >> N; std::cerr << "Number of LMs: " << N << "..." << std::endl;   
-		
+	
 	for (int i=0;i<N;i++){
-	 inptxt >> w[i] >> lmf[i];
-	 inputfilestream inplm(lmf[i].c_str());
-	 std::cerr << "xx" << lmf[i].c_str() << "..." << std::endl;  
-	 lmt[i]=new lmtable;
-	 lmt[i]->load(inplm,lmf[i].c_str(),NULL,memmap,NONE);   		
+		inptxt >> w[i] >> lmf[i];
+		inputfilestream inplm(lmf[i].c_str());
+		std::cerr << "xx" << lmf[i].c_str() << "..." << std::endl;  
+		lmt[i]=new lmtable;
+		lmt[i]->load(inplm,lmf[i].c_str(),NULL,memmap,NONE);   		
 
+	    if (dub) lmt[i]->setlogOOVpenalty(dub);	//set OOV Penalty for each LM
+		
 	}
 	inptxt.close();
 	
 	//Learning mixture weights
 	if (learn){
-		float* p; p=new float[N]; //store probabilities
-		float* c; c=new float[N]; //store counts
-		float totcount=0; //total of counts
-		float den; //denominator of EM formula
-		float dist=2.0;
+		float* p; p=new float[N]; //LM probabilities
+		float* c; c=new float[N]; //expected counts
+		float den,norm; //inner denominator, normalization term
+		float ratio=2.0; // ration between new and old weights
+		
 		dictionary* dict;dict=new dictionary((char*)slearn.c_str(),1000000,(char*)NULL,(char*)NULL);
 		ngram ng(dict); 
 		int bos=ng.dict->encode(ng.dict->BoS());
-				
-		while(dist > 1.01 || dist < 0.99 ){ 
 		
+		while(ratio > 1.01 || ratio < 0.99 ){ 
+			
 			std::fstream dev(slearn.c_str(),std::ios::in);
 			for (int i=0;i<N;i++) c[i]=0;	//reset counters
 			
 			while(dev >> ng){     
-			 
+				
 				// reset ngram at begin of sentence
 				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-		  
-				 for (int i=den=0;i<N;i++){
-				 p[i]=pow(10.0,lmt[i]->lprob(ng)); //get lm log-probs	
- 				 //std::cerr << ng << " LM["<< i << "]=" << p[i] << std::endl; 				 
-				 den+=w[i] * p[i]; //denominator of EM formula
-				}	
 				
+				for (int i=den=0;i<N;i++){
+					p[i]=pow(10.0,lmt[i]->lprob(ng)); //LM log-prob	
+					
+					den+=w[i] * p[i]; //denominator of EM formula
+				}	
+				//update expected counts
 				for (int i=0;i<N;i++) c[i]+=w[i]*p[i]/den;
 			}	
-
-			for (int i=totcount=0;i<N;i++) totcount+=c[i];
-	
-			//update weights and compute distance
-			for (int i=dist=0;i<N;i++){
-			 c[i]/=totcount; //c[i] is now the new parameter!
-			 dist+=w[i]/c[i];
-			 w[i]=c[i];
+		    
+			for (int i=norm=0;i<N;i++) norm+=c[i];
+			
+			//update weights and compute distance 			
+			for (int i=ratio=0;i<N;i++){
+				c[i]/=norm; //c[i] is now the new weight
+				ratio+=w[i]/c[i];
+				w[i]=c[i]; //update weights
 	        }
-			dist/=N;	
-			std::cerr << "Distance " << dist << std::endl;  
+			ratio/=N; //average ratio	
+			std::cerr << "Ratio " << ratio << std::endl;  
 			dev.close();
 		}																	
 		
+		//Saving results
 		std::cerr << "Saving in " << outfile << "..." << std::endl; 
 		//saving result
 		std::fstream outtxt(outfile.c_str(),std::ios::out);
 		outtxt << N << "\n";
 		for (int i=0;i<N;i++) outtxt << w[i] << " " << lmf[i] << "\n";
 		outtxt.close();
-
-
-		delete []p;
-		delete []c;	
-	
-		}
-	
-
 		
+		delete []c; delete []p;	
+		
+	}
+	
+  if (seval != ""){
+    std::cerr << "Start Eval" << std::endl;
+
+	std::cout.setf(ios::fixed);
+    std::cout.precision(2);
+	int i,Nw=0;
+    double logPr=0,PP=0,Pr;
+	
+	//normalize weights
+	for (i=0,Pr=0;i<N;i++) Pr+=w[i];
+	for (i=0;i<N;i++) w[i]/=Pr;
+			
+	dictionary* dict;dict=new dictionary((char*)seval.c_str(),1000000,(char*)NULL,(char*)NULL);
+	ngram ng(dict); 
+	int bos=ng.dict->encode(ng.dict->BoS());    
+  	std::fstream inptxt(seval.c_str(),std::ios::in);
+
+    while(inptxt >> ng){      
+      
+      // reset ngram at begin of sentence
+      if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+      
+	  for (i=0,Pr=0;i<N;i++)
+		Pr+=w[i] * pow(10.0,lmt[i]->lprob(ng)); //LM log-prob	
+	  logPr+=(log(Pr)/M_LN10);
+	  Nw++;                   
+	}
+    
+    PP=exp((-logPr * log(10.0)) /Nw);
+
+    std::cout << "%% Nw=" << Nw << " PP=" << PP << std::endl;
+    
+	return 0;    
+  };
+  
+
+	
 	return 0;
 }
 
