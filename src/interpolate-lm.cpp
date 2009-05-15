@@ -39,23 +39,25 @@ std::string seval = "";
 std::string sscore = "no";
 std::string sdebug = "0";
 std::string smemmap = "0";
-std::string sdub = "0";
+std::string sdub = "10000000";
 /********************************/
 
 void usage(const char *msg = 0) {
   if (msg) { std::cerr << msg << std::endl; }
   std::cerr << "Usage: interpolate-lm [options] lm-list-file [lm-list-file.out]" << std::endl;
   if (!msg) std::cerr << std::endl
-            << "  interpolate-lm reads a list of LM files with interpolation weights " << std::endl
+            << "  interpolate-lm reads a LM list file including interpolation weights " << std::endl
             << "  with the format: N\\n w1 lm1 \\n w2 lm2 ...\\n wN lmN\n" << std::endl
-            << "  and performs training of weights and computation of probabilities." << std::endl
-			<< "  So far it manages LM in ARPA format and IRSTLM binary format." << std::endl  << std::endl;
+            << "  and estimates new weights on a development text, " << std::endl
+			<< "  computates the perplexity on an evaluation text, " << std::endl
+			<< "  and computation probabilities of n-grams read from stdin." << std::endl
+			<< "  Interpolate manages LMs in ARPA format and IRSTLM binary format." << std::endl  << std::endl;
 			
   std::cerr << "Options:\n"
             << "--learn text-file -l=text-file (learns new weights and creates a new lm-list-file)"<< std::endl
             << "--eval text-file -e=text-file (computes perplexity of the interpolated LM on text-file)"<< std::endl
-            << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 0)"<< std::endl
-            << "--score [yes|no] -s=[yes|no] (computes log-prob scores with the interpolated LM) TO BE IMPLEMENTED"<< std::endl
+            << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 10^6)"<< std::endl
+            << "--score [yes|no] -s=[yes|no] (computes log-prob scores with the interpolated LM) "<< std::endl
             << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
             << "--memmap 1 -mm 1 (uses memory map to read a binary LM)\n" ;
 }
@@ -269,6 +271,46 @@ int main(int argc, const char **argv)
 	return 0;    
   };
   
+
+	if (sscore == "yes"){
+		
+				
+		dictionary* dict;dict=new dictionary(NULL,1000000,(char*)NULL,(char*)NULL);
+		dict->incflag(1); // start generating the dictionary;
+		ngram ng(dict); 
+		double Pr,logPr;
+		
+		//use caches to save time
+		//lmt.init_probcache();
+		//lmt.init_lmtcaches(lmt.maxlevel());
+
+     	int maxstatesize,statesize;
+		int i,n=0;
+		std::cout << "> ";	
+		while(std::cin >> ng){
+			n++;
+			maxstatesize=0;
+			for (i=0,Pr=0;i<N;i++){
+				Pr+=w[i] * pow(10.0,lmt[i]->lprob(ng)); //LM log-prob	
+				lmt[i]->maxsuffptr(ng,&statesize);
+				if (maxstatesize<statesize) maxstatesize=statesize;	
+			};
+			logPr=log(Pr);
+			
+			ng.size=maxstatesize;
+			std::cout << "recombine= " << maxstatesize << " " << ng << " p= " << logPr  << std::endl;
+			
+			if ((n % 10000000)==0){ 
+				std::cerr << "check cache levels" << std::endl;
+				for (i=0;i<N;i++) lmt[i]->check_cache_levels();   
+			}
+			
+			
+			std::cout << "> ";                 
+		}
+		
+		return 0;
+	}
 
 	
 	return 0;
