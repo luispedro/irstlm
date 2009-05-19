@@ -186,13 +186,13 @@ int main(int argc, const char **argv)
 		float* p; p=new float[N]; //LM probabilities
 		float* c; c=new float[N]; //expected counts
 		float den,norm; //inner denominator, normalization term
-		float ratio=2.0; // ration between new and old weights
+		float variation=1.0; // global variation between new old params
 		
 		dictionary* dict;dict=new dictionary((char*)slearn.c_str(),1000000,(char*)NULL,(char*)NULL);
 		ngram ng(dict); 
 		int bos=ng.dict->encode(ng.dict->BoS());
 		
-		while(ratio > 1.01 || ratio < 0.99 ){ 
+		while( variation > 0.01 ){ 
 			
 			std::fstream dev(slearn.c_str(),std::ios::in);
 			for (int i=0;i<N;i++) c[i]=0;	//reset counters
@@ -201,8 +201,8 @@ int main(int argc, const char **argv)
 				
 				// reset ngram at begin of sentence
 				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-				
-				for (int i=den=0;i<N;i++){
+			        den=0.0;	
+				for (int i=0;i<N;i++){
 					p[i]=pow(10.0,lmt[i]->lprob(ng)); //LM log-prob	
 					
 					den+=w[i] * p[i]; //denominator of EM formula
@@ -210,17 +210,17 @@ int main(int argc, const char **argv)
 				//update expected counts
 				for (int i=0;i<N;i++) c[i]+=w[i]*p[i]/den;
 			}	
-		    
-			for (int i=norm=0;i<N;i++) norm+=c[i];
+		        norm=0.0; 
+			for (int i=0;i<N;i++) norm+=c[i];
 			
 			//update weights and compute distance 			
-			for (int i=ratio=0;i<N;i++){
+                        variation=0.0;
+			for (int i=0;i<N;i++){
 				c[i]/=norm; //c[i] is now the new weight
-				ratio+=w[i]/c[i];
+				variation+=(w[i]>c[i]?(w[i]-c[i]):(c[i]-w[i]));
 				w[i]=c[i]; //update weights
 	        }
-			ratio/=N; //average ratio	
-			std::cerr << "Ratio " << ratio << std::endl;  
+			std::cerr << "Variation " << variation << std::endl;  
 			dev.close();
 		}																	
 		
