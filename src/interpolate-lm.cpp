@@ -56,7 +56,7 @@ void usage(const char *msg = 0) {
   std::cerr << "Options:\n"
             << "--learn text-file -l=text-file (learns new weights and creates a new lm-list-file)"<< std::endl
             << "--eval text-file -e=text-file (computes perplexity of the interpolated LM on text-file)"<< std::endl
-            << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 10^6)"<< std::endl
+            << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 10^7)"<< std::endl
             << "--score [yes|no] -s=[yes|no] (computes log-prob scores with the interpolated LM) "<< std::endl
             << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
             << "--memmap 1 -mm 1 (uses memory map to read a binary LM)\n" ;
@@ -203,8 +203,8 @@ int main(int argc, const char **argv)
 				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
 			        den=0.0;	
 				for (int i=0;i<N;i++){
-					p[i]=pow(10.0,lmt[i]->lprob(ng)); //LM log-prob	
-					
+					ngram ong(lmt[i]->dict);ong.trans(ng);
+					p[i]=pow(10.0,lmt[i]->lprob(ong)); //LM log-prob						
 					den+=w[i] * p[i]; //denominator of EM formula
 				}	
 				//update expected counts
@@ -258,13 +258,15 @@ int main(int argc, const char **argv)
       // reset ngram at begin of sentence
       if (*ng.wordp(1)==bos) {ng.size=1;continue;}
       
-	  for (i=0,Pr=0;i<N;i++)
-		Pr+=w[i] * pow(10.0,lmt[i]->lprob(ng)); //LM log-prob	
+	  for (i=0,Pr=0;i<N;i++){
+   	    ngram ong(lmt[i]->dict);ong.trans(ng);
+		Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong)); //LM log-prob	
+	  }
 	  logPr+=(log(Pr)/M_LN10);
 	  Nw++;                   
 	}
     
-    PP=exp((-logPr * log(10.0)) /Nw);
+    PP=exp((-logPr * M_LN10) /Nw);
 
     std::cout << "%% Nw=" << Nw << " PP=" << PP << std::endl;
     
