@@ -335,7 +335,7 @@ double lmmacro::clprob(ngram micro_ng) {
 //(n-1)-gram state of a n-gram LM. if the input k-gram has k>=n then it 
 //is trimmed to its n-1 suffix.
 
-const char *lmmacro::maxsuffptr(ngram micro_ng,int* size){  
+const char *lmmacro::maxsuffptr(ngram micro_ng, unsigned int* size){  
 //cerr << "lmmacro::maxsuffptr\n";
 //cerr << "micro_ng: " << micro_ng	
 //	<< " -> micro_ng.size: " << micro_ng.size << "\n";
@@ -360,7 +360,7 @@ const char *lmmacro::maxsuffptr(ngram micro_ng,int* size){
   
 }
 
-const char *lmmacro::cmaxsuffptr(ngram micro_ng,int* size){
+const char *lmmacro::cmaxsuffptr(ngram micro_ng, unsigned int* size){
 //cerr << "lmmacro::CMAXsuffptr\n";
 //cerr << "micro_ng: " << micro_ng	
 //	<< " -> micro_ng.size: " << micro_ng.size << "\n";

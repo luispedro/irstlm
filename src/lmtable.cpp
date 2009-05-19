@@ -1210,7 +1210,7 @@ int lmtable::succscan(ngram& h,ngram& ng,LMT_ACTION action,int lev){
 //(n-1)-gram state of a n-gram LM. if the input k-gram has k>=n then it
 //is trimmed to its n-1 suffix.
 
-const char *lmtable::maxsuffptr(ngram ong,int* size){
+const char *lmtable::maxsuffptr(ngram ong, unsigned int* size){
 //cerr << "lmtable::maxsuffptr\n";
 //cerr << "ong: " << ong
 //	<< " -> ong.size: " << ong.size << "\n";
@@ -1238,7 +1238,7 @@ const char *lmtable::maxsuffptr(ngram ong,int* size){
 }
 
 
-const char *lmtable::cmaxsuffptr(ngram ong,int* size){
+const char *lmtable::cmaxsuffptr(ngram ong, unsigned int* size){
 //cerr << "lmtable::CMAXsuffptr\n";
 //cerr << "ong: " << ong
 //	<< " -> ong.size: " << ong.size << "\n";
@@ -1248,7 +1248,7 @@ const char *lmtable::cmaxsuffptr(ngram ong,int* size){
   if (ong.size>=maxlev) ong.size=maxlev-1;
 
   char* found;
-  int isize; //internal state size variable
+  unsigned int isize; //internal state size variable
 
   if (statecache && (ong.size==maxlev-1) && statecache->get(ong.wordp(maxlev-1),(char *)&found)){
     if (size!=NULL) statesizecache->get(ong.wordp(maxlev-1),(char *)size);

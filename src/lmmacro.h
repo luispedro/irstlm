@@ -55,8 +55,8 @@ public:
   double lprob(ngram ng); 
   double clprob(ngram ng); 
 
-  const char *maxsuffptr(ngram ong,int* size=NULL);
-  const char *cmaxsuffptr(ngram ong,int* size=NULL);
+  const char *maxsuffptr(ngram ong, unsigned int* size=NULL);
+  const char *cmaxsuffptr(ngram ong, unsigned int* size=NULL);
 
   void map(ngram *in, ngram *out);
   void One2OneMapping(ngram *in, ngram *out);
