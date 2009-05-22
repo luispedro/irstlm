@@ -10,6 +10,8 @@
 		AD57B1CC0FB3103C00064698 /* lmmacro.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD57B1CA0FB3103C00064698 /* lmmacro.cpp */; };
 		AD57B1CD0FB3103C00064698 /* lmmacro.h in Headers */ = {isa = PBXBuildFile; fileRef = AD57B1CB0FB3103C00064698 /* lmmacro.h */; };
 		ADAA6FCA0E62F00D002B3D41 /* prune-lm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADAA6FC90E62F00D002B3D41 /* prune-lm.cpp */; };
+		ADD9567C0FB42D07001B8680 /* interpolate-lm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADD9567B0FB42D07001B8680 /* interpolate-lm.cpp */; };
+		ADD9567D0FB42D07001B8680 /* interpolate-lm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADD9567B0FB42D07001B8680 /* interpolate-lm.cpp */; };
 		D701C7880B2EB27C007D2774 /* cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = D701C7870B2EB27C007D2774 /* cmd.c */; };
 		D701C7940B2EB37D007D2774 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C78D0B2EB37D007D2774 /* dictionary.cpp */; };
 		D701C7950B2EB37D007D2774 /* htable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D701C78E0B2EB37D007D2774 /* htable.cpp */; };
@@ -40,6 +42,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		ADAA6FC40E62EFAE002B3D41 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D733D3F30B1F3B0800565249;
+			remoteInfo = irstlm;
+		};
+		ADD956770FB42CC5001B8680 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
 			proxyType = 1;
@@ -79,6 +88,7 @@
 /* Begin PBXFileReference section */
 		AD57B1CA0FB3103C00064698 /* lmmacro.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lmmacro.cpp; path = src/lmmacro.cpp; sourceTree = "<group>"; };
 		AD57B1CB0FB3103C00064698 /* lmmacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lmmacro.h; path = src/lmmacro.h; sourceTree = "<group>"; };
+		AD57CBD40FC49D2F00E5AF00 /* goograms2ngrams.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = goograms2ngrams.pl; sourceTree = "<group>"; };
 		ADAA6FBF0E62EF12002B3D41 /* prune-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "prune-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADAA6FC90E62F00D002B3D41 /* prune-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "prune-lm.cpp"; path = "src/prune-lm.cpp"; sourceTree = "<group>"; };
 		ADCFA0280E4872FC00E351DB /* dict */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dict; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -86,6 +96,8 @@
 		ADCFA02B0E4872FC00E351DB /* compile-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "compile-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADCFA02D0E4872FC00E351DB /* quantize-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "quantize-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADCFA02F0E4872FC00E351DB /* ngt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngt; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADD956730FB42CAF001B8680 /* interpolate-lm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "interpolate-lm"; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADD9567B0FB42D07001B8680 /* interpolate-lm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "interpolate-lm.cpp"; path = "src/interpolate-lm.cpp"; sourceTree = "<group>"; };
 		D701C7870B2EB27C007D2774 /* cmd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmd.c; path = src/cmd.c; sourceTree = "<group>"; };
 		D701C78D0B2EB37D007D2774 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dictionary.cpp; path = src/dictionary.cpp; sourceTree = "<group>"; };
 		D701C78E0B2EB37D007D2774 /* htable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htable.cpp; path = src/htable.cpp; sourceTree = "<group>"; };
@@ -160,6 +172,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ADD956710FB42CAF001B8680 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D701C7230B2EACC4007D2774 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -209,6 +228,7 @@
 				ADCFA02D0E4872FC00E351DB /* quantize-lm */,
 				ADCFA02F0E4872FC00E351DB /* ngt */,
 				ADAA6FBF0E62EF12002B3D41 /* prune-lm */,
+				ADD956730FB42CAF001B8680 /* interpolate-lm */,
 			);
 			name = irstlm;
 			sourceTree = "<group>";
@@ -216,6 +236,7 @@
 		D701C78C0B2EB333007D2774 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				ADD9567B0FB42D07001B8680 /* interpolate-lm.cpp */,
 				AD57B1CA0FB3103C00064698 /* lmmacro.cpp */,
 				AD57B1CB0FB3103C00064698 /* lmmacro.h */,
 				ADAA6FC90E62F00D002B3D41 /* prune-lm.cpp */,
@@ -402,6 +423,7 @@
 		D7F00B520B382B8900A1FF7A /* scripts */ = {
 			isa = PBXGroup;
 			children = (
+				AD57CBD40FC49D2F00E5AF00 /* goograms2ngrams.pl */,
 				D7BE45CE0C104DD400B95F19 /* build-lm.sh */,
 				D7FFAE140BFC935500F7F904 /* add-start-end.sh */,
 				D7FFAE150BFC935500F7F904 /* rm-start-end.sh */,
@@ -455,6 +477,23 @@
 			name = "prune-lm";
 			productName = "prune-lm";
 			productReference = ADAA6FBF0E62EF12002B3D41 /* prune-lm */;
+			productType = "com.apple.product-type.tool";
+		};
+		ADD956720FB42CAF001B8680 /* interpolate-lm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ADD9567A0FB42D03001B8680 /* Build configuration list for PBXNativeTarget "interpolate-lm" */;
+			buildPhases = (
+				ADD956700FB42CAF001B8680 /* Sources */,
+				ADD956710FB42CAF001B8680 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ADD956780FB42CC5001B8680 /* PBXTargetDependency */,
+			);
+			name = "interpolate-lm";
+			productName = "interpolate-lm";
+			productReference = ADD956730FB42CAF001B8680 /* interpolate-lm */;
 			productType = "com.apple.product-type.tool";
 		};
 		D701C7240B2EACC4007D2774 /* compile-lm */ = {
@@ -562,6 +601,7 @@
 				D77D1C700B30325000D79D16 /* dict */,
 				D7F00B5F0B38505100A1FF7A /* ngt */,
 				ADAA6FBE0E62EF12002B3D41 /* prune-lm */,
+				ADD956720FB42CAF001B8680 /* interpolate-lm */,
 			);
 		};
 /* End PBXProject section */
@@ -572,6 +612,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				ADAA6FCA0E62F00D002B3D41 /* prune-lm.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ADD956700FB42CAF001B8680 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADD9567D0FB42D07001B8680 /* interpolate-lm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -598,6 +646,7 @@
 				D77D1C670B3030E100D79D16 /* mfstream.cpp in Sources */,
 				D77D1C690B3030E100D79D16 /* ngramtable.cpp in Sources */,
 				AD57B1CC0FB3103C00064698 /* lmmacro.cpp in Sources */,
+				ADD9567C0FB42D07001B8680 /* interpolate-lm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -632,6 +681,11 @@
 			isa = PBXTargetDependency;
 			target = D733D3F30B1F3B0800565249 /* irstlm */;
 			targetProxy = ADAA6FC40E62EFAE002B3D41 /* PBXContainerItemProxy */;
+		};
+		ADD956780FB42CC5001B8680 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D733D3F30B1F3B0800565249 /* irstlm */;
+			targetProxy = ADD956770FB42CC5001B8680 /* PBXContainerItemProxy */;
 		};
 		D701C74F0B2EAEDB007D2774 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -740,6 +794,40 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = "prune-lm";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		ADD956750FB42CAF001B8680 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lirstlm",
+					"$(inherited)",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "interpolate-lm";
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		ADD956760FB42CAF001B8680 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = "interpolate-lm";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -975,6 +1063,15 @@
 			buildConfigurations = (
 				ADAA6FC20E62EF31002B3D41 /* Debug */,
 				ADAA6FC30E62EF31002B3D41 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ADD9567A0FB42D03001B8680 /* Build configuration list for PBXNativeTarget "interpolate-lm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ADD956750FB42CAF001B8680 /* Debug */,
+				ADD956760FB42CAF001B8680 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

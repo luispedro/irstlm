@@ -174,9 +174,12 @@ int main(int argc, const char **argv)
 		inputfilestream inplm(lmf[i].c_str());
 		std::cerr << "xx" << lmf[i].c_str() << "..." << std::endl;  
 		lmt[i]=new lmtable;
-		lmt[i]->load(inplm,lmf[i].c_str(),NULL,memmap,NONE);   		
-
+		if (lmf[i].compare(lmf[i].size()-3,3,".mm")==0)
+			lmt[i]->load(inplm,lmf[i].c_str(),NULL,1,NONE);   		
+		else 
+			lmt[i]->load(inplm,lmf[i].c_str(),NULL,memmap,NONE);   		
 	    if (dub) lmt[i]->setlogOOVpenalty(dub);	//set OOV Penalty for each LM
+		lmt[i]->init_probcache();
 		
 	}
 	inptxt.close();
@@ -204,7 +207,7 @@ int main(int argc, const char **argv)
 			        den=0.0;	
 				for (int i=0;i<N;i++){
 					ngram ong(lmt[i]->dict);ong.trans(ng);
-					p[i]=pow(10.0,lmt[i]->lprob(ong)); //LM log-prob						
+					p[i]=pow(10.0,lmt[i]->clprob(ong)); //LM log-prob						
 					den+=w[i] * p[i]; //denominator of EM formula
 				}	
 				//update expected counts
@@ -232,6 +235,7 @@ int main(int argc, const char **argv)
 		for (int i=0;i<N;i++) outtxt << w[i] << " " << lmf[i] << "\n";
 		outtxt.close();
 		
+		for (int i=0;i<N;i++) lmt[i]->check_cache_levels();
 		delete []c; delete []p;	
 		
 	}
@@ -286,14 +290,14 @@ int main(int argc, const char **argv)
 		//lmt.init_probcache();
 		//lmt.init_lmtcaches(lmt.maxlevel());
 
-     	int maxstatesize,statesize;
+     	unsigned int maxstatesize, statesize;
 		int i,n=0;
 		std::cout << "> ";	
 		while(std::cin >> ng){
 			n++;
 			maxstatesize=0;
 			for (i=0,Pr=0;i<N;i++){
-				Pr+=w[i] * pow(10.0,lmt[i]->lprob(ng)); //LM log-prob	
+				Pr+=w[i] * pow(10.0,lmt[i]->clprob(ng)); //LM log-prob	
 				lmt[i]->maxsuffptr(ng,&statesize);
 				if (maxstatesize<statesize) maxstatesize=statesize;	
 			};

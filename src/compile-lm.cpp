@@ -191,7 +191,7 @@ int main(int argc, const char **argv)
     
     int Nbo=0,Nw=0,Noov=0;
     double logPr=0,PP=0,PPwp=0,Pr;
-    int statesize=0;
+    unsigned int statesize=0;
 	
     ng.dict->incflag(1);
     int bos=ng.dict->encode(ng.dict->BoS());
