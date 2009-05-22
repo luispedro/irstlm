@@ -258,7 +258,7 @@ int main(int argc, const char **argv)
   	std::fstream inptxt(seval.c_str(),std::ios::in);
 
     while(inptxt >> ng){      
-      
+	
       // reset ngram at begin of sentence
       if (*ng.wordp(1)==bos) {ng.size=1;continue;}
       
@@ -267,7 +267,9 @@ int main(int argc, const char **argv)
 		Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong)); //LM log-prob	
 	  }
 	  logPr+=(log(Pr)/M_LN10);
-	  Nw++;                   
+	  Nw++;  
+	  
+	  if ((Nw % 10000)==0) std::cerr << ".";
 	}
     
     PP=exp((-logPr * M_LN10) /Nw);
