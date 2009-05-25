@@ -174,7 +174,7 @@ void dictionary::print_curve(int curvesize, float* testOOV) {
 /*
 	test : compute OOV rates on test corpus using dictionaries of different sizes
 */
-float* dictionary::test(int curvesize, char *filename) {
+float* dictionary::test(int curvesize, char *filename, int listflag) {
 
   int NwTest=0;
   int* OOVchart = new int[curvesize];
@@ -215,8 +215,10 @@ float* dictionary::test(int curvesize, char *filename) {
    int freq = 0;   int wCode = getcode(buffer);
    if(wCode!=-1) freq = tb[wCode].freq;
 	
-   if(freq==0)
+  if(freq==0) {
 	OOVchart[0]++;
+      	if(listflag) { cerr << "<OOV>" << buffer << "</OOV>\n"; }
+   }	
     else{
  	if(freq < curvesize) OOVchart[freq]++;
    }

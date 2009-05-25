@@ -170,7 +170,7 @@ class dictionary{
   void stat();
 
   void print_curve(int curvesize, float* testOOV=NULL);
-  float* test(int curvesize, char *filename);	// return OOV statistics computed on test set
+  float* test(int curvesize, char *filename, int listflag=0);	// return OOV statistics computed on test set
 
   void cleanfreq(){
     for (int i=0;i<n;tb[i++].freq=0); 

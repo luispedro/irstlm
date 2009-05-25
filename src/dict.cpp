@@ -37,6 +37,7 @@ int main(int argc, char **argv)
   int sortflag=0;
   int curveflag=0;
   int curvesize=10;
+  int listflag=0;
   int size=100000;
 
   DeclareParams((char*)
@@ -59,6 +60,7 @@ int main(int argc, char **argv)
 
 						"TestFile", CMDSTRINGTYPE, &testfile,
 						"t", CMDSTRINGTYPE, &testfile,
+						"listOOV", CMDENUMTYPE, &listflag,BooleanEnum,
 						(char*)NULL
 						);
   
@@ -75,7 +77,8 @@ int main(int argc, char **argv)
       std::cerr << "-is= (interruption symbol) \n";
       std::cerr << "-c=[yes|no] (show dictionary growth curve)\n";
       std::cerr << "-cs=curvesize (default 10)\n";
-      std::cerr << "-t=testfile (compute OOV rates on test corpus)\n\n";
+      std::cerr << "-t=testfile (compute OOV rates on test corpus)\n";
+      std::cerr << "-listOOV=[yes|no] (print OOV words to stderr, default is false)\n\n";
       exit(1);
     };
 
@@ -98,7 +101,7 @@ int main(int argc, char **argv)
 
 // show statistics on dictionary growth and OOV rates on test corpus
   if (testfile != NULL)
-	d.print_curve(curvesize, d.test(curvesize, testfile));
+	d.print_curve(curvesize, d.test(curvesize, testfile, listflag));
   else if (curveflag)
 	d.print_curve(curvesize);
 
