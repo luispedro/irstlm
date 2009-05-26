@@ -1211,30 +1211,32 @@ int lmtable::succscan(ngram& h,ngram& ng,LMT_ACTION action,int lev){
 //is trimmed to its n-1 suffix.
 
 const char *lmtable::maxsuffptr(ngram ong, unsigned int* size){
-//cerr << "lmtable::maxsuffptr\n";
-//cerr << "ong: " << ong
-//	<< " -> ong.size: " << ong.size << "\n";
-
+	//cerr << "lmtable::maxsuffptr\n";
+	//cerr << "ong: " << ong
+	//	<< " -> ong.size: " << ong.size << "\n";
+	
 	if (ong.size==0){
 		if (size!=NULL) *size=0;
 		return (char*) NULL;
 	}
 	
-  if (ong.size>=maxlev) ong.size=maxlev-1;
-
-  if (size!=NULL) *size=ong.size; //will return the largest found ong.size
-  
-  ngram ng=ong;
-  
-  //ngram ng(lmtable::getDict()); //eventually use the <unk> word
-  //ng.trans(ong);
-
-  if (get(ng,ng.size,ng.size))
-    return ng.link;
-  else{
-    ong.size--;
-    return maxsuffptr(ong,size);
-  }
+	if (ong.size>=maxlev) ong.size=maxlev-1;
+	
+	if (size!=NULL) *size=ong.size; //will return the largest found ong.size
+	
+	ngram ng=ong;
+	
+	//ngram ng(lmtable::getDict()); //eventually use the <unk> word
+	//ng.trans(ong);
+	
+	if (get(ng,ng.size,ng.size)){
+		if (ng.succ==0) (*size)--;
+		return ng.link;
+	}
+	else{
+		ong.size--;
+		return maxsuffptr(ong,size);
+	}
 }
 
 
