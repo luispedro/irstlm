@@ -15,6 +15,7 @@ OPTIONS:
    -n      Order of language model (default 3)
    -t      Directory for temporary files (default ./stat)
    -p      Prune singleton n-grams (default false)
+   -u      Use uniform word frequency for dictionary splitting (default false)
    -s      Smoothing methods: witten-bell (default), kneser-ney (approximated kneser-ney)
    -b      Include sentence boundary n-grams (optional)
    -d      Define subdictionary for n-grams (optional)
@@ -50,8 +51,9 @@ smoothing="--witten-bell";
 prune="";
 boundaries="";
 dictionary="";
+uniform="-f=y";
 
-while getopts “hvi:o:n:k:t:s:pbl:d:” OPTION
+while getopts “hvi:o:n:k:t:s:pbl:d:u” OPTION
 do
      case $OPTION in
          h)
@@ -66,6 +68,10 @@ do
              ;;
          d)
              dictionary="-sd=$OPTARG"
+             ;;
+
+         u)
+             uniform=" "
              ;;
 
          o)
@@ -146,7 +152,7 @@ fi
 
 
 echo "Extracting dictionary from training corpus"
-$bin/dict -i="$inpfile" -o=$tmpdir/dictionary -f=y -sort=no >& $logfile
+$bin/dict -i="$inpfile" -o=$tmpdir/dictionary $uniform -sort=no >& $logfile
 
 echo "Splitting dictionary into $parts lists"
 $scr/split-dict.pl --input $tmpdir/dictionary --output $tmpdir/dict. --parts $parts >> $logfile 2>&1

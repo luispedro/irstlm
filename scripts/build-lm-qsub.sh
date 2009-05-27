@@ -15,6 +15,7 @@ OPTIONS:
    -n      Order of language model (default 3)
    -t      Directory for temporary files (default ./stat)
    -p      Prune singleton n-grams (default false)
+   -u      Use uniform word frequency for dictionary splitting (default false)
    -q      parameters for qsub ("-q <queue>", and any other)
    -s      Smoothing methods: witten-bell (default), kneser-ney (approximated kneser-ney)
    -b      Include sentence boundary n-grams (optional)
@@ -58,9 +59,10 @@ smoothing="--witten-bell";
 prune="";
 boundaries="";
 dictionary="";
+uniform="-f=y";
 queueparameters=""
 
-while getopts “hvi:o:n:k:t:s:q:pbl:d:” OPTION
+while getopts “hvi:o:n:k:t:s:q:pbl:d:u” OPTION
 do
      case $OPTION in
          h)
@@ -75,6 +77,10 @@ do
              ;;
          d)
              dictionary="-sd=$OPTARG"
+             ;;
+
+         u)
+             uniform=" "
              ;;
 
          o)
@@ -161,7 +167,7 @@ qsub $queueparameters -b no -sync yes -o /dev/null -e /dev/null -N dict << EOF
 cd $workingdir
 echo exit status $?
 echo "Extracting dictionary from training corpus"
-$bin/dict -i="$inpfile" -o=$tmpdir/dictionary -f=y -sort=no >& log_dict
+$bin/dict -i="$inpfile" -o=$tmpdir/dictionary $uniform -sort=no >& log_dict
 echo exit status $?
 echo "Splitting dictionary into $parts lists"
 $scr/split-dict.pl --input $tmpdir/dictionary --output $tmpdir/dict. --parts $parts >& log_split-dict
