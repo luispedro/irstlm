@@ -204,7 +204,7 @@ int main(int argc, const char **argv)
 				
 				// reset ngram at begin of sentence
 				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-			        den=0.0;	
+				den=0.0;	
 				for (int i=0;i<N;i++){
 					ngram ong(lmt[i]->dict);ong.trans(ng);
 					p[i]=pow(10.0,lmt[i]->clprob(ong)); //LM log-prob						
@@ -213,11 +213,11 @@ int main(int argc, const char **argv)
 				//update expected counts
 				for (int i=0;i<N;i++) c[i]+=w[i]*p[i]/den;
 			}	
-		        norm=0.0; 
+			norm=0.0; 
 			for (int i=0;i<N;i++) norm+=c[i];
 			
 			//update weights and compute distance 			
-                        variation=0.0;
+			variation=0.0;
 			for (int i=0;i<N;i++){
 				c[i]/=norm; //c[i] is now the new weight
 				variation+=(w[i]>c[i]?(w[i]-c[i]):(c[i]-w[i]));
@@ -240,49 +240,48 @@ int main(int argc, const char **argv)
 		
 	}
 	
-  if (seval != ""){
-    std::cerr << "Start Eval" << std::endl;
-
-	std::cout.setf(ios::fixed);
-    std::cout.precision(2);
-	int i,Nw=0;
-    double logPr=0,PP=0,Pr;
-	
-	//normalize weights
-	for (i=0,Pr=0;i<N;i++) Pr+=w[i];
-	for (i=0;i<N;i++) w[i]/=Pr;
+	if (seval != ""){
+		std::cerr << "Start Eval" << std::endl;
+		
+		std::cout.setf(ios::fixed);
+		std::cout.precision(2);
+		int i,Nw=0;
+		double logPr=0,PP=0,Pr;
+		
+		//normalize weights
+		for (i=0,Pr=0;i<N;i++) Pr+=w[i];
+		for (i=0;i<N;i++) w[i]/=Pr;
+		
+		dictionary* dict;dict=new dictionary((char*)seval.c_str(),1000000,(char*)NULL,(char*)NULL);
+		ngram ng(dict); 
+		int bos=ng.dict->encode(ng.dict->BoS());    
+		std::fstream inptxt(seval.c_str(),std::ios::in);
+		
+		while(inptxt >> ng){      
 			
-	dictionary* dict;dict=new dictionary((char*)seval.c_str(),1000000,(char*)NULL,(char*)NULL);
-	ngram ng(dict); 
-	int bos=ng.dict->encode(ng.dict->BoS());    
-  	std::fstream inptxt(seval.c_str(),std::ios::in);
-
-    while(inptxt >> ng){      
+			// reset ngram at begin of sentence
+			if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+			
+			for (i=0,Pr=0;i<N;i++){
+				ngram ong(lmt[i]->dict);ong.trans(ng);
+				Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong)); //LM log-prob	
+			}
+			logPr+=(log(Pr)/M_LN10);
+			Nw++;  
+			
+			if ((Nw % 10000)==0) std::cerr << ".";
+		}
+		
+		PP=exp((-logPr * M_LN10) /Nw);
+		
+		std::cout << "%% Nw=" << Nw << " PP=" << PP << std::endl;
+		
+	};
 	
-      // reset ngram at begin of sentence
-      if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-      
-	  for (i=0,Pr=0;i<N;i++){
-   	    ngram ong(lmt[i]->dict);ong.trans(ng);
-		Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong)); //LM log-prob	
-	  }
-	  logPr+=(log(Pr)/M_LN10);
-	  Nw++;  
-	  
-	  if ((Nw % 10000)==0) std::cerr << ".";
-	}
-    
-    PP=exp((-logPr * M_LN10) /Nw);
-
-    std::cout << "%% Nw=" << Nw << " PP=" << PP << std::endl;
-    
-	return 0;    
-  };
-  
-
+	
 	if (sscore == "yes"){
 		
-				
+		
 		dictionary* dict;dict=new dictionary(NULL,1000000,(char*)NULL,(char*)NULL);
 		dict->incflag(1); // start generating the dictionary;
 		ngram ng(dict); 
@@ -291,7 +290,7 @@ int main(int argc, const char **argv)
 		//use caches to save time
 		//lmt.init_probcache();
 		//lmt.init_lmtcaches(lmt.maxlevel());
-
+		
      	unsigned int maxstatesize, statesize;
 		int i,n=0;
 		std::cout << "> ";	
@@ -317,9 +316,10 @@ int main(int argc, const char **argv)
 			std::cout << "> ";                 
 		}
 		
-		return 0;
+
 	}
 
+	for (int i=0;i<N;i++) delete lmt[i];
 	
 	return 0;
 }

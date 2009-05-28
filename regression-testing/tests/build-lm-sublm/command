@@ -6,7 +6,7 @@ testdir=$1
 cd $testdir
 
 mkdir sublmdir
-$bin/build-lm.sh  -i 'gunzip -c input.gz' -n 4 -o output.gz -k 5 -t sublmdir -p -d subdict  > /dev/null 2>&1
+$bin/build-lm.sh  -i 'gunzip -c input.gz' -n 4 -o output.gz -k 5 -t sublmdir -p -u -d subdict  > /dev/null 2>&1
 gunzip -c output.gz
 rm -r  sublmdir
 rm output.gz

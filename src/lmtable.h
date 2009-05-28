@@ -130,12 +130,12 @@ public:
   virtual ~lmtable(){
     for (int i=2;i<=LMTMAXLEV;i++)
     if (lmtcache[i]){
-      std::cerr << i <<"-gram cache: "; lmtcache[i]->stat();
+      //std::cerr << i <<"-gram cache: "; lmtcache[i]->stat();
       delete lmtcache[i];
     }
 
     if (probcache){
-      std::cerr << "Prob Cache: "; probcache->stat();
+      //std::cerr << "Prob Cache: "; probcache->stat();
       delete probcache;
 #if TRACE_CACHE
       cacheout->close();
@@ -144,7 +144,7 @@ public:
 
     }
     if (statecache){
-      std::cerr << "State Cache: "; statecache->stat();
+      //std::cerr << "State Cache: "; statecache->stat();
       delete statecache;
 	  delete statesizecache;
     }

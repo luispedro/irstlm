@@ -86,6 +86,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AD3B344C0FCD9CF0000126BA /* build-lm-qsub.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "build-lm-qsub.sh"; sourceTree = "<group>"; };
 		AD57B1CA0FB3103C00064698 /* lmmacro.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lmmacro.cpp; path = src/lmmacro.cpp; sourceTree = "<group>"; };
 		AD57B1CB0FB3103C00064698 /* lmmacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lmmacro.h; path = src/lmmacro.h; sourceTree = "<group>"; };
 		AD57CBD40FC49D2F00E5AF00 /* goograms2ngrams.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = goograms2ngrams.pl; sourceTree = "<group>"; };
@@ -423,6 +424,7 @@
 		D7F00B520B382B8900A1FF7A /* scripts */ = {
 			isa = PBXGroup;
 			children = (
+				AD3B344C0FCD9CF0000126BA /* build-lm-qsub.sh */,
 				AD57CBD40FC49D2F00E5AF00 /* goograms2ngrams.pl */,
 				D7BE45CE0C104DD400B95F19 /* build-lm.sh */,
 				D7FFAE140BFC935500F7F904 /* add-start-end.sh */,
