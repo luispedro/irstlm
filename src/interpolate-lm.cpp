@@ -36,6 +36,7 @@ using namespace std;
 
 std::string slearn = "";
 std::string seval = "";
+std::string sorder = "";
 std::string sscore = "no";
 std::string sdebug = "0";
 std::string smemmap = "0";
@@ -55,6 +56,7 @@ void usage(const char *msg = 0) {
 			
   std::cerr << "Options:\n"
             << "--learn text-file -l=text-file (learns new weights and creates a new lm-list-file)"<< std::endl
+            << "--order n -o=n (order of n-grams used duringlearning)"<< std::endl
             << "--eval text-file -e=text-file (computes perplexity of the interpolated LM on text-file)"<< std::endl
             << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 10^7)"<< std::endl
             << "--score [yes|no] -s=[yes|no] (computes log-prob scores with the interpolated LM) "<< std::endl
@@ -94,6 +96,9 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
   if (starts_with(opt, "--learn") || starts_with(opt, "-l"))
     slearn = get_param(opt, argc, argv, argi);
   else
+    if (starts_with(opt, "--order") || starts_with(opt, "-o"))
+      sorder = get_param(opt, argc, argv, argi);
+  else
     if (starts_with(opt, "--eval") || starts_with(opt, "-e"))
       seval = get_param(opt, argc, argv, argi);
   else
@@ -128,15 +133,17 @@ int main(int argc, const char **argv)
 		else files.push_back(opt);
 	}
 	
-	if (files.size() > 2) { usage("Too many arguments"); exit(1); }
-	if (files.size() < 1) { usage("Please specify a LM list file to read from"); exit(1); }
-	
 	bool learn = (slearn != ""? true : false);
-	
+	int order=atoi(sorder.c_str());
+
 	//int debug = atoi(sdebug.c_str()); 
 	int memmap = atoi(smemmap.c_str());
 	int dub = atoi(sdub.c_str()); //dictionary upper bound
-    
+
+	if (files.size() > 2) { usage("Too many arguments"); exit(1); }
+	if (files.size() < 1) { usage("Please specify a LM list file to read from"); exit(1); }
+	if (sorder != "" && order < 1) {usage("Order must be a positive integer"); exit(1);} 
+		
 	std::string infile = files[0];
 	std::string outfile="";
 	
@@ -204,6 +211,8 @@ int main(int argc, const char **argv)
 				
 				// reset ngram at begin of sentence
 				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+				if (order>0 && ng.size>order) ng.size=order;
+				
 				den=0.0;	
 				for (int i=0;i<N;i++){
 					ngram ong(lmt[i]->dict);ong.trans(ng);

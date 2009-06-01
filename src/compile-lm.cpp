@@ -37,25 +37,27 @@ using namespace std;
 std::string stxt = "no";
 std::string sscore = "no";
 std::string seval = "";
+std::string sfilter = "";
 std::string sdebug = "0";
 std::string smemmap = "0";
 std::string sdub = "0";
 /********************************/
 
 void usage(const char *msg = 0) {
-  if (msg) { std::cerr << msg << std::endl; }
-  std::cerr << "Usage: compile-lm [options] input-file.lm [output-file.blm]" << std::endl;
-  if (!msg) std::cerr << std::endl
-            << "  compile-lm reads a standard LM file in ARPA format and produces" << std::endl
-            << "  a compiled representation that the IRST LM toolkit can quickly" << std::endl
-            << "  read and process. LM file can be compressed with gzip." << std::endl << std::endl;
-  std::cerr << "Options:\n"
-    << "--text [yes|no] -t=[yes|no] (output is again in text format)" << std::endl
-            << "--eval text-file -e=text-file (computes perplexity of text-file and returns)"<< std::endl
-            << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 0)"<< std::endl
-            << "--score [yes|no] -s=[yes|no] (computes log-prob scores from standard input)"<< std::endl
-            << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
-            << "--memmap 1 -mm 1 (uses memory map to read a binary LM)\n" ;
+	if (msg) { std::cerr << msg << std::endl; }
+	std::cerr << "Usage: compile-lm [options] input-file.lm [output-file.blm]" << std::endl;
+	if (!msg) std::cerr << std::endl
+		<< "  compile-lm reads a standard LM file in ARPA format and produces" << std::endl
+		<< "  a compiled representation that the IRST LM toolkit can quickly" << std::endl
+		<< "  read and process. LM file can be compressed with gzip." << std::endl << std::endl;
+	std::cerr << "Options:\n"
+    << "--text|-t [yes|no]  (output is again in text format)" << std::endl
+    << "--filter|-f wordlist (filter the language model with a word list)"<< std::endl
+	<< "--eval|-e text-file (computes perplexity of text-file and returns)"<< std::endl
+	<< "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 0)"<< std::endl
+	<< "--score|-s [yes|no]  (computes log-prob scores from standard input)"<< std::endl
+	<< "--debug|-d 1 (verbose output for --eval option)"<< std::endl
+	<< "--memmap|-mm 1 (uses memory map to read a binary LM)\n" ;
 }
 
 bool starts_with(const std::string &s, const std::string &pre) {
@@ -90,6 +92,9 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
   if (starts_with(opt, "--text") || starts_with(opt, "-t"))
     stxt = get_param(opt, argc, argv, argi);
   else
+  if (starts_with(opt, "--filter") || starts_with(opt, "-f"))
+    sfilter = get_param(opt, argc, argv, argi);
+  else
     if (starts_with(opt, "--eval") || starts_with(opt, "-e"))
       seval = get_param(opt, argc, argv, argi);
   else
@@ -98,7 +103,6 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
   else
     if (starts_with(opt, "--debug") || starts_with(opt, "-d"))
       sdebug = get_param(opt, argc, argv, argi);
-  
   else
     if (starts_with(opt, "--memmap") || starts_with(opt, "-mm"))
       smemmap = get_param(opt, argc, argv, argi);     
@@ -176,6 +180,21 @@ int main(int argc, const char **argv)
   }  
     
   lmt.load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);       
+  
+  if (sfilter != ""){
+	dictionary *dict; dict=new dictionary((char *)sfilter.c_str());
+	lmtable* sublmt; sublmt=lmt.cpsublm(dict);
+	if (textoutput) {
+		std::cout << "Saving filtered LM in txt format to " << outfile << std::endl;
+		sublmt->savetxt(outfile.c_str());    
+	}else{
+		std::cout << "Saving filtered LM in binary format to " << outfile << std::endl;
+		sublmt->savebin(outfile.c_str());   
+	}
+	delete dict;
+	delete sublmt;
+	return 0;
+  }
   
   if (dub) lmt.setlogOOVpenalty((int)dub);
   

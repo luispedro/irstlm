@@ -219,6 +219,8 @@ public:
   void loadbinheader(std::istream& inp, const char* header);
   void loadbincodebook(std::istream& inp,int l);
   
+  lmtable* cpsublm(dictionary* subdict,bool keepunigr=true);
+  
   void filter(const char* lmfile){};
   void filter2(const char* lmfile,int buffMb=512){
     std::cerr << "function is no more available\n";

@@ -150,10 +150,10 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
   inp >> header; cerr << header << "\n";
 
   if (strncmp(header,"Qblmt",5)==0 || strncmp(header,"blmt",4)==0){
-    if (outtype==BINARY) {
-      cerr << "Load Error: nothing to do. Passed input file: binary. Specified output format: binary.\n";
-      exit(0);
-    }
+    //if (outtype==BINARY) {
+      //cerr << "Load Error: nothing to do. Passed input file: binary. Specified output format: binary.\n";
+      //exit(0);
+    //}
     loadbin(inp,header,filename,keep_on_disk);
   }
   else{ //input is in textual form
@@ -851,6 +851,128 @@ int lmtable::mybsearch(char *ar, int n, int size,
   return 0;
 
 }
+
+
+// generates a LM copy for a smaller dictionary
+
+lmtable* lmtable::cpsublm(dictionary* subdict,bool keepunigr){
+
+	//keepunigr=false;
+	
+	int p,c,l,i; 
+	
+	//create new lmtable that inherits all features of this lmtable
+	
+	lmtable* slmt=new lmtable();		
+	slmt->configure(maxlev,isQtable);
+	slmt->dict=new dictionary((keepunigr?dict:subdict),0);
+	std::cerr << "subdict size: " << slmt->dict->size() << "\n";
+		 
+	if (isQtable){
+	    for (i=1;i<=maxlev;i++)  
+			slmt->NumCenters[i]=NumCenters[i];
+		slmt->Pcenters[i]=new float [NumCenters[i]];
+		memcpy(slmt->Pcenters[i],Pcenters[i],NumCenters[i] * sizeof(float));
+		slmt->Bcenters[i]=new float [NumCenters[i]];
+		memcpy(slmt->Bcenters[i],Bcenters[i],NumCenters[i] * sizeof(float));		
+	}
+	
+	//mange dictionary information
+	
+	//generate OOV codes and build dictionary lookup table 
+	dict->genoovcode(); slmt->dict->genoovcode();
+	std::cerr << "subdict size: " << slmt->dict->size() << "\n";
+	int* lookup;lookup=new int [dict->size()];
+	for (c=0;c<dict->size();c++){
+		lookup[c]=subdict->encode(dict->decode(c));
+		if (c != dict->oovcode() && lookup[c] == subdict->oovcode())
+			lookup[c]=-1; // words of this->dict that are not in slmt->dict
+	}
+	
+	//variables useful to navigate in the lmtable structure
+	LMT_TYPE ndt,pndt; int ndsz,pndsz; 
+	char *entry, *newentry; 
+	int start, end, origin;
+	
+	for (int l=1;l<=maxlev;l++){
+		
+		slmt->cursize[l]=0;
+		slmt->table[l]=NULL;
+		
+		if (l==1){ //1-gram level 
+			
+			ndt=tbltype[l]; ndsz=nodesize(ndt);
+			
+			for (p=0;p<cursize[l];p++){
+				
+				entry=table[l] + p * ndsz; 
+				if (lookup[word(entry)]!=-1 || keepunigr){
+					
+					if ((slmt->cursize[l] % slmt->dict->size()) ==0)
+						slmt->table[l]=(char *)realloc(slmt->table[l],(slmt->cursize[l]+slmt->dict->size()) * ndsz);
+					
+					newentry=slmt->table[l] + slmt->cursize[l] * ndsz; 
+					memcpy(newentry,entry,ndsz);
+					if (!keepunigr) //do not change encoding if keepunigr is true
+						slmt->word(newentry,lookup[word(entry)]);
+
+					if (l<maxlev) 
+						slmt->bound(newentry,ndt,p); //store in bound the entry itself (**) !!!!
+					slmt->cursize[l]++;			
+				}
+			}
+		}
+		
+		else{ //n-grams n>1: scan lower order table
+			
+			pndt=tbltype[l-1]; pndsz=nodesize(pndt);
+			ndt=tbltype[l]; ndsz=nodesize(ndt);
+			
+			for (p=0; p<slmt->cursize[l-1]; p++){
+				
+				//determine start and end of successors of this entry
+				origin=slmt->bound(slmt->table[l-1] + p * pndsz,pndt); //position of n-1 gram in this table (**)
+				if (origin == 0) start=0;                              //succ start at first pos in table[l]
+				else start=bound(table[l-1] + (origin-1) * pndsz,pndt);//succ start after end of previous entry
+				end=bound(table[l-1] + origin * pndsz,pndt);           //succ end where indicated 
+				
+		        if (!keepunigr || lookup[word(table[l-1] + origin * pndsz)]!=-1){
+					while (start < end){
+						
+						entry=table[l] + start * ndsz;
+						
+						if (lookup[word(entry)]!=-1){
+							
+							if ((slmt->cursize[l] % slmt->dict->size()) ==0)
+								slmt->table[l]=(char *)realloc(slmt->table[l],(slmt->cursize[l]+slmt->dict->size()) * ndsz);
+							
+							newentry=slmt->table[l] + slmt->cursize[l] * ndsz; 
+							memcpy(newentry,entry,ndsz);
+							if (!keepunigr) //do not change encoding if keepunigr is true
+								slmt->word(newentry,lookup[word(entry)]);
+							if (l<maxlev)
+								slmt->bound(newentry,ndt,start); //store in bound the entry itself!!!!
+							slmt->cursize[l]++;
+						} 
+						
+						start++;
+						
+					}
+				}
+				
+				//updated bound information of incoming entry
+				slmt->bound(slmt->table[l-1] + p * pndsz, pndt,slmt->cursize[l]);
+				
+			}						
+			
+		}
+		
+	}
+	
+	
+    return slmt;
+}
+
 
 
 // saves a LM table in text format
