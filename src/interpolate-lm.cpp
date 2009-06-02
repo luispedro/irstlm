@@ -24,6 +24,7 @@ using namespace std;
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <stdlib.h>
@@ -266,21 +267,44 @@ int main(int argc, const char **argv)
 		int bos=ng.dict->encode(ng.dict->BoS());    
 		std::fstream inptxt(seval.c_str(),std::ios::in);
 		
-		while(inptxt >> ng){      
-			
-			// reset ngram at begin of sentence
-			if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-			
-			for (i=0,Pr=0;i<N;i++){
-				ngram ong(lmt[i]->dict);ong.trans(ng);
-				Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong)); //LM log-prob	
+		for(;;) {
+			std::string line;
+			getline(inptxt, line);
+			if(inptxt.eof())
+				break;
+			if(inptxt.fail()) {
+				std::cerr << "Problem reading input file " << seval << std::endl;
+				break;
 			}
-			logPr+=(log(Pr)/M_LN10);
-			Nw++;  
-			
-			if ((Nw % 10000)==0) std::cerr << ".";
+			std::istringstream lstream(line);
+			if(line.substr(0, 26) == "###interpolate-lm:weights ") {
+				std::string token;
+				lstream >> token;
+				for(int i = 0; i < N; i++) {
+					if(lstream.eof()) {
+						std::cerr << "Not enough weights!" << std::endl;
+						exit(1);
+					}
+					lstream >> w[i];
+				}
+				continue;
+			}
+			while(lstream >> ng){      
+				
+				// reset ngram at begin of sentence
+				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+				
+				for (i=0,Pr=0;i<N;i++){
+					ngram ong(lmt[i]->dict);ong.trans(ng);
+					Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong)); //LM log-prob	
+				}
+				logPr+=(log(Pr)/M_LN10);
+				Nw++;  
+				
+				if ((Nw % 10000)==0) std::cerr << ".";
+			}
 		}
-		
+
 		PP=exp((-logPr * M_LN10) /Nw);
 		
 		std::cout << "%% Nw=" << Nw << " PP=" << PP << std::endl;

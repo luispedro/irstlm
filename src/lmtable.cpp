@@ -892,7 +892,7 @@ lmtable* lmtable::cpsublm(dictionary* subdict,bool keepunigr){
 	//variables useful to navigate in the lmtable structure
 	LMT_TYPE ndt,pndt; int ndsz,pndsz; 
 	char *entry, *newentry; 
-	int start, end, origin;
+	unsigned long start, end, origin;
 	
 	for (int l=1;l<=maxlev;l++){
 		
