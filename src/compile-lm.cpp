@@ -41,9 +41,11 @@ std::string sfilter = "";
 std::string sdebug = "0";
 std::string smemmap = "0";
 std::string sdub = "0";
+std::string skeepunigrams = "yes";
 /********************************/
 
 void usage(const char *msg = 0) {
+
 	if (msg) { std::cerr << msg << std::endl; }
 	std::cerr << "Usage: compile-lm [options] input-file.lm [output-file.blm]" << std::endl;
 	if (!msg) std::cerr << std::endl
@@ -53,11 +55,12 @@ void usage(const char *msg = 0) {
 	std::cerr << "Options:\n"
     << "--text|-t [yes|no]  (output is again in text format)" << std::endl
     << "--filter|-f wordlist (filter the language model with a word list)"<< std::endl
+    << "--keepunigrams|-ku [yes|no] (filter by keeping all unigrams in the table: default yes)"<< std::endl
 	<< "--eval|-e text-file (computes perplexity of text-file and returns)"<< std::endl
 	<< "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 0)"<< std::endl
 	<< "--score|-s [yes|no]  (computes log-prob scores from standard input)"<< std::endl
 	<< "--debug|-d 1 (verbose output for --eval option)"<< std::endl
-	<< "--memmap|-mm 1 (uses memory map to read a binary LM)\n" ;
+	<< "--memmap|-mm 1 (uses memory map to read a binary LM)\n";
 }
 
 bool starts_with(const std::string &s, const std::string &pre) {
@@ -94,6 +97,9 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
   else
   if (starts_with(opt, "--filter") || starts_with(opt, "-f"))
     sfilter = get_param(opt, argc, argv, argi);
+  else
+  if (starts_with(opt, "--keepunigrams") || starts_with(opt, "-ku"))
+    skeepunigrams = get_param(opt, argc, argv, argi);
   else
     if (starts_with(opt, "--eval") || starts_with(opt, "-e"))
       seval = get_param(opt, argc, argv, argi);
@@ -183,7 +189,7 @@ int main(int argc, const char **argv)
   
   if (sfilter != ""){
 	dictionary *dict; dict=new dictionary((char *)sfilter.c_str());
-	lmtable* sublmt; sublmt=lmt.cpsublm(dict);
+	lmtable* sublmt; sublmt=lmt.cpsublm(dict,(skeepunigrams=="yes"));
 	if (textoutput) {
 		std::cout << "Saving filtered LM in txt format to " << outfile << std::endl;
 		sublmt->savetxt(outfile.c_str());    

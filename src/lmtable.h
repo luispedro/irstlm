@@ -91,6 +91,9 @@ class lmtable{
   //Incomplete LM table from distributed training
   bool      isItable;
 
+  //Table might contain pruned n-grams
+  bool      isPruned; 
+   
   int       NumCenters[LMTMAXLEV+1];
   float*    Pcenters[LMTMAXLEV+1];
   float*    Bcenters[LMTMAXLEV+1];

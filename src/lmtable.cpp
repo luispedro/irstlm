@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #define DEBUG 0
 
 //special value for pruned iprobs
-#define NOPROB -2
+#define NOPROB (int) -2
 
 using namespace std;
 
@@ -69,6 +69,8 @@ lmtable::lmtable(){
   statesizecache=NULL;
   
   memmap=0;
+  
+  isPruned=false;
 
   //statistics
   for (int i=0;i<=LMTMAXLEV+1;i++) totget[i]=totbsearch[i]=0;
@@ -859,7 +861,7 @@ lmtable* lmtable::cpsublm(dictionary* subdict,bool keepunigr){
 
 	//keepunigr=false;
 	
-	int p,c,l,i; 
+	int p,c,i; 
 	
 	//create new lmtable that inherits all features of this lmtable
 	
@@ -880,7 +882,7 @@ lmtable* lmtable::cpsublm(dictionary* subdict,bool keepunigr){
 	//mange dictionary information
 	
 	//generate OOV codes and build dictionary lookup table 
-	dict->genoovcode(); slmt->dict->genoovcode();
+	dict->genoovcode(); slmt->dict->genoovcode(); subdict->genoovcode();
 	std::cerr << "subdict size: " << slmt->dict->size() << "\n";
 	int* lookup;lookup=new int [dict->size()];
 	for (c=0;c<dict->size();c++){
@@ -996,17 +998,17 @@ void lmtable::savetxt(const char *filename){
 
   cerr << "savetxt: " << filename << "\n";
 
-  //check size of table by considering pruned n-grams
-  ngcnt(cnt);
+  if (isPruned) ngcnt(cnt); //check size of table by considering pruned n-grams
+
   out << "\n\\data\\\n";
   for (l=1;l<=maxlev;l++){
-    out << "ngram " << l << "= " << cnt[l] << "\n";
+    out << "ngram " << l << "= " << (isPruned?cnt[l]:cursize[l]) << "\n";
   }
 
   for (l=1;l<=maxlev;l++){
 
     out << "\n\\" << l << "-grams:\n";
-    cerr << "save: " << cnt[l] << " " << l << "-grams\n";
+    cerr << "save: " << (isPruned?cnt[l]:cursize[l]) << " " << l << "-grams\n";
     if (isQtable){
       out << NumCenters[l] << "\n";
       for (int c=0;c<NumCenters[l];c++){
@@ -1028,6 +1030,11 @@ void lmtable::savetxt(const char *filename){
 
 void lmtable::savebin(const char *filename){
 
+  if (isPruned){
+		cerr << "savebin: pruned LM cannot be saved in binary form\n";
+		exit(0);
+  }
+		
   fstream out(filename,ios::out);
   cerr << "savebin: " << filename << "\n";
 
@@ -1255,7 +1262,7 @@ void lmtable::dumplm(fstream& out,ngram ng, int ilev, int elev, int ipos,int epo
     int ipr=prob(table[ilev]+(long long)i*ndsz,ndt);
 
     //skip pruned n-grams
-    if(ipr==NOPROB) continue;
+    if(isPruned && ipr==NOPROB) continue;
 
     if (ilev<elev){
       //get first and last successor position
@@ -1583,7 +1590,9 @@ int lmtable::wdprune(float	*thr,
 {
 	int	l;
 	ngram	ng(lmtable::getDict(),0);
-
+	
+	isPruned=true;  //the table now might contain pruned n-grams
+	
 	ng.size=0;
 	for(l=2; l<=maxlev; l++) wdprune(thr, aflag, ng, 1, l, 0, cursize[1]);
 	return 0;
@@ -1665,7 +1674,7 @@ int lmtable::wdprune(float	*thr, int aflag, ngram	ng, int	ilev, int	elev, int	ip
 				*tbs += pow(10., blk);
 			} else {		// discarded
 				++nk;
-				prob(ndp, ndt, NOPROB);
+				prob(ndp, ndt, (int)NOPROB);
 			}
 		}
 	}
