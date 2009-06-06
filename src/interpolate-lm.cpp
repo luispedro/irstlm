@@ -169,7 +169,7 @@ int main(int argc, const char **argv)
 	std::cerr << "outfile: " << outfile << std::endl;
 	std::cerr << "interactive: " << sscore << std::endl;
 	
-	lmtable* lmt[100]; //interpolated language models
+	lmtable *lmt[100], *start_lmt[100]; //interpolated language models
 	std::string lmf[100]; //lm filenames
 	
 	
@@ -182,16 +182,21 @@ int main(int argc, const char **argv)
 	std::fstream inptxt(infile.c_str(),std::ios::in);
 	inptxt >> N; std::cerr << "Number of LMs: " << N << "..." << std::endl;   
 	
+	if(N > 100) {
+		std::cerr << "Can't interpolate more than 100 language models." << std::endl;
+		exit(1);
+	}
+
 	for (int i=0;i<N;i++){
 		inptxt >> w[i] >> lmf[i];
-		lmt[i] = load_lm(lmf[i]);
+		start_lmt[i] = lmt[i] = load_lm(lmf[i]);
 	}
 	inptxt.close();
 	
 	//Learning mixture weights
 	if (learn){
-		float* p; p=new float[N]; //LM probabilities
-		float* c; c=new float[N]; //expected counts
+		std::vector<float> p[N]; //LM probabilities
+		float c[N]; //expected counts
 		float den,norm; //inner denominator, normalization term
 		float variation=1.0; // global variation between new old params
 		
@@ -199,50 +204,66 @@ int main(int argc, const char **argv)
 		ngram ng(dict); 
 		int bos=ng.dict->encode(ng.dict->BoS());
 		
-		while( variation > 0.01 ){ 
-			
-			std::fstream dev(slearn.c_str(),std::ios::in);
-			for (int i=0;i<N;i++) c[i]=0;	//reset counters
-			
-			for(;;) {
-				std::string line;
-				getline(dev, line);
-				if(dev.eof())
-					break;
-				if(dev.fail()) {
-					std::cerr << "Problem reading input file " << seval << std::endl;
+		std::ifstream dev(slearn.c_str(),std::ios::in);
+
+		for(;;) {
+			std::string line;
+			getline(dev, line);
+			if(dev.eof())
+				break;
+			if(dev.fail()) {
+				std::cerr << "Problem reading input file " << seval << std::endl;
+				return 1;
+			}
+			std::istringstream lstream(line);
+			if(line.substr(0, 29) == "###interpolate-lm:replace-lm ") {
+				std::string token, newlm;
+				int id;
+				lstream >> token >> id >> newlm;
+				if(id <= 0 || id > N) {
+					std::cerr << "LM id out of range." << std::endl;
 					return 1;
 				}
-				std::istringstream lstream(line);
-				if(line.substr(0, 29) == "###interpolate-lm:replace-lm ") {
-					std::string token, newlm;
-					int id;
-					lstream >> token >> id >> newlm;
-					if(id <= 0 || id > N) {
-						std::cerr << "LM id out of range." << std::endl;
-						return 1;
-					}
-					id--; // count from 0 now
+				id--; // count from 0 now
+				if(lmt[id] != start_lmt[id])
 					delete lmt[id];
-					lmt[id] = load_lm(newlm);
-					continue;
-				}
-				while(lstream >> ng){     
-					
-					// reset ngram at begin of sentence
-					if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-					if (order>0 && ng.size>order) ng.size=order;
-					
-					den=0.0;	
-					for (int i=0;i<N;i++){
-						ngram ong(lmt[i]->dict);ong.trans(ng);
-						p[i]=pow(10.0,lmt[i]->clprob(ong)); //LM log-prob						
-						den+=w[i] * p[i]; //denominator of EM formula
-					}	
-					//update expected counts
-					for (int i=0;i<N;i++) c[i]+=w[i]*p[i]/den;
-				}	
+				lmt[id] = load_lm(newlm);
+				continue;
 			}
+			while(lstream >> ng){     
+				
+				// reset ngram at begin of sentence
+				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+				if (order>0 && ng.size>order) ng.size=order;
+				
+				for (int i=0;i<N;i++){
+					ngram ong(lmt[i]->dict);ong.trans(ng);
+					p[i].push_back(pow(10.0,lmt[i]->clprob(ong))); //LM log-prob						
+				}	
+			}	
+		
+			for (int i=0;i<N;i++) lmt[i]->check_cache_levels();
+		}
+		dev.close();
+
+		while( variation > 0.01 ){ 
+			
+			for (int i=0;i<N;i++) c[i]=0;	//reset counters
+			
+			for(unsigned i = 0; i < p[0].size(); i++) {
+				den=0.0;	
+				for(int j = 0; j < N; j++) {
+					den += w[j] * p[j][i]; //denominator of EM formula
+					std::cerr << "     " << w[j] << " * " << p[j][i] << std::endl;
+				}
+				std::cerr << "  den: " << den << std::endl;
+				//update expected counts
+				for(int j = 0; j < N; j++) {
+					c[j] += w[j] * p[j][i] / den;
+					std::cerr << "c[" << j << "] = " << c[j] << std::endl;
+				}
+			}
+
 			norm=0.0; 
 			for (int i=0;i<N;i++) norm+=c[i];
 			
@@ -252,10 +273,9 @@ int main(int argc, const char **argv)
 				c[i]/=norm; //c[i] is now the new weight
 				variation+=(w[i]>c[i]?(w[i]-c[i]):(c[i]-w[i]));
 				w[i]=c[i]; //update weights
-	        }
+			}
 			std::cerr << "Variation " << variation << std::endl;  
-			dev.close();
-		}																	
+		}
 		
 		//Saving results
 		std::cerr << "Saving in " << outfile << "..." << std::endl; 
@@ -264,12 +284,14 @@ int main(int argc, const char **argv)
 		outtxt << N << "\n";
 		for (int i=0;i<N;i++) outtxt << w[i] << " " << lmf[i] << "\n";
 		outtxt.close();
-		
-		for (int i=0;i<N;i++) lmt[i]->check_cache_levels();
-		delete []c; delete []p;	
-		
 	}
 	
+	for(int i = 0; i < N; i++)
+		if(lmt[i] != start_lmt[i]) {
+			delete lmt[i];
+			lmt[i] = start_lmt[i];
+		}
+
 	if (seval != ""){
 		std::cerr << "Start Eval" << std::endl;
 		

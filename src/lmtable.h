@@ -155,7 +155,7 @@ public:
 
     for (int l=1;l<=maxlev;l++){
       if (table[l]){
-          if (memmap)
+          if (memmap > 0 && l >= memmap)
             Munmap(table[l]-tableGaps[l],(long long)cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
         else
           delete [] table[l];
