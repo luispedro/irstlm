@@ -42,7 +42,12 @@ std::string sscore = "no";
 std::string sdebug = "0";
 std::string smemmap = "0";
 std::string sdub = "10000000";
+
+int memmap;
+int dub;
 /********************************/
+
+lmtable *load_lm(std::string file);
 
 void usage(const char *msg = 0) {
   if (msg) { std::cerr << msg << std::endl; }
@@ -138,8 +143,8 @@ int main(int argc, const char **argv)
 	int order=atoi(sorder.c_str());
 
 	//int debug = atoi(sdebug.c_str()); 
-	int memmap = atoi(smemmap.c_str());
-	int dub = atoi(sdub.c_str()); //dictionary upper bound
+	memmap = atoi(smemmap.c_str());
+	dub = atoi(sdub.c_str()); //dictionary upper bound
 
 	if (files.size() > 2) { usage("Too many arguments"); exit(1); }
 	if (files.size() < 1) { usage("Please specify a LM list file to read from"); exit(1); }
@@ -179,16 +184,7 @@ int main(int argc, const char **argv)
 	
 	for (int i=0;i<N;i++){
 		inptxt >> w[i] >> lmf[i];
-		inputfilestream inplm(lmf[i].c_str());
-		std::cerr << "xx" << lmf[i].c_str() << "..." << std::endl;  
-		lmt[i]=new lmtable;
-		if (lmf[i].compare(lmf[i].size()-3,3,".mm")==0)
-			lmt[i]->load(inplm,lmf[i].c_str(),NULL,1,NONE);   		
-		else 
-			lmt[i]->load(inplm,lmf[i].c_str(),NULL,memmap,NONE);   		
-	    if (dub) lmt[i]->setlogOOVpenalty(dub);	//set OOV Penalty for each LM
-		lmt[i]->init_probcache();
-		
+		lmt[i] = load_lm(lmf[i]);
 	}
 	inptxt.close();
 	
@@ -208,21 +204,44 @@ int main(int argc, const char **argv)
 			std::fstream dev(slearn.c_str(),std::ios::in);
 			for (int i=0;i<N;i++) c[i]=0;	//reset counters
 			
-			while(dev >> ng){     
-				
-				// reset ngram at begin of sentence
-				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-				if (order>0 && ng.size>order) ng.size=order;
-				
-				den=0.0;	
-				for (int i=0;i<N;i++){
-					ngram ong(lmt[i]->dict);ong.trans(ng);
-					p[i]=pow(10.0,lmt[i]->clprob(ong)); //LM log-prob						
-					den+=w[i] * p[i]; //denominator of EM formula
+			for(;;) {
+				std::string line;
+				getline(inptxt, line);
+				if(inptxt.eof())
+					break;
+				if(inptxt.fail()) {
+					std::cerr << "Problem reading input file " << seval << std::endl;
+					return 1;
+				}
+				std::istringstream lstream(line);
+				if(line.substr(0, 29) == "###interpolate-lm:replace-lm ") {
+					std::string token, newlm;
+					int id;
+					lstream >> token >> id >> newlm;
+					if(id <= 0 || id > N) {
+						std::cerr << "LM id out of range." << std::endl;
+						return 1;
+					}
+					delete lmt[id];
+					lmt[id] = load_lm(newlm);
+					continue;
+				}
+				while(lstream >> ng){     
+					
+					// reset ngram at begin of sentence
+					if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+					if (order>0 && ng.size>order) ng.size=order;
+					
+					den=0.0;	
+					for (int i=0;i<N;i++){
+						ngram ong(lmt[i]->dict);ong.trans(ng);
+						p[i]=pow(10.0,lmt[i]->clprob(ong)); //LM log-prob						
+						den+=w[i] * p[i]; //denominator of EM formula
+					}	
+					//update expected counts
+					for (int i=0;i<N;i++) c[i]+=w[i]*p[i]/den;
 				}	
-				//update expected counts
-				for (int i=0;i<N;i++) c[i]+=w[i]*p[i]/den;
-			}	
+			}
 			norm=0.0; 
 			for (int i=0;i<N;i++) norm+=c[i];
 			
@@ -274,7 +293,7 @@ int main(int argc, const char **argv)
 				break;
 			if(inptxt.fail()) {
 				std::cerr << "Problem reading input file " << seval << std::endl;
-				break;
+				return 1;
 			}
 			std::istringstream lstream(line);
 			if(line.substr(0, 26) == "###interpolate-lm:weights ") {
@@ -283,10 +302,22 @@ int main(int argc, const char **argv)
 				for(int i = 0; i < N; i++) {
 					if(lstream.eof()) {
 						std::cerr << "Not enough weights!" << std::endl;
-						exit(1);
+						return 1;
 					}
 					lstream >> w[i];
 				}
+				continue;
+			}
+			if(line.substr(0, 29) == "###interpolate-lm:replace-lm ") {
+				std::string token, newlm;
+				int id;
+				lstream >> token >> id >> newlm;
+				if(id <= 0 || id > N) {
+					std::cerr << "LM id out of range." << std::endl;
+					return 1;
+				}
+				delete lmt[i];
+				lmt[i] = load_lm(newlm);
 				continue;
 			}
 			while(lstream >> ng){      
@@ -357,3 +388,15 @@ int main(int argc, const char **argv)
 	return 0;
 }
 
+lmtable *load_lm(std::string file) {
+	inputfilestream inplm(file.c_str());
+	std::cerr << "xx" << file.c_str() << "..." << std::endl;  
+	lmtable *lmt=new lmtable;
+	if (file.compare(file.size()-3,3,".mm")==0)
+		lmt->load(inplm,file.c_str(),NULL,1,NONE);   		
+	else 
+		lmt->load(inplm,file.c_str(),NULL,memmap,NONE);   		
+	if (dub) lmt->setlogOOVpenalty(dub);	//set OOV Penalty for each LM
+	lmt->init_probcache();
+	return lmt;
+}
