@@ -222,6 +222,7 @@ int main(int argc, const char **argv)
 						std::cerr << "LM id out of range." << std::endl;
 						return 1;
 					}
+					id--; // count from 0 now
 					delete lmt[id];
 					lmt[id] = load_lm(newlm);
 					continue;
@@ -316,8 +317,9 @@ int main(int argc, const char **argv)
 					std::cerr << "LM id out of range." << std::endl;
 					return 1;
 				}
-				delete lmt[i];
-				lmt[i] = load_lm(newlm);
+				id--; // count from 0 now
+				delete lmt[id];
+				lmt[id] = load_lm(newlm);
 				continue;
 			}
 			while(lstream >> ng){      
