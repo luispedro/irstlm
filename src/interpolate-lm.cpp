@@ -252,16 +252,11 @@ int main(int argc, const char **argv)
 			
 			for(unsigned i = 0; i < p[0].size(); i++) {
 				den=0.0;	
-				for(int j = 0; j < N; j++) {
+				for(int j = 0; j < N; j++)
 					den += w[j] * p[j][i]; //denominator of EM formula
-					std::cerr << "     " << w[j] << " * " << p[j][i] << std::endl;
-				}
-				std::cerr << "  den: " << den << std::endl;
 				//update expected counts
-				for(int j = 0; j < N; j++) {
+				for(int j = 0; j < N; j++)
 					c[j] += w[j] * p[j][i] / den;
-					std::cerr << "c[" << j << "] = " << c[j] << std::endl;
-				}
 			}
 
 			norm=0.0; 
