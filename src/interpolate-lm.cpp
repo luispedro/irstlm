@@ -206,10 +206,10 @@ int main(int argc, const char **argv)
 			
 			for(;;) {
 				std::string line;
-				getline(inptxt, line);
-				if(inptxt.eof())
+				getline(dev, line);
+				if(dev.eof())
 					break;
-				if(inptxt.fail()) {
+				if(dev.fail()) {
 					std::cerr << "Problem reading input file " << seval << std::endl;
 					return 1;
 				}
