@@ -92,8 +92,10 @@ void lmtable::init_probcache(){
 
 void lmtable::init_statecache(){
     assert(statecache==NULL);
-    statecache=new ngramcache(maxlev-1,sizeof(char *),200000);
-	statesizecache=new ngramcache(maxlev-1,sizeof(int),200000);
+    if(maxlev > 1){  // we don't need a state cache for a unigram model
+        statecache=new ngramcache(maxlev-1,sizeof(char *),200000);
+        statesizecache=new ngramcache(maxlev-1,sizeof(int),200000);
+    }
 }
 
 void lmtable::init_lmtcaches(int uptolev){
