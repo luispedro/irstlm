@@ -228,14 +228,15 @@ int main(int argc, const char **argv)
 #ifdef TRACE_CACHE
     lmt.init_probcache();
 #endif
-    double bow; int bol; 
+    double bow; int bol=0; 
     while(inptxt >> ng){      
       
       if (ng.size>lmt.maxlevel()) ng.size=lmt.maxlevel();
       
       // reset ngram at begin of sentence
-      if (*ng.wordp(1)==bos) continue;
-      
+      //if (*ng.wordp(1)==bos) continue;
+      if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+ 
       if (ng.size>=1){ 
         logPr+=(Pr=lmt.lprob(ng,&bow,&bol)); 
         
@@ -269,7 +270,7 @@ int main(int argc, const char **argv)
         }
                   
         if (*ng.wordp(1) == lmt.dict->oovcode()) Noov++;        
-        Nw++; if (bol) Nbo++;                   
+        Nw++; if (bol) Nbo++;                 
       }
     } 
     

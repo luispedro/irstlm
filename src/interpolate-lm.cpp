@@ -168,6 +168,7 @@ int main(int argc, const char **argv)
 	std::cerr << "inpfile: " << infile << std::endl;
 	std::cerr << "outfile: " << outfile << std::endl;
 	std::cerr << "interactive: " << sscore << std::endl;
+	std::cerr << "dub: " << dub<< std::endl;
 	
 	lmtable *lmt[100], *start_lmt[100]; //interpolated language models
 	std::string lmf[100]; //lm filenames
@@ -292,7 +293,7 @@ int main(int argc, const char **argv)
 		
 		std::cout.setf(ios::fixed);
 		std::cout.precision(2);
-		int i,Nw=0;
+		int i,Nw=0,Noov=0, Nbo=0;
 		double logPr=0,PP=0,Pr;
 		
 		//normalize weights
@@ -339,25 +340,41 @@ int main(int argc, const char **argv)
 				lmt[id] = load_lm(newlm);
 				continue;
 			}
+
+			double bow; int bol=0;
 			while(lstream >> ng){      
 				
 				// reset ngram at begin of sentence
 				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-				
+			
+				if (ng.size>=1){	
+				bool BOflag=true;				
+				bool OOVflag=true;				
 				for (i=0,Pr=0;i<N;i++){
 					ngram ong(lmt[i]->dict);ong.trans(ng);
-					Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong)); //LM log-prob	
+					Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong,&bow,&bol)); //LM log-prob	
+					if (bol == 0) BOflag=false; //backoff of LM[i]
+
+			        	if (*ong.wordp(1) != lmt[i]->dict->oovcode()) OOVflag=false;  //OOV wrt to LM[i]
+
 				}
+
 				logPr+=(log(Pr)/M_LN10);
+
+				if (BOflag) Nbo++;
+				if (OOVflag) Noov++;
 				Nw++;  
 				
 				if ((Nw % 10000)==0) std::cerr << ".";
+				}
 			}
 		}
 
 		PP=exp((-logPr * M_LN10) /Nw);
 		
-		std::cout << "%% Nw=" << Nw << " PP=" << PP << std::endl;
+		std::cout << "%% Nw=" << Nw << " PP=" << PP
+			<< " Nbo=" << Nbo << " Noov=" << Noov
+			<< " OOV=" << (float)Noov/Nw * 100.0 << "%" << std::endl;
 		
 	};
 	
@@ -409,7 +426,7 @@ int main(int argc, const char **argv)
 
 lmtable *load_lm(std::string file) {
 	inputfilestream inplm(file.c_str());
-	std::cerr << "xx" << file.c_str() << "..." << std::endl;  
+	std::cerr << "Reading " << file.c_str() << "..." << std::endl;  
 	lmtable *lmt=new lmtable;
 	if (file.compare(file.size()-3,3,".mm")==0)
 		lmt->load(inplm,file.c_str(),NULL,1,NONE);   		
