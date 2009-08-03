@@ -56,7 +56,7 @@ cp scripts/*.pl bin
 
 #installing wrappers
 echo INSTALLING ARCHITECTURE-INDEPENDENT WRAPPERS
-for file in dict ngt compile-lm quantize-lm prune-lm; do
+for file in dict ngt compile-lm interpolate-lm quantize-lm prune-lm; do
 cp scripts/wrapper bin/$file
 chmod 755 bin/$file
 done
