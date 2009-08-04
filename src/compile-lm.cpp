@@ -269,8 +269,9 @@ int main(int argc, const char **argv)
           lmt.setlogOOVpenalty2((double)oovp);
         }
                   
-        if (*ng.wordp(1) == lmt.dict->oovcode()) Noov++;        
-        Nw++; if (bol) Nbo++;                 
+        if (*ng.wordp(1) == lmt.dict->oovcode()) Noov++; 
+		if (bol) Nbo++;       
+        Nw++;                 
       }
     } 
     
