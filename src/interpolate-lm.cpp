@@ -344,11 +344,7 @@ int main(int argc, const char **argv)
 
 			double bow; int bol=0;
 			
-			//compute maxlev of the mixture
-			int maxlev=0;
-			for (i=0;i<N;i++) 
-				if (maxlev<lmt[i]->maxlevel()) maxlev=lmt[i]->maxlevel();
-			
+					
 			while(lstream >> ng){      
 				
 				// reset ngram at begin of sentence
