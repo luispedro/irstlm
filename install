@@ -25,14 +25,23 @@ fi
 echo CREATING ALIASES FOR OTHER MACHINE TYPES
 if [ $MACHTYPE = "x86_64" ] ; then
 for dir in bin lib ; do
-( cd $dir ; \
-ln -s x86_64 x86_64-redhat-linux-gnu )
+pushd $dir 
+if [ ! -e x86_64-redhat-linux-gnu ] ; then
+ln -s x86_64 x86_64-redhat-linux-gnu
+fi
+popd
 done
 elif [ $MACHTYPE = "i386" ] ; then
 for dir in bin lib ; do
-( cd $dir ; \
-ln -s i386 i686-redhat-linux-gnu ;\
-ln -s i386 i386-redhat-linux-gnu )
+pushd $dir 
+if [ ! -e i686-redhat-linux-gnu ] ; then
+ln -s i386 i686-redhat-linux-gnu
+fi
+
+if [ ! -e i386-redhat-linux-gnu ] ; then
+ln -s i386 i386-redhat-linux-gnu 
+fi
+popd
 
 done
 fi
