@@ -15,6 +15,7 @@ my @tests = qw (
   build-lm-sublm2
   interpolate-lm
   interpolate-vs-compile
+  interpolate-lm-estimate
 );
 
 my @qsubtests = qw (
