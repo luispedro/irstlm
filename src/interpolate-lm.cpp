@@ -142,7 +142,7 @@ int main(int argc, const char **argv)
 	bool learn = (slearn != ""? true : false);
 	int order=atoi(sorder.c_str());
 
-	//int debug = atoi(sdebug.c_str()); 
+	int debug = atoi(sdebug.c_str()); 
 	memmap = atoi(smemmap.c_str());
 	dub = atoi(sdub.c_str()); //dictionary upper bound
 
@@ -204,7 +204,6 @@ int main(int argc, const char **argv)
 		dictionary* dict;dict=new dictionary((char*)slearn.c_str(),1000000,(char*)NULL,(char*)NULL);
 		ngram ng(dict); 
 		int bos=ng.dict->encode(ng.dict->BoS());
-		
 		std::ifstream dev(slearn.c_str(),std::ios::in);
 
 		for(;;) {
@@ -302,7 +301,9 @@ int main(int argc, const char **argv)
 		
 		dictionary* dict;dict=new dictionary((char*)seval.c_str(),1000000,(char*)NULL,(char*)NULL);
 		ngram ng(dict); 
-		int bos=ng.dict->encode(ng.dict->BoS());    
+		int bos=ng.dict->encode(ng.dict->BoS()); 
+		int eos=ng.dict->encode(ng.dict->EoS());
+   
 		std::fstream inptxt(seval.c_str(),std::ios::in);
 		
 		for(;;) {
@@ -342,30 +343,49 @@ int main(int argc, const char **argv)
 			}
 
 			double bow; int bol=0;
+			
+			//compute maxlev of the mixture
+			int maxlev=0;
+			for (i=0;i<N;i++) 
+				if (maxlev<lmt[i]->maxlevel()) maxlev=lmt[i]->maxlevel();
+			
 			while(lstream >> ng){      
 				
 				// reset ngram at begin of sentence
 				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-			
-				if (ng.size>=1){	
-				bool BOflag=true;				
-				bool OOVflag=true;				
-				for (i=0,Pr=0;i<N;i++){
-					ngram ong(lmt[i]->dict);ong.trans(ng);
-					Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong,&bow,&bol)); //LM log-prob	
-					if (bol == 0) BOflag=false; //backoff of LM[i]
-
-			        	if (*ong.wordp(1) != lmt[i]->dict->oovcode()) OOVflag=false;  //OOV wrt to LM[i]
-
-				}
-
-				logPr+=(log(Pr)/M_LN10);
-
-				if (BOflag) Nbo++;
-				if (OOVflag) Noov++;
-				Nw++;  
 				
-				if ((Nw % 10000)==0) std::cerr << ".";
+				if (ng.size>=1){	
+				
+					int  minbol=MAX_NGRAM; //minimum backoff level of the mixture			
+					bool OOVflag=true;	  //OOV flag
+								
+					for (i=0,Pr=0;i<N;i++){
+						ngram ong(lmt[i]->dict);ong.trans(ng);
+						Pr+=w[i] * pow(10.0,lmt[i]->lprob(ong,&bow,&bol)); //LM log-prob	
+						if (bol < minbol) minbol=bol; //backoff of LM[i]						
+			        	if (*ong.wordp(1) != lmt[i]->dict->oovcode()) OOVflag=false;  //OOV wrt to LM[i]						
+					}
+					
+					logPr+=(log(Pr)/M_LN10);
+					
+					if (debug==1){
+						std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << ng.size-minbol << "]" << " "; 
+						if (*ng.wordp(1)==eos) std::cout << std::endl;
+					}
+					if (debug==2)
+						std::cout << ng << "[" << ng.size-minbol << "-gram]" << " " << logPr << std::endl; 
+					
+					if (debug==3)
+						std::cout << ng << "[" << ng.size-minbol << "-gram]" << " " << logPr << " bow:" << bow << std::endl; 
+					
+					
+					if (minbol) Nbo++; //all LMs have back-offed by at least one
+					
+					if (OOVflag) Noov++;
+				
+					Nw++;  
+					
+					if ((Nw % 10000)==0) std::cerr << ".";
 				}
 			}
 		}
