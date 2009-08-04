@@ -1,0 +1,18 @@
+#! /bin/sh -w
+
+bin=$IRSTLM/bin
+
+testdir=$1
+cd $testdir
+
+inputfile=input
+configfile1=config1
+configfile2=config2
+output=output
+
+$bin/interpolate-lm $configfile1 --eval $inputfile --dub 0 > $output 2>&1 
+$bin/interpolate-lm $configfile2 --eval $inputfile --dub 0 >> $output 2>&1 
+$bin/interpolate-lm $configfile1 --eval $inputfile >> $output 2>&1 
+$bin/interpolate-lm $configfile2 --eval $inputfile >> $output 2>&1 
+cat $output 
+rm $output 

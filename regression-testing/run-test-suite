@@ -13,6 +13,8 @@ my @tests = qw (
   build-lm
   build-lm-sublm
   build-lm-sublm2
+  interpolate-lm
+  interpolate-vs-compile
 );
 
 my @qsubtests = qw (

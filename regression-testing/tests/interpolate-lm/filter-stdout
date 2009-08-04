@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+
+$x=0;
+while (<>) {
+  chomp;
+  my @values=split(/[ \t]+/,$_);
+
+  my $out = "";
+  
+  foreach $entry (@values){
+	my ($k,$v) = ($entry =~/(\S+)\=(\S+)/);
+	if ($k =~/^(Nw|PP|Nbo|Noov|OOV)$/){
+		print "STDOUT_$x=$k:$v\n";
+		$x++;
+	}
+  }
+}
