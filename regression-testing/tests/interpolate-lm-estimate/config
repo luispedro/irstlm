@@ -1,4 +1,4 @@
 3
-0.6 LM1.blm
-0.3 LM2.blm
-0.1 LM3.blm
+0.6 $IRSTLM_LM_PATH/LM1.blm
+0.3 $IRSTLM_LM_PATH/LM2.blm
+0.1 $IRSTLM_LM_PATH/LM3.blm

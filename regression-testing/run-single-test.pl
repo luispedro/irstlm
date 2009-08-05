@@ -24,6 +24,9 @@ die "Please specify a test to run with --test\n" unless $test_name;
 
 die "Please specify the location of the data directory with --data-dir\n" unless $data_dir;
 
+#setting the path where LM are stored
+$ENV{IRSTLM_LM_PATH} = "$data_dir/lm";
+
 die "Cannot locate test dir at $test_dir" unless (-d $test_dir);
 
 $test_dir .= "/$test_name";

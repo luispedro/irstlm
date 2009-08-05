@@ -10,9 +10,17 @@ configfile1=config1
 configfile2=config2
 output=output
 
-$bin/interpolate-lm $configfile1 --eval $inputfile --dub 0 > $output 2>&1 
-$bin/interpolate-lm $configfile2 --eval $inputfile --dub 0 >> $output 2>&1 
-$bin/interpolate-lm $configfile1 --eval $inputfile >> $output 2>&1 
-$bin/interpolate-lm $configfile2 --eval $inputfile >> $output 2>&1 
+get_localized_data(){
+awk --assign PATH=$IRSTLM_LM_PATH '{gsub("\\$IRSTLM_LM_PATH",PATH); print}'
+}
+
+cat $configfile1 | get_localized_data > $configfile1.$$
+cat $configfile2 | get_localized_data > $configfile2.$$
+
+$bin/interpolate-lm $configfile1.$$ --eval $inputfile --dub 0 > $output 2>&1 
+$bin/interpolate-lm $configfile2.$$ --eval $inputfile --dub 0 >> $output 2>&1 
+$bin/interpolate-lm $configfile1.$$ --eval $inputfile >> $output 2>&1 
+$bin/interpolate-lm $configfile2.$$ --eval $inputfile >> $output 2>&1 
 cat $output 
-rm $output 
+rm $output
+rm $configfile1.$$ $configfile2.$$ 

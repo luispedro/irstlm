@@ -11,7 +11,14 @@ config_out1=config.opt1
 config_out2=config.opt2
 output=output
 
-$bin/interpolate-lm --learn $inputfile $config_in $config_out1 
-$bin/interpolate-lm --learn $inputfile $config_in $config_out2 --dub 0 
+get_localized_data(){
+awk --assign PATH=$IRSTLM_LM_PATH '{gsub("\\$IRSTLM_LM_PATH",PATH); print}'
+}
+
+cat $config_in | get_localized_data > $config_in.$$
+
+$bin/interpolate-lm --learn $inputfile $config_in.$$ $config_out1 
+$bin/interpolate-lm --learn $inputfile $config_in.$$ $config_out2 --dub 0 
 cat $config_out1 $config_out2
 rm $config_out1 $config_out2
+rm $config_in.$$
