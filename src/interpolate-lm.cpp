@@ -41,7 +41,7 @@ std::string sorder = "";
 std::string sscore = "no";
 std::string sdebug = "0";
 std::string smemmap = "0";
-std::string sdub = "10000000";
+std::string sdub = "10000000"; // 10^7
 
 
 /********************************/
@@ -60,14 +60,15 @@ void usage(const char *msg = 0) {
 			<< "  It reads LMs in ARPA and IRSTLM binary format." << std::endl  << std::endl;
 			
   std::cerr << "Options:\n"
-            << "--learn text-file -l=text-file (learns new weights and creates a new lm-list-file)"<< std::endl
-            << "--order n -o=n (specify order of n-grams to use during learning: default is max order of LMs)"<< std::endl
-            << "--eval text-file -e=text-file (computes perplexity of interpolation on text-file)"<< std::endl
-            << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 10^7)"<< std::endl
-            << "--score [yes|no] -s=[yes|no] (compute log-probs of n-grams read from stdin) "<< std::endl
-            << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
-            << "--memmap 1 -mm 1 (uses memory map to read a binary LM)\n" ;
+            << "--learn|-l text-file learn optimal interpolation for text-file"<< std::endl
+            << "--order|-o n         order of n-grams used in --learn (optional)"<< std::endl
+            << "--eval|-e text-file  computes perplexity on text-file"<< std::endl
+            << "--dub dict-size      dictionary upperbound (default 10^7)"<< std::endl
+            << "--score|-s [yes|no]  compute log-probs of n-grams from stdin"<< std::endl
+            << "--debug|-d [1-3]     verbose output for --eval option (see compile-lm)"<< std::endl
+            << "--memmap| -mm 1      use memory map to read a binary LM\n" ;
 }
+
 
 bool starts_with(const std::string &s, const std::string &pre) {
   if (pre.size() > s.size()) return false;
@@ -114,7 +115,7 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
       sdebug = get_param(opt, argc, argv, argi);
   
   else
-    if (starts_with(opt, "--memmap") || starts_with(opt, "-mm"))
+    if (starts_with(opt, "--memmap") || starts_with(opt, "-mm") || starts_with(opt, "-m") )
       smemmap = get_param(opt, argc, argv, argi);     
   
   else
