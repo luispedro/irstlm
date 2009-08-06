@@ -1,4 +1,4 @@
-#! /bin/sh -w
+#! /bin/sh
 
 bin=$IRSTLM/bin
 
