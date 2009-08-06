@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh 
 
 bin=$IRSTLM/bin
 
@@ -11,7 +11,7 @@ configfile2=config2
 output=output
 
 get_localized_data(){
-awk --assign PATH=$IRSTLM_LM_PATH '{gsub("\\$IRSTLM_LM_PATH",PATH); print}'
+sed s@\$IRSTLM_LM_PATH@$IRSTLM_LM_PATH@;
 }
 
 cat $configfile1 | get_localized_data > $configfile1.$$
