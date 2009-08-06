@@ -1435,21 +1435,21 @@ double lmtable::lprob(ngram ong,double* bow, int* bol,int internalcall){
     if (ng.size==1) //means an OOV word
       return -log(UNIGRAM_RESOLUTION)/M_LN10;
     else{ //compute backoff
-          //set backoff state, shift n-gram, set default bow prob
-      rbow=0.0;
-			if (bol) (*bol)++; //increase backoff level
-      if ((ng.lev==(ng.size-1)) && (*ng.wordp(2)!=dict->oovcode())){
-        //found history in table: use its bo weight
-        //avoid wrong quantization of bow of <unk>
-        ibow=ng.bow;
-        rbow= (double) (isQtable?Bcenters[ng.lev][ibow]:*((float *)&ibow));
-      }
-
-      if (bow) (*bow)+=rbow;
-
-      //prepare recursion step
-      ong.size--;
-      return rbow + lmtable::lprob(ong,bow,bol,internalcall=1);
+		//set backoff state, shift n-gram, set default bow prob
+		rbow=0.0;
+		if (bol) (*bol)++; //increase backoff level
+		if ((ng.lev==(ng.size-1)) && (*ng.wordp(2)!=dict->oovcode())){
+			//found history in table: use its bo weight
+			//avoid wrong quantization of bow of <unk>
+			ibow=ng.bow;
+			rbow= (double) (isQtable?Bcenters[ng.lev][ibow]:*((float *)&ibow));
+		}
+		
+		if (bow) (*bow)+=rbow;
+		
+		//prepare recursion step
+		ong.size--;
+		return rbow + lmtable::lprob(ong,bow,bol,internalcall=1);
     }
   }
 }
