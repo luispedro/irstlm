@@ -38,7 +38,7 @@ std::string stxt = "no";
 std::string sscore = "no";
 std::string seval = "";
 std::string sfilter = "";
-std::string sdebug = "0";
+std::string sdebug = "10000000"; //10^7
 std::string smemmap = "0";
 std::string sdub = "0";
 std::string skeepunigrams = "yes";
@@ -57,7 +57,7 @@ void usage(const char *msg = 0) {
     << "--filter|-f wordlist (filter the language model with a word list)"<< std::endl
     << "--keepunigrams|-ku [yes|no] (filter by keeping all unigrams in the table: default yes)"<< std::endl
 	<< "--eval|-e text-file (computes perplexity of text-file and returns)"<< std::endl
-	<< "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 0)"<< std::endl
+	<< "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 10^7)"<< std::endl
 	<< "--score|-s [yes|no]  (computes log-prob scores from standard input)"<< std::endl
 	<< "--debug|-d 1 (verbose output for --eval option)"<< std::endl
 	<< "--memmap|-mm 1 (uses memory map to read a binary LM)\n";
@@ -110,7 +110,7 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
     if (starts_with(opt, "--debug") || starts_with(opt, "-d"))
       sdebug = get_param(opt, argc, argv, argi);
   else
-    if (starts_with(opt, "--memmap") || starts_with(opt, "-mm"))
+    if (starts_with(opt, "--memmap") || starts_with(opt, "-mm") || starts_with(opt, "-m"))
       smemmap = get_param(opt, argc, argv, argi);     
   
   else
@@ -151,6 +151,8 @@ int main(int argc, const char **argv)
   int memmap = atoi(smemmap.c_str());
   int dub = atoi(sdub.c_str());
     
+ 
+	
   std::string infile = files[0];
   std::string outfile="";
   
@@ -172,9 +174,11 @@ int main(int argc, const char **argv)
      outfile = files[1];
  
   std::cerr << "inpfile: " << infile << std::endl;
-  std::cerr << "outfile: " << outfile << std::endl;
-  std::cerr << "interactive: " << sscore << std::endl;
-  
+  if (sscore=="" && seval=="") std::cerr << "outfile: " << outfile << std::endl;
+  if (sscore=="") std::cerr << "interactive: " << sscore << std::endl;
+  if (memmap) std::cerr << "memory mapping: " << memmap << std::endl;
+  std::cerr << "dub: " << dub<< std::endl;
+   
   lmtable lmt; 
   
   std::cerr << "Reading " << infile << "..." << std::endl;
