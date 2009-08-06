@@ -43,11 +43,10 @@ std::string sdebug = "0";
 std::string smemmap = "0";
 std::string sdub = "10000000";
 
-int memmap;
-int dub;
+
 /********************************/
 
-lmtable *load_lm(std::string file);
+lmtable *load_lm(std::string file,int dub,int memmap);
 
 void usage(const char *msg = 0) {
   if (msg) { std::cerr << msg << std::endl; }
@@ -55,17 +54,17 @@ void usage(const char *msg = 0) {
   if (!msg) std::cerr << std::endl
             << "  interpolate-lm reads a LM list file including interpolation weights " << std::endl
             << "  with the format: N\\n w1 lm1 \\n w2 lm2 ...\\n wN lmN\n" << std::endl
-            << "  and estimates new weights on a development text, " << std::endl
-			<< "  computates the perplexity on an evaluation text, " << std::endl
-			<< "  and computation probabilities of n-grams read from stdin." << std::endl
-			<< "  Interpolate manages LMs in ARPA format and IRSTLM binary format." << std::endl  << std::endl;
+            << "  It estimates new weights on a development text, " << std::endl
+			<< "  computes the perplexity on an evaluation text, " << std::endl
+			<< "  computes probabilities of n-grams read from stdin." << std::endl
+			<< "  It reads LMs in ARPA and IRSTLM binary format." << std::endl  << std::endl;
 			
   std::cerr << "Options:\n"
             << "--learn text-file -l=text-file (learns new weights and creates a new lm-list-file)"<< std::endl
-            << "--order n -o=n (order of n-grams used duringlearning)"<< std::endl
-            << "--eval text-file -e=text-file (computes perplexity of the interpolated LM on text-file)"<< std::endl
+            << "--order n -o=n (specify order of n-grams to use during learning: default is max order of LMs)"<< std::endl
+            << "--eval text-file -e=text-file (computes perplexity of interpolation on text-file)"<< std::endl
             << "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 10^7)"<< std::endl
-            << "--score [yes|no] -s=[yes|no] (computes log-prob scores with the interpolated LM) "<< std::endl
+            << "--score [yes|no] -s=[yes|no] (compute log-probs of n-grams read from stdin) "<< std::endl
             << "--debug 1 -d 1 (verbose output for --eval option)"<< std::endl
             << "--memmap 1 -mm 1 (uses memory map to read a binary LM)\n" ;
 }
@@ -140,16 +139,17 @@ int main(int argc, const char **argv)
 	}
 	
 	bool learn = (slearn != ""? true : false);
-	int order=atoi(sorder.c_str());
-
+	bool score = (sscore != ""? true : false);
+	int order=(sorder!=""?atoi(sorder.c_str()):0);
 	int debug = atoi(sdebug.c_str()); 
-	memmap = atoi(smemmap.c_str());
-	dub = atoi(sdub.c_str()); //dictionary upper bound
+	int memmap = atoi(smemmap.c_str());
+	int dub = atoi(sdub.c_str()); //dictionary upper bound
+
+	if (sorder != "" && order < 1) {usage("Order must be a positive integer"); exit(1);} 
 
 	if (files.size() > 2) { usage("Too many arguments"); exit(1); }
 	if (files.size() < 1) { usage("Please specify a LM list file to read from"); exit(1); }
-	if (sorder != "" && order < 1) {usage("Order must be a positive integer"); exit(1);} 
-		
+			
 	std::string infile = files[0];
 	std::string outfile="";
 	
@@ -164,16 +164,19 @@ int main(int argc, const char **argv)
 	else
 		outfile = files[1];
 	
-	
 	std::cerr << "inpfile: " << infile << std::endl;
-	std::cerr << "outfile: " << outfile << std::endl;
-	std::cerr << "interactive: " << sscore << std::endl;
+
+	if (learn) std::cerr << "outfile: " << outfile << std::endl;
+	if (score) std::cerr << "interactive: " << sscore << std::endl;
+	std::cerr << "order: " << order << std::endl;
+	if (memmap) std::cerr << "memory mapping: " << memmap << std::endl;
+
 	std::cerr << "dub: " << dub<< std::endl;
+
 	
 	lmtable *lmt[100], *start_lmt[100]; //interpolated language models
 	std::string lmf[100]; //lm filenames
-	
-	
+		
 	float w[100]; //interpolation weights
 	int N;
 	
@@ -190,12 +193,13 @@ int main(int argc, const char **argv)
 
 	for (int i=0;i<N;i++){
 		inptxt >> w[i] >> lmf[i];
-		start_lmt[i] = lmt[i] = load_lm(lmf[i]);
+		start_lmt[i] = lmt[i] = load_lm(lmf[i],dub,memmap);
 	}
 	inptxt.close();
 	
 	//Learning mixture weights
 	if (learn){
+	
 		std::vector<float> p[N]; //LM probabilities
 		float c[N]; //expected counts
 		float den,norm; //inner denominator, normalization term
@@ -227,15 +231,14 @@ int main(int argc, const char **argv)
 				id--; // count from 0 now
 				if(lmt[id] != start_lmt[id])
 					delete lmt[id];
-				lmt[id] = load_lm(newlm);
+				lmt[id] = load_lm(newlm,dub,memmap);
 				continue;
 			}
 			while(lstream >> ng){     
 				
 				// reset ngram at begin of sentence
 				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
-				if (order>0 && ng.size>order) ng.size=order;
-				
+				if (order > 0 && ng.size > order) ng.size=order;				
 				for (int i=0;i<N;i++){
 					ngram ong(lmt[i]->dict);ong.trans(ng);
 					p[i].push_back(pow(10.0,lmt[i]->clprob(ong))); //LM log-prob						
@@ -338,7 +341,7 @@ int main(int argc, const char **argv)
 				}
 				id--; // count from 0 now
 				delete lmt[id];
-				lmt[id] = load_lm(newlm);
+				lmt[id] = load_lm(newlm,dub,memmap);
 				continue;
 			}
 
@@ -349,6 +352,7 @@ int main(int argc, const char **argv)
 				
 				// reset ngram at begin of sentence
 				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+				if (order > 0 && ng.size > order) ng.size=order;	
 				
 				if (ng.size>=1){	
 				
@@ -440,7 +444,7 @@ int main(int argc, const char **argv)
 	return 0;
 }
 
-lmtable *load_lm(std::string file) {
+lmtable *load_lm(std::string file,int dub,int memmap) {
 	inputfilestream inplm(file.c_str());
 	std::cerr << "Reading " << file.c_str() << "..." << std::endl;  
 	lmtable *lmt=new lmtable;
