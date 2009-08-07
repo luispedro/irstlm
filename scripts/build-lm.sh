@@ -16,7 +16,7 @@ OPTIONS:
    -t      Directory for temporary files (default ./stat)
    -p      Prune singleton n-grams (default false)
    -u      Use uniform word frequency for dictionary splitting (default false)
-   -s      Smoothing methods: witten-bell (default), kneser-ney (approximated kneser-ney)
+   -s      Smoothing methods: witten-bell (default), kneser-ney, improved-kneser-ney
    -b      Include sentence boundary n-grams (optional)
    -d      Define subdictionary for n-grams (optional)
    -v      Verbose

@@ -38,9 +38,9 @@ std::string stxt = "no";
 std::string sscore = "no";
 std::string seval = "";
 std::string sfilter = "";
-std::string sdebug = "10000000"; //10^7
+std::string sdebug = "0"; 
 std::string smemmap = "0";
-std::string sdub = "0";
+std::string sdub = "10000000";//10^7
 std::string skeepunigrams = "yes";
 /********************************/
 

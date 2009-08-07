@@ -729,7 +729,6 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				PREBINDING = NO;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				WARNING_CFLAGS = (
 					"$(inherited)",
 					"-Wall",
@@ -754,7 +753,6 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				PREBINDING = NO;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				WARNING_CFLAGS = (
 					"$(inherited)",
 					"-Wall",
