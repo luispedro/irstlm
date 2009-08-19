@@ -90,10 +90,7 @@ int dictionary::getword(fstream& inp , char* buffer){
  
 	while(inp >> setw(MAX_WORD) >> buffer){
 			
-		// skip 'beginning of sentence' symbol
-		if (strcmp(buffer,BoS())==0)
-			continue;
-
+	
 		//warn if the word is very long
 		if (strlen(buffer)==(MAX_WORD-1)){
 			cerr << "getword: a very long word was read (" 
@@ -119,48 +116,34 @@ int dictionary::getword(fstream& inp , char* buffer){
 
 
 void dictionary::generate(char *filename){
+	
+	char buffer[MAX_WORD];
+	int counter=0; 
+	
+	mfstream inp(filename,ios::in);
+	
+	if (!inp){
+		cerr << "cannot open " << filename << "\n";
+		exit(1);
+	}
+	
+	cerr << "dict:";
+	
+	ifl=1; 
+	
+	while (getword(inp,buffer)){
+		
+		incfreq(encode(buffer),1);
+		
+		if (!(++counter % 1000000)) cerr << ".";
+	}
+	
+	ifl=0;
 
-  char buffer[MAX_WORD];
-  int k;
-
-  mfstream inp(filename,ios::in);
-  
-  if (!inp){
-    cerr << "cannot open " << filename << "\n";
-    exit(1);
-  }
-
-  cerr << "dict:";
-  
-  ifl=1; k=0;
- 
-   while (inp >> setw(MAX_WORD) >> buffer){
-    
-    if (strlen(buffer)==(MAX_WORD-1)){
-      cerr << "dictionary: a too long word was read (" 
-	   << buffer << ")\n";
-      continue;
-    };
-    
-    
-    if (strlen(buffer)==0){
-      cerr << "zero lenght word!\n";
-      continue;
-    }
-
-    //if (is && (strlen(buffer)==1) && !index(is,buffer[0]))
-    if (is && (strlen(buffer)==1) && (index(is,buffer[0])!=NULL))  
-      continue; //skip over the interruption symbol
-
-    incfreq(encode(buffer),1);
-
-    if (!(++k % 1000000)) cerr << ".";
-  }
-  ifl=0;
-  cerr << "\n";
-
-  inp.close();
-
+	cerr << "\n";
+	
+	inp.close();
+	
 }
 
 // print_curve: show statistics on dictionary growth and (optionally) on 
@@ -229,22 +212,10 @@ float* dictionary::test(int curvesize, char *filename, int listflag) {
 	cerr << "test:";
 	
 	k=0;
-	while (inp >> setw(MAX_WORD) >> buffer){
+	while (getword(inp,buffer)){
 		
 		// skip 'beginning of sentence' symbol
 		if (strcmp(buffer,bos)==0)
-			continue;
-		
-		if (strlen(buffer)==(MAX_WORD-1)){
-			cerr << "test: a too long word was read (" 
-			<< buffer << ")\n";
-			continue;
-		}
-		if (strlen(buffer)==0){
-			cerr << "zero lenght word!\n";
-			continue;
-		}
-		if (is && (strlen(buffer)==1) && (index(is,buffer[0])!=NULL))
 			continue;
 		
 		int freq = 0;   int wCode = getcode(buffer);
@@ -301,13 +272,7 @@ void dictionary::load(char* filename){
 		}
 	
 	
-	while (inp >> setw(MAX_WORD) >> buffer){
-		
-		if (strlen(buffer)==(MAX_WORD-1)){
-			cerr << "\ndictionary: a too long word was read (" 
-			<< buffer << ")\n";
-			continue; // continue loading dictionary
-		};
+	while (getword(inp,buffer)){
 		
 		tb[n].word=st->push(buffer);
 		tb[n].code=n;
@@ -338,42 +303,37 @@ void dictionary::load(char* filename){
 
 
 void dictionary::load(std::istream& inp){
-  
-  char buffer[MAX_WORD];
-  char *addr;
-  int size;
-
-  inp >> size;
-
-  for (int i=0;i<size;i++){
-    
-    inp >> setw(MAX_WORD) >> buffer;
-
-    if (strlen(buffer)==MAX_WORD-1){
-      cerr << "\ndictionary::load found word exceeding max length (" 
-      << MAX_WORD << ")" << buffer << "\n";
-      exit(1);
-    };
-        
-    tb[n].word=st->push(buffer);
-    tb[n].code=n;
-    inp >> tb[n].freq;
-    N+=tb[n].freq;
-
-    if ((addr=htb->search((char  *)&tb[n].word,HT_ENTER)))
-      if (addr!=(char *)&tb[n].word){
-	      cerr << "dictionary::loadtxt wrong entry was found (" 
-	           <<  buffer << ") in position " << n << "\n";
-        exit(1);
-      }
-    
-    if (strcmp(tb[n].word,OOV())==0)
-      oov_code=n;
-
-    if (++n==lim) grow();
-  }
-  inp.getline(buffer,MAX_WORD-1);
+	
+	char buffer[MAX_WORD];
+	char *addr;
+	int size;
+	
+	inp >> size;
+	
+	for (int i=0;i<size;i++){
+		
+		inp >> setw(MAX_WORD) >> buffer;
+		
+		tb[n].word=st->push(buffer);
+		tb[n].code=n;
+		inp >> tb[n].freq;
+		N+=tb[n].freq;
+		
+		if ((addr=htb->search((char  *)&tb[n].word,HT_ENTER)))
+			if (addr!=(char *)&tb[n].word){
+				cerr << "dictionary::loadtxt wrong entry was found (" 
+				<<  buffer << ") in position " << n << "\n";
+				exit(1);
+			}
+		
+		if (strcmp(tb[n].word,OOV())==0)
+			oov_code=n;
+		
+		if (++n==lim) grow();
+	}
+	inp.getline(buffer,MAX_WORD-1);
 }
+
 
 void dictionary::save(std::ostream& out){
   out << n << "\n";
