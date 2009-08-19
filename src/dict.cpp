@@ -131,12 +131,15 @@ int main(int argc, char **argv)
 	if (prunefreq>0 || prunerank>0){
 		cerr << "pruning dictionary prunefreq:" << prunefreq << " prunerank: " << prunerank <<" \n";
 		int count=0;
+		int bos=d->encode(d->BoS());  
+		int eos=d->encode(d->EoS());
+		
 		for (int i=0; i< d->size() ; i++){
-			if (prunefreq && d->freq(i) <= prunefreq){
+			if (prunefreq && d->freq(i) <= prunefreq && i!=bos && i!=eos){
 				d->freq(i,0);
 				continue;
 			}
-			if (prunerank>0 && count>=prunerank){
+			if (prunerank>0 && count>=prunerank && i!=bos && i!=eos){
 				d->freq(i,0);
 				continue;
 			}
