@@ -23,8 +23,10 @@
 #ifndef MF_DICTIONARY_H
 #define MF_DICTIONARY_H
 
+#include "mfstream.h"
 #include <cstring>
 #include <iostream>
+
 
 #define MAX_WORD 1000
 #define LOAD_FACTOR  5
@@ -76,7 +78,7 @@ class dictionary{
   int in_oov_lex;  //!< flag
   int oov_lex_code; //!< dictionary
   char* oov_str;    //!< oov string
-
+ 
  public:
 
   friend class dictionary_iter;
@@ -106,7 +108,7 @@ class dictionary{
   inline int inoovlex(){return in_oov_lex;}
   inline int oovlexcode(){return oov_lex_code;}
   
-
+  int getword(fstream& inp , char* buffer);
   int isprintable(char* w){
     char buffer[MAX_WORD];
     sprintf(buffer,"%s",w);
@@ -144,7 +146,7 @@ class dictionary{
   inline long freq(int code,long long value=-1){
     if (value>=0){
       N+=value-tb[code].freq; 
-      tb[code].freq=value;
+      tb[code].freq=value;	  
     }
     return tb[code].freq;
   }

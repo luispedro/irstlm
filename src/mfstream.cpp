@@ -128,7 +128,6 @@ mfstream& mfstream::writex(void *p, int sz,int n)
 
 
 
-
 /*
 int main()
 {
