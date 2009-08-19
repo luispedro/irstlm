@@ -61,14 +61,15 @@ int main(int argc, char **argv)
 				  "pf", CMDINTTYPE, &prunefreq,
 				  "pr", CMDINTTYPE, &prunerank,
 				  
-				  "curve", CMDENUMTYPE, &curveflag,BooleanEnum,
+				  "Curve", CMDENUMTYPE, &curveflag,BooleanEnum,
 				  "c", CMDENUMTYPE, &curveflag,BooleanEnum,
 				  "CurveSize", CMDINTTYPE, &curvesize,
 				  "cs", CMDINTTYPE, &curvesize,
 				  
 				  "TestFile", CMDSTRINGTYPE, &testfile,
 				  "t", CMDSTRINGTYPE, &testfile,
-				  "listOOV", CMDENUMTYPE, &listflag,BooleanEnum,
+				  "ListOOV", CMDENUMTYPE, &listflag,BooleanEnum,
+				  "oov", CMDENUMTYPE, &listflag,BooleanEnum,
 				  (char*)NULL
 				  );
 	
