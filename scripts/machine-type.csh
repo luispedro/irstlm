@@ -13,7 +13,7 @@
 #
 #    Copyright (c) 1995, SRI International.  All Rights Reserved.
 #
-#    RCS ID: $Id: machine-type,v 1.10 2006/03/04 06:25:37 stolcke Exp $
+#    RCS ID: $Id$
 #
 #    $Log: machine-type,v $
 #    Revision 1.10  2006/03/04 06:25:37  stolcke

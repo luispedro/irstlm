@@ -13,7 +13,7 @@
 #
 #    Copyright (c) 1995, SRI International.  All Rights Reserved.
 #
-#    RCS ID: $Id: machine-type.bash,v 1.10 2006/03/04 06:25:37 stolcke Exp $
+#    RCS ID: $Id$
 #
 #    $Log: machine-type.bash,v $
 #    Revision 1.11  2009/04/13 bertoldi
