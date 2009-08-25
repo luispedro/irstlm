@@ -5,8 +5,8 @@
 #include <string.h> 
 #include <io.h>
 #else
-#include <cstring> 
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <sys/types.h>
 #include <sys/mman.h>

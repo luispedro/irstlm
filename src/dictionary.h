@@ -56,7 +56,7 @@
 #endif
 
 typedef struct{
-  char *word;
+  const char *word;
   int  code;
   long long  freq;
 }dict_entry;
@@ -88,9 +88,9 @@ class dictionary{
   inline int dub(){return dubv;}
   inline int dub(int value){return (dubv=value);}
 
-  inline char *OOV(){return ((char*)OOV_);} 
-  inline char *BoS(){return ((char*)BOS_);}
-  inline char *EoS(){return ((char*)EOS_);}
+  inline const char *OOV(){return ((char*)OOV_);} 
+  inline const char *BoS(){return ((char*)BOS_);}
+  inline const char *EoS(){return ((char*)EOS_);}
 
   inline int oovcode(int v=-1){return oov_code=(v>=0?v:oov_code);}
   
@@ -168,11 +168,11 @@ class dictionary{
   int size(){return n;};
   int getcode(const char *w);
   int encode(const char *w);
-  char *decode(int c);
+  const char *decode(int c);
   void stat();
 
   void print_curve(int curvesize, float* testOOV=NULL);
-  float* test(int curvesize, char *filename, int listflag=0);	// return OOV statistics computed on test set
+  float* test(int curvesize, const char *filename, int listflag=0);	// return OOV statistics computed on test set
 
   void cleanfreq(){
     for (int i=0;i<n;tb[i++].freq=0); 

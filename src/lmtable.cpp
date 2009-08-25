@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 ******************************************************************************/
 #include <stdio.h>
+#include <cstdlib>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <iostream>
@@ -42,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 using namespace std;
 
-inline void error(char* message){
+inline void error(const char* message){
   std::cerr << message << "\n";
   throw std::runtime_error(message);
 }

@@ -40,9 +40,9 @@ using namespace std;
 
 // local utilities: start
 
-int parseWords(char *sentence, char **words, int max);
+int parseWords(char *sentence, const char **words, int max);
 
-inline void error(char* message){
+inline void error(const char* message){
   cerr << message << "\n";
   throw runtime_error(message);
 }
@@ -51,9 +51,9 @@ void lmmacro::cutLex(ngram *in, ngram *out)
 {
   *out=*in;
 
-  char *curr_macro = out->dict->decode(*(out->wordp(1)));
+  const char *curr_macro = out->dict->decode(*(out->wordp(1)));
   out->shift();
-  char *p = strrchr(curr_macro, '_');
+  const char *p = strrchr(curr_macro, '_');
   int lexLen;
   if (p)
     lexLen=strlen(p);
@@ -86,8 +86,8 @@ lmmacro::lmmacro(string lmfilename, istream& inp, istream& inpMap){
 bool lmmacro::loadmap(string lmfilename, istream& inp, istream& inpMap) {
 
   char line[MAX_LINE];
-  char* words[MAX_TOKEN_N_MAP];
-  char *macroW; char *microW;
+  const char* words[MAX_TOKEN_N_MAP];
+  const char *macroW; const char *microW;
   int tokenN;
 
   microMacroMap = (int *)calloc(BUFSIZ, sizeof(int));
@@ -164,10 +164,10 @@ bool lmmacro::loadmap(string lmfilename, istream& inp, istream& inpMap) {
 };
 
 
-void lmmacro::loadLexicalClasses(char *fn)
+void lmmacro::loadLexicalClasses(const char *fn)
 {
   char line[MAX_LINE];
-  char* words[MAX_TOKEN_N_MAP];
+  const char* words[MAX_TOKEN_N_MAP];
   int tokenN;
 
   lexicaltoken2classMap = (int *)calloc(BUFSIZ, sizeof(int));
@@ -505,7 +505,7 @@ void lmmacro::One2OneMapping(ngram *in, ngram *out)
 
   for (int i=insize; i>0; i--) {
 
-    char *outtoken = 
+    const char *outtoken = 
       lmtable::getDict()->decode((*(in->wordp(i))<microMacroMapN)?microMacroMap[*(in->wordp(i))]:lmtable::getDict()->oovcode());
     out->pushw(outtoken);
   }
@@ -523,7 +523,7 @@ void lmmacro::Micro2MacroMapping(ngram *in, ngram *out)
   for (int i=microsize; i>0; i--) {
 
     int curr_code = *(in->wordp(i));
-    char *curr_macrotag = lmtable::getDict()->decode((curr_code<microMacroMapN)?microMacroMap[curr_code]:lmtable::getDict()->oovcode());
+    const char *curr_macrotag = lmtable::getDict()->decode((curr_code<microMacroMapN)?microMacroMap[curr_code]:lmtable::getDict()->oovcode());
 
     if (i==microsize) {
       out->pushw(curr_macrotag);
@@ -531,9 +531,9 @@ void lmmacro::Micro2MacroMapping(ngram *in, ngram *out)
     } else {
       int prev_code = *(in->wordp(i+1));
 
-      char *prev_microtag = getDict()->decode(prev_code);
-      char *curr_microtag = getDict()->decode(curr_code);
-      char *prev_macrotag = lmtable::getDict()->decode((prev_code<microMacroMapN)?microMacroMap[prev_code]:lmtable::getDict()->oovcode());
+      const char *prev_microtag = getDict()->decode(prev_code);
+      const char *curr_microtag = getDict()->decode(curr_code);
+      const char *prev_macrotag = lmtable::getDict()->decode((prev_code<microMacroMapN)?microMacroMap[prev_code]:lmtable::getDict()->oovcode());
 
 
       int prev_len = strlen(prev_microtag)-1;
@@ -578,9 +578,9 @@ void lmmacro::Micro2MacroMapping(ngram *in, ngram *out, char **lemmas)
 
     int curr_code = *(in->wordp(i));
 
-    char *curr_microtag = getDict()->decode(curr_code);
-    char *curr_lemma    = lemmas[i];
-    char *curr_macrotag = lmtable::getDict()->decode((curr_code<microMacroMapN)?microMacroMap[curr_code]:lmtable::getDict()->oovcode());
+    const char *curr_microtag = getDict()->decode(curr_code);
+    const char *curr_lemma    = lemmas[i];
+    const char *curr_macrotag = lmtable::getDict()->decode((curr_code<microMacroMapN)?microMacroMap[curr_code]:lmtable::getDict()->oovcode());
     int curr_len = strlen(curr_microtag)-1;
     
     if (i==microsize) {
@@ -603,8 +603,8 @@ void lmmacro::Micro2MacroMapping(ngram *in, ngram *out, char **lemmas)
     } else {
 
       int prev_code = *(in->wordp(i+1));
-      char *prev_microtag = getDict()->decode(prev_code);
-      char *prev_macrotag = lmtable::getDict()->decode((prev_code<microMacroMapN)?microMacroMap[prev_code]:lmtable::getDict()->oovcode());
+      const char *prev_microtag = getDict()->decode(prev_code);
+      const char *prev_macrotag = lmtable::getDict()->decode((prev_code<microMacroMapN)?microMacroMap[prev_code]:lmtable::getDict()->oovcode());
 
 
       int prev_len = strlen(prev_microtag)-1;

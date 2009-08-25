@@ -59,7 +59,7 @@ int cmpFloatEntry(const void* a,const void* b){
 //  Global entry points
 //----------------------------------------------------------------------
 
-int parseWords(char *sentence, char **words, int max);
+int parseWords(char *sentence, const char **words, int max);
 
 int ComputeCluster(int nc, double* cl,unsigned int N,DataItem* Pts);
 
@@ -225,7 +225,7 @@ int main(int argc, const char **argv)
       
       unsigned int N=numNgrams[Order];
       
-      char* words[MAXLEV+3];
+      const char* words[MAXLEV+3];
       dataPts=new DataItem[N]; // allocate data         
       
       //reset tempout file to start writing      
@@ -443,9 +443,9 @@ int ComputeCluster(int centers,double* ctrs,unsigned int N,DataItem* bintable){
 //----------------------------------------------------------------------
 
 
-int parseWords(char *sentence, char **words, int max)
+int parseWords(char *sentence, const char **words, int max)
 {
-  char *word;
+  const char *word;
   int i = 0;
   
   const char *const wordSeparators = " \t\r\n";

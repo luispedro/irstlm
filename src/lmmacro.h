@@ -63,7 +63,7 @@ public:
   void Micro2MacroMapping(ngram *in, ngram *out);
   void Micro2MacroMapping(ngram *in, ngram *out, char **lemma);
   void cutLex(ngram *in, ngram *out);
-  void loadLexicalClasses(char *fn);
+  void loadLexicalClasses(const char *fn);
 
   inline dictionary* getDict() {
     return dict;

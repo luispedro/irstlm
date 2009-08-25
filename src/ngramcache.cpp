@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #include <cassert>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstring>
 #include <string.h>
 #include "math.h"
 #include "mempool.h"

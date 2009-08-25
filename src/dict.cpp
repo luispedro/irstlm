@@ -12,7 +12,7 @@ using namespace std;
 #define YES   1
 #define NO    0
 
-#define END_ENUM    {   (char*)0,  0 }
+#define END_ENUM    {   (const char*)0,  0 }
 
 
 

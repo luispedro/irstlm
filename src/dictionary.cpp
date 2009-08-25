@@ -192,14 +192,14 @@ void dictionary::print_curve(int curvesize, float* testOOV) {
 //
 
 
-float* dictionary::test(int curvesize, char *filename, int listflag) {
+float* dictionary::test(int curvesize, const char *filename, int listflag) {
 	
 	int NwTest=0;
 	int* OOVchart = new int[curvesize];
 	for (int j=0; j<curvesize; j++) OOVchart[j]=0; 
 	char buffer[MAX_WORD];
 	
-	char* bos = BoS();
+	const char* bos = BoS();
 	
 	int k;
 	mfstream inp(filename,ios::in);
@@ -510,7 +510,7 @@ int dictionary::encode(const char *w){
 }
 
 
-char *dictionary::decode(int c){
+const char *dictionary::decode(int c){
   if (c>=0 && c < n)
     return tb[c].word;
   else{

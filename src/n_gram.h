@@ -79,7 +79,7 @@ class ngram{
   }
 
 
-  int containsWord(char* s,int lev){
+  int containsWord(const char* s,int lev){
 
     int c=dict->encode(s);
     if (c == -1) return 0;
@@ -132,7 +132,7 @@ class ngram{
   }
 
   int pushc(int c);
-  int pushw(char* w);
+  int pushw(const char* w);
 
   //~ngram();
 

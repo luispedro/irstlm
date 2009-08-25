@@ -117,11 +117,11 @@ class strstack{
 
   ~strstack();
   
-  char *push(char *s);
+  const char *push(const char *s);
   
-  char *pop();
+  const char *pop();
   
-  char *top();
+  const char *top();
   
   void stat();
   

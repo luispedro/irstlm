@@ -21,6 +21,7 @@
 ******************************************************************************/
 
 #include <stdio.h>
+#include <cstdlib>
 #include <stdlib.h>
 #include <iomanip>
 #include <cassert>
@@ -118,7 +119,7 @@ ifstream& operator>> ( ifstream& fi , ngram& ng){
 }
 
 
-int ngram::pushw(char* w){
+int ngram::pushw(const char* w){
   
   assert(dict!=NULL);
 

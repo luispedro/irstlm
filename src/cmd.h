@@ -35,13 +35,13 @@
 #define	CMDBOOLTYPE	9
 
 typedef struct {
-	char	*Name;
+	const char	*Name;
 	int	Idx;
 } Enum_T;
 
 typedef struct {
 	int	Type;
-	char	*Name,
+	const char	*Name,
 		*ArgStr;
 	void	*Val,
 		*p;
@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 #if defined(__STDC__)
-int DeclareParams(char *, ...);
+int DeclareParams(const char *, ...);
 #else
 int DeclareParams();
 #endif

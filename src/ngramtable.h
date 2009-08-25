@@ -365,7 +365,7 @@ class ngramtable:tabletype{
   void savebin(mfstream& out);
   void savebin(mfstream& out,node nd,NODETYPE ndt,int lev,int mlev);
 
-  void loadbin(char *filename);
+  void loadbin(const char *filename);
   void loadbin(mfstream& inp);
   void loadbin(mfstream& inp,node nd,NODETYPE ndt,int lev);
 

@@ -25,7 +25,9 @@
 // Copyright Marcello Federico, ITC-irst, 1998
 
 #include <stdio.h>
+#include <cstring>
 #include <string.h>
+#include <cstdlib>
 #include <stdlib.h>
 #include <iostream>
 #include <ostream>
@@ -242,7 +244,7 @@ void strstack::stat(){
 }
 
 
-char *strstack::push(char *s){
+const char *strstack::push(const char *s){
   int len=strlen(s);
   
   if ((len+1) >= size){
@@ -285,7 +287,7 @@ char *strstack::push(char *s){
 }
 
 
-char *strstack::pop(){
+const char *strstack::pop(){
   
   if (list==0) return 0;
   
@@ -332,7 +334,7 @@ char *strstack::pop(){
 }
 
 
-char *strstack::top(){
+const char *strstack::top(){
   
   int tidx=idx;
   memnode *tlist=list;

@@ -434,7 +434,7 @@ void ngramtable::loadbin(mfstream& inp){
 }
 
 
-void ngramtable::loadbin(char *filename){
+void ngramtable::loadbin(const char *filename){
 	
   cerr << "loadbin ";
   mfstream inp(filename,ios::in );

@@ -64,7 +64,7 @@ static char	*SepString = " \t\n";
 
 #if defined(__STDC__)
 #include	<stdarg.h>
-int DeclareParams(char *ParName, ...)
+int DeclareParams(const char *ParName, ...)
 #else
 #include	<varargs.h>
 int DeclareParams(ParName, va_alist)
