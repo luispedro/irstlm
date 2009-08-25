@@ -1,12 +1,28 @@
+# The following script does not work for Mac OSX
+# Please use the mac-specific script ./regenerate-makefiles_onlyformac.sh
+# based on the configure_onlyformac.ac file
+
+echo "Backing up original configure.ac..."
+\cp configure.ac _BCK_configure.ac
+
+echo "Getting mac-specific configure_onlyformac.ac..."
+\cp configure_onlyformac.ac configure.ac
+
 ./regenerate-makefiles.sh
+
+./regenerate-makefiles_onlyformac.sh
 
 ./configure '--program-transform-name=s/_lm/-lm/;' --prefix=`pwd`
 
 make
 
+echo "Restoring original configure.ac..."
+\mv _BCK_configure.ac configure.ac
+
+
 make install
 
-# to create a verioned distribution:
+# to create a versioned distribution:
 # - check/modify the version number in configure.ac
 # - run the following command
 #   make dist
