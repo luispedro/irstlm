@@ -1,0 +1,12 @@
+./regenerate-makefiles.sh
+
+./configure '--program-transform-name=s/_lm/-lm/;' --prefix=`pwd`
+
+make
+
+make install
+
+# to create a verioned distribution:
+# - check/modify the version number in configure.ac
+# - run the following command
+#   make dist

@@ -6,13 +6,17 @@ CONTENT:
 - example: examples of tutorial
 - src: source code
 - bin: binaries (to be generated) and scripts
-- install: installation command
-- release.txt: note about the release version
+- lib: libraries (to be generated)
 - readme: this file
 
 HOW TO INSTALL
 
-1. Run the install script inside irstlm
+1. Run the following commands
+./configure --program-transform-name='s/_lm/-lm/;' [--prefix=/path/to/install]
+make
+make install
+
+Note that parameter "--program-transform-name" is mandatory.
 
 It will generate the irstlm library and commands, respectively,
 under the directories ./lib and ./bin.
