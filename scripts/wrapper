@@ -1,14 +1,10 @@
 #! /bin/sh
 
 #set machine type for compilation
-if [ ! $MACHTYPE ];then
-        echo "MACHTYPE is actually undefined"
-        echo "Set environment variable MACHTYPE with \"uname -m\""
-        MACHTYPE=`uname -m`
-fi
+MY_ARCH=`uname -m`
 
 name=`basename $0`
-dir=`dirname $0`"/$MACHTYPE"
+dir=`dirname $0`"/$MY_ARCH"
 
 $dir/$name "$@" 
 
