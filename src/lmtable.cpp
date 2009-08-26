@@ -188,7 +188,7 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
 
 
 
-int parseWords(char *sentence, char **words, int max)
+int parseWords(char *sentence, const char **words, int max)
 {
   char *word;
   int i = 0;
@@ -219,7 +219,7 @@ int parseWords(char *sentence, char **words, int max)
 
 int parseline(istream& inp, int Order,ngram& ng,float& prob,float& bow){
 
-  char* words[1+ LMTMAXLEV + 1 + 1];
+  const char* words[1+ LMTMAXLEV + 1 + 1];
   int howmany;
   char line[MAX_LINE];
 
