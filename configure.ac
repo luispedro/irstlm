@@ -40,6 +40,13 @@ MY_ARCH=`uname -m`
 AC_SUBST(libdir,$prefix/lib/$MY_ARCH)
 AC_SUBST(bindir,$prefix/bin/$MY_ARCH)
 AC_SUBST(wrapperbindir,$prefix/bin)
+AC_SUBST(basebindir,$prefix/bin)
+AC_SUBST(baselibdir,$prefix/lib)
+
+AC_SUBST(MY_MACHTYPE, $MACHTYPE)
+AC_SUBST(MY_ARCH, $MY_ARCH)
+
+AM_CONDITIONAL(SAME_MACHTYPE, test $MY_MACHTYPE == $MY_ARCH)
 
 AC_CONFIG_FILES([Makefile src/Makefile scripts/Makefile doc/Makefile example/Makefile])
 AC_OUTPUT
