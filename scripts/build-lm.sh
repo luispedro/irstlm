@@ -147,12 +147,12 @@ if [ ! -d $tmpdir ]; then
    mkdir -p $tmpdir;
 else
     echo "Cleaning temporary directory $tmpdir";
-    rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* $tmpdir/ikn.stat.* >& /dev/null
+    rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* $tmpdir/ikn.stat.* 2> /dev/null
 fi
 
 
 echo "Extracting dictionary from training corpus"
-$bin/dict -i="$inpfile" -o=$tmpdir/dictionary $uniform -sort=no >& $logfile
+$bin/dict -i="$inpfile" -o=$tmpdir/dictionary $uniform -sort=no 2> $logfile
 
 echo "Splitting dictionary into $parts lists"
 $scr/split-dict.pl --input $tmpdir/dictionary --output $tmpdir/dict. --parts $parts >> $logfile 2>&1
@@ -185,7 +185,7 @@ echo "Merging language models into $outfile"
 $scr/merge-sublm.pl --size $order --sublm $tmpdir/lm.dict -lm $outfile  >> $logfile 2>&1
 
 echo "Cleaning temporary directory $tmpdir";
-#rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* >& /dev/null
+rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* 2> /dev/null
 
 exit
 
