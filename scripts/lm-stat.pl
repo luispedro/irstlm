@@ -48,9 +48,6 @@ if (!$ENV{IRSTLM}){
 
 my $clm="$ENV{IRSTLM}/bin/compile-lm";
 
-my $gzip="/usr/bin/gzip";   
-my $gunzip="/usr/bin/gunzip";
-
 open (OUT,"$clm $lm --eval $txt --debug 1|");
 while (<OUT>){
 print;

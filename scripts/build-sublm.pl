@@ -37,8 +37,10 @@
 use strict;
 use Getopt::Long "GetOptions";
 
-my $gzip="/usr/bin/gzip";
-my $gunzip="/usr/bin/gunzip";
+my $gzip=`which gzip 2> /dev/null`;
+my $gunzip=`which gunzip 2> /dev/null`;
+chomp($gzip);
+chomp($gunzip);
 my $cutoffword="<CUTOFF>"; #special word for Google 1T-ngram cut-offs 
 my $cutoffvalue=39; #cut-off threshold for Google 1T-ngram cut-offs 
 

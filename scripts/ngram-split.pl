@@ -34,6 +34,7 @@ $ngram_cnt=0;      #counter of n-gram in the current file
 $path=($ARGV[0]?$ARGV[0]:"goong");     #path of files to be created
 
 $gzip=`which gzip`; 
+chomp($gzip);
 
 $pwrd="";
 open(OUT,sprintf("|$gzip -c > %s.%04d.gz",$path,++$file_cnt));

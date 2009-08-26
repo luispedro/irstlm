@@ -42,8 +42,10 @@ if ($help || !$size || !$lm || !$sublm){
 }
 
 
-my $gzip="/usr/bin/gzip";   
-my $gunzip="/usr/bin/gunzip";
+my $gzip=`which gzip 2> /dev/null`;
+my $gunzip=`which gunzip 2> /dev/null`;
+chomp($gzip);
+chomp($gunzip);
 
 warn "merge-sublm.pl --size $size --sublm $sublm --lm $lm\n";
 

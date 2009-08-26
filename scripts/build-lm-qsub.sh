@@ -155,7 +155,7 @@ if [ ! -d $tmpdir ]; then
    mkdir -p $tmpdir;
 else
     echo "Cleaning temporary directory $tmpdir";
-    rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* $tmpdir/ikn.stat.dict.* >& /dev/null
+    rm $tmpdir/dict* $tmpdir/ngram.dict.* $tmpdir/lm.dict.* $tmpdir/ikn.stat.dict.* 2> /dev/null
 fi
 
 
@@ -167,10 +167,10 @@ qsub $queueparameters -b no -sync yes -o /dev/null -e /dev/null -N dict << EOF
 cd $workingdir
 echo exit status $?
 echo "Extracting dictionary from training corpus"
-$bin/dict -i="$inpfile" -o=$tmpdir/dictionary $uniform -sort=no >& log_dict
+$bin/dict -i="$inpfile" -o=$tmpdir/dictionary $uniform -sort=no 2> log_dict
 echo exit status $?
 echo "Splitting dictionary into $parts lists"
-$scr/split-dict.pl --input $tmpdir/dictionary --output $tmpdir/dict. --parts $parts >& log_split-dict
+$scr/split-dict.pl --input $tmpdir/dictionary --output $tmpdir/dict. --parts $parts 2> log_split-dict
 echo exit status $?
 EOF
 
@@ -194,11 +194,11 @@ for sfx in ${suffix[@]} ; do
 qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
 cd $workingdir
 echo exit status $?
-$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.dict.${sfx}.gz" -fd="$tmpdir/dict.${sfx}" -iknstat="$tmpdir/ikn.stat.dict.${sfx}" >& log_ngt-$sfx
+$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.dict.${sfx}.gz" -fd="$tmpdir/dict.${sfx}" -iknstat="$tmpdir/ikn.stat.dict.${sfx}" 2> log_ngt-$sfx
 echo exit status $?
 echo
 EOF
-) >& $qsublog.$sfx
+) 2> $qsublog.$sfx
 
 id=`cat $qsublog.$sfx | grep 'Your job' | awk '{print $3}'`
 sgepid[${#sgepid[@]}]=$id
@@ -208,7 +208,7 @@ done
 waiting=""
 for id in ${sgepid[@]} ; do waiting="$waiting -hold_jid $id" ; done
 
-qsub $queueparameters -sync yes $waiting -j y -o /dev/null -e /dev/null -N $qsubname.W -b y /bin/ls >& $qsubname.W.log
+qsub $queueparameters -sync yes $waiting -j y -o /dev/null -e /dev/null -N $qsubname.W -b y /bin/ls 2> $qsubname.W.log
 rm $qsubname.W.log
 
 qsubout="$workingdir/OUT$$"
@@ -232,7 +232,7 @@ echo exit status $?
 
 echo
 EOF
-) >& $qsublog.$sfx
+) 2> $qsublog.$sfx
 
 id=`cat $qsublog.$sfx | grep 'Your job' | awk '{print $3}'`
 sgepid[${#sgepid[@]}]=$id
@@ -252,7 +252,7 @@ $scr/build-sublm.pl $verbose $prune $smoothing --size $order --ngrams "gunzip -c
 
 echo
 EOF
-) >& $qsublog.$sfx
+) 2> $qsublog.$sfx
 
 id=`cat $qsublog.$sfx | grep 'Your job' | awk '{print $3}'`
 sgepid[${#sgepid[@]}]=$id
@@ -265,19 +265,19 @@ fi
 waiting=""
 for id in ${sgepid[@]} ; do waiting="$waiting -hold_jid $id" ; done
 
-qsub $queueparameters -sync yes $waiting -o /dev/null -e /dev/null -N $qsubname.W -b yes /bin/ls >& $qsubname.W.log
+qsub $queueparameters -sync yes $waiting -o /dev/null -e /dev/null -N $qsubname.W -b yes /bin/ls 2> $qsubname.W.log
 rm $qsubname.W.log
 
 echo "Merging language models into $outfile"
 qsub $queueparameters -b no -j yes -sync yes -o /dev/null -e /dev/null -N merge << EOF
 cd $workingdir
-$scr/merge-sublm.pl --size $order --sublm $tmpdir/lm.dict -lm $outfile  >& log_merge
+$scr/merge-sublm.pl --size $order --sublm $tmpdir/lm.dict -lm $outfile  2> log_merge
 EOF
 
 echo "Cleaning temporary directory $tmpdir";
-rm -r $tmpdir >& /dev/null
-rm $qsubout* $qsuberr* $qsublog* >& /dev/null
-rm log_dict log_split-dict log_ngt-* log_merge >& /dev/null
+rm -r $tmpdir 2> /dev/null
+rm $qsubout* $qsuberr* $qsublog* 2> /dev/null
+rm log_dict log_split-dict log_ngt-* log_merge 2> /dev/null
 
 exit
 
