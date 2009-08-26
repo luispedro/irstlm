@@ -41,6 +41,7 @@ cpp_sources = \
 lib_LIBRARIES = libirstlm.a
 libirstlm_a_SOURCES = $(h_sources) $(c_sources) $(cpp_sources)
 
+
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
 bin_PROGRAMS = dict ngt compile_lm interpolate_lm prune_lm quantize_lm prune_lm
@@ -54,3 +55,8 @@ quantize_lm_SOURCES = quantize-lm.cpp
 LIBS = -lirstlm -lz
 DEPENDENCIES = libirstlm.a
 
+ngt_DEPENDENCIES = $(DEPENDENCIES)
+compile_lm_DEPENDENCIES = $(DEPENDENCIES)
+interpolate_lm_DEPENDENCIES = $(DEPENDENCIES)
+prune_lm_DEPENDENCIES = $(DEPENDENCIES)
+quantize_lm_DEPENDENCIES = $(DEPENDENCIES)
