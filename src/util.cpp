@@ -43,7 +43,9 @@ void createtempfile(ofstream  &fileStream, string &filePath, std::ios_base::open
 	::GetTempFileNameA(gettempfolder().c_str(), "", 0, buffer);
 	filePath = buffer;
 #else
-	char buffer[L_tmpnam];
+// previously size was defined as macro L_tmp_nam
+// but on Ubuntu 9.04 the value is too small (20)
+	char buffer[BUFSIZ];
 	strcpy(buffer, gettempfolder().c_str());
 	strcat(buffer, "dskbuff--XXXXXX");
 	mkstemp(buffer);
