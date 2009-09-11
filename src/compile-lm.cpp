@@ -54,7 +54,7 @@ void usage(const char *msg = 0) {
 		<< "  read and process. LM file can be compressed with gzip." << std::endl << std::endl;
 	std::cerr << "Options:\n"
     << "--text|-t [yes|no]  (output is again in text format)" << std::endl
-    << "--filter|-f wordlist (filter the language model with a word list)"<< std::endl
+    << "--filter|-f wordlist (filter a binary language model with a word list)"<< std::endl
     << "--keepunigrams|-ku [yes|no] (filter by keeping all unigrams in the table: default yes)"<< std::endl
 	<< "--eval|-e text-file (computes perplexity of text-file and returns)"<< std::endl
 	<< "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 10^7)"<< std::endl
@@ -179,7 +179,7 @@ int main(int argc, const char **argv)
   if (memmap) std::cerr << "memory mapping: " << memmap << std::endl;
   std::cerr << "dub: " << dub<< std::endl;
    
-  lmtable lmt; 
+  lmtable* lmt=new lmtable(); 
   
   std::cerr << "Reading " << infile << "..." << std::endl;
   inputfilestream inp(infile.c_str());
@@ -189,29 +189,25 @@ int main(int argc, const char **argv)
     exit(1);
   }  
     
-  lmt.load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);       
-  
   if (sfilter != ""){
+	std::cerr << "loading filtered version of LM\n";
+	lmt->load(inp,infile.c_str(),outfile.c_str(),memmap=1,outtype);
 	dictionary *dict; dict=new dictionary((char *)sfilter.c_str());
-	lmtable* sublmt; sublmt=lmt.cpsublm(dict,(skeepunigrams=="yes"));
-	if (textoutput) {
-		std::cout << "Saving filtered LM in txt format to " << outfile << std::endl;
-		sublmt->savetxt(outfile.c_str());    
-	}else{
-		std::cout << "Saving filtered LM in binary format to " << outfile << std::endl;
-		sublmt->savebin(outfile.c_str());   
-	}
+	lmtable* sublmt; sublmt=lmt->cpsublm(dict,(skeepunigrams=="yes"));
+	delete lmt; lmt=sublmt;
 	delete dict;
-	delete sublmt;
 	return 0;
   }
+  else{	
+    lmt->load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);
+  }
   
-  if (dub) lmt.setlogOOVpenalty((int)dub);
+  if (dub) lmt->setlogOOVpenalty((int)dub);
   
   if (seval != ""){
     std::cerr << "Start Eval" << std::endl;
-    std::cerr << "OOV code: " << lmt.dict->oovcode() << std::endl;
-    ngram ng(lmt.dict);    
+    std::cerr << "OOV code: " << lmt->dict->oovcode() << std::endl;
+    ngram ng(lmt->dict);    
     std::cout.setf(ios::fixed);
     std::cout.precision(2);
    
@@ -235,14 +231,14 @@ int main(int argc, const char **argv)
     double bow; int bol=0; 
     while(inptxt >> ng){      
       
-      if (ng.size>lmt.maxlevel()) ng.size=lmt.maxlevel();
+      if (ng.size>lmt->maxlevel()) ng.size=lmt->maxlevel();
       
       // reset ngram at begin of sentence
       //if (*ng.wordp(1)==bos) continue;
       if (*ng.wordp(1)==bos) {ng.size=1;continue;}
  
       if (ng.size>=1){ 
-        logPr+=(Pr=lmt.lprob(ng,&bow,&bol)); 
+        logPr+=(Pr=lmt->lprob(ng,&bow,&bol)); 
         
         if (debug==1){
           std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << ng.size-bol << "]" << " "; 
@@ -255,13 +251,13 @@ int main(int argc, const char **argv)
           std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << " bow:" << bow << std::endl; 
         
         if (debug>3){
-		  lmt.maxsuffptr(ng,&statesize);	
+		  lmt->maxsuffptr(ng,&statesize);	
           std::cout << ng << "[" << ng.size-bol << "-gram: recombine:" << statesize << "]" << " " << Pr << " bow:" << bow;
           double totp=0.0; int oldw=*ng.wordp(1);
-          double oovp=lmt.getlogOOVpenalty();lmt.setlogOOVpenalty2(0);
+          double oovp=lmt->getlogOOVpenalty();lmt->setlogOOVpenalty2(0);
           
           for (int c=0;c<ng.dict->size();c++){
-            *ng.wordp(1)=c;totp+=pow(10.0,lmt.lprob(ng));
+            *ng.wordp(1)=c;totp+=pow(10.0,lmt->lprob(ng));
           }
           *ng.wordp(1)=oldw;
           
@@ -270,10 +266,10 @@ int main(int argc, const char **argv)
           else 
             std::cout << "\n";
           
-          lmt.setlogOOVpenalty2((double)oovp);
+          lmt->setlogOOVpenalty2((double)oovp);
         }
                   
-        if (*ng.wordp(1) == lmt.dict->oovcode()) Noov++; 
+        if (*ng.wordp(1) == lmt->dict->oovcode()) Noov++; 
 		if (bol) Nbo++;       
         Nw++;                 
       }
@@ -281,38 +277,39 @@ int main(int argc, const char **argv)
     
     PP=exp((-logPr * log(10.0)) /Nw);
 
-    PPwp= PP * (1 - 1/exp((Noov *  lmt.getlogOOVpenalty()) * log(10.0) / Nw));
+    PPwp= PP * (1 - 1/exp((Noov *  lmt->getlogOOVpenalty()) * log(10.0) / Nw));
     
     std::cout << "%% Nw=" << Nw << " PP=" << PP << " PPwp=" << PPwp
       << " Nbo=" << Nbo << " Noov=" << Noov 
       << " OOV=" << (float)Noov/Nw * 100.0 << "%" << std::endl;
-    
+
+	  delete lmt;
       return 0;    
   };
   
   
   if (sscore == "yes"){    
     
-    ngram ng(lmt.dict);    
+    ngram ng(lmt->dict);    
     std::cout.setf(ios::scientific);
     std::cout << "> ";
     
     //use caches to save time
-    //lmt.init_probcache();
-    //lmt.init_lmtcaches(lmt.maxlevel());
+    //lmt->init_probcache();
+    //lmt->init_lmtcaches(lmt->maxlevel());
     
     unsigned int n=0; int bol; double bow;
     while(std::cin >> ng){
 
-      if (ng.size>=lmt.maxlevel()){
-        ng.size=lmt.maxlevel();
+      if (ng.size>=lmt->maxlevel()){
+        ng.size=lmt->maxlevel();
         ++n;
-        std::cout << ng << " p= " << lmt.lprob(ng,&bow,&bol) * M_LN10;
+        std::cout << ng << " p= " << lmt->lprob(ng,&bow,&bol) * M_LN10;
         
         std::cout << " bo= " << bol << std::endl;
         if ((n % 10000000)==0){ 
           std::cerr << "check cache levels" << std::endl;
-          lmt.check_cache_levels();   
+          lmt->check_cache_levels();   
         }        
                 
       }
@@ -321,16 +318,18 @@ int main(int argc, const char **argv)
       std::cout << "> ";                 
     }
     
+	delete lmt;
     return 0;
   }
   
   if (textoutput) {
     std::cout << "Saving in txt format to " << outfile << std::endl;
-    lmt.savetxt(outfile.c_str());    
+    lmt->savetxt(outfile.c_str());    
   } else if (!memmap) {
     std::cout << "Saving in bin format to " << outfile << std::endl;
-    lmt.savebin(outfile.c_str());
+    lmt->savebin(outfile.c_str());
   }
+  delete lmt;
   return 0;
 }
 
