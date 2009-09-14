@@ -3,6 +3,8 @@ sh_programs = add-start-end.sh build-lm-qsub.sh build-lm.sh machine-type.bash ma
 perl_programs = build-sublm.pl goograms2ngrams.pl lm-stat.pl merge-sublm.pl ngram-split.pl split-dict.pl
 dist_programs = wrapper $(sh_programs) $(perl_programs) 
 
+program_transform_name = $MY_TRANSFORM
+
 transform = @program_transform_name@
 
 install:

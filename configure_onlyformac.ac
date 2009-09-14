@@ -39,7 +39,6 @@ MY_ARCH=`uname -m`
 AC_SUBST(libdir,$prefix/lib/$MY_ARCH)
 AC_SUBST(bindir,$prefix/bin/$MY_ARCH)
 AC_SUBST(wrapperbindir,$prefix/bin)
-AC_SUBST(wrapperbindir,$prefix/bin)
 AC_SUBST(basebindir,$prefix/bin)
 AC_SUBST(baselibdir,$prefix/lib)
 

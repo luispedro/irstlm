@@ -1,6 +1,8 @@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src scripts doc example
 
+program_transform_name = 's/_lm/-lm/;' 
+
 if SAME_MACHTYPE
 install_cmd = 
 else

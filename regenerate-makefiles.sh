@@ -2,9 +2,10 @@
 
 # NOTE:
 # Versions 1.9 (or higher) of aclocal and automake are required.
+# Version 2.59 (or higher) of autoconf is required.
 
 # For Mac OSX users:
-# Standard distribution usually includes versions 1.6.
+# Standard distribution usually includes versions 1.6 for aclocal and automake.
 # Get versions 1.9 or higher
 # Set the following variable to the correct paths
 #ACLOCAL="/path/to/aclocal-1.9"
