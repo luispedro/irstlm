@@ -196,7 +196,6 @@ int main(int argc, const char **argv)
 	lmtable* sublmt; sublmt=lmt->cpsublm(dict,(skeepunigrams=="yes"));
 	delete lmt; lmt=sublmt;
 	delete dict;
-	return 0;
   }
   else{	
     lmt->load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);
