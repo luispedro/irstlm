@@ -1,28 +1,31 @@
-# The following script does not work for Mac OSX
-# Please use the mac-specific script ./regenerate-makefiles_onlyformac.sh
-# based on the configure_onlyformac.ac file
+# This document describes the sequence of commands to generate a self-containing release of IRSTLM
+# It relies on  the autotools (automake, autoconf, etc.) software.
 
-echo "Backing up original configure.ac..."
-\cp configure.ac _BCK_configure.ac
+# Note that specific version of such software is required.
+# Please, run the following command to check if you have the right software
+# On errors, please follow the instructions
 
-echo "Getting mac-specific configure_onlyformac.ac..."
-\cp configure_onlyformac.ac configure.ac
+./check_version.sh
+
+# Once the previous script succeeds, run the following scripts
+
+# to generate configure and Makefiles
 
 ./regenerate-makefiles.sh
 
-./regenerate-makefiles_onlyformac.sh
-
-./configure '--program-transform-name=s/_lm/-lm/;' --prefix=`pwd`
+./configure [--prefix=/path/to/install]
 
 make
 
-echo "Restoring original configure.ac..."
-\mv _BCK_configure.ac configure.ac
 
+# to install
 
 make install
 
-# to create a versioned distribution:
-# - check/modify the version number in configure.ac
-# - run the following command
-#   make dist
+
+# to create a versioned distribution of the software,
+# first, check/modify the version number in configure.ac
+# then, run the following command
+
+make dist
+

@@ -44,7 +44,7 @@ AC_SUBST(baselibdir,$prefix/lib)
 
 AC_SUBST(MY_MACHTYPE, $MACHTYPE)
 AC_SUBST(MY_ARCH, $MY_ARCH)
-AC_SUBST(MY_TRANSFORM, 's/_lm/-lm/;')
+AC_SUBST(program_transform_name, 's/_lm/-lm/;')
 
 AM_CONDITIONAL(SAME_MACHTYPE, test $MY_MACHTYPE == $MY_ARCH)
 

@@ -12,11 +12,9 @@ CONTENT:
 HOW TO INSTALL
 
 1. Run the following commands
-./configure --program-transform-name='s/_lm/-lm/;' [--prefix=/path/to/install]
+./configure [--prefix=/path/to/install]
 make
 make install
-
-Note that parameter "--program-transform-name" is mandatory.
 
 It will generate the irstlm library and commands, respectively,
 under the directories ./lib and ./bin.
