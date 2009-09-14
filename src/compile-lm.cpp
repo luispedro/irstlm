@@ -190,12 +190,13 @@ int main(int argc, const char **argv)
   }  
     
   if (sfilter != ""){
-	std::cerr << "loading filtered version of LM\n";
+	std::cerr << "loading filtered version of LM ... \n";
 	lmt->load(inp,infile.c_str(),outfile.c_str(),memmap=1,outtype);
 	dictionary *dict; dict=new dictionary((char *)sfilter.c_str());
 	lmtable* sublmt; sublmt=lmt->cpsublm(dict,(skeepunigrams=="yes"));
 	delete lmt; lmt=sublmt;
 	delete dict;
+	std::cerr << "...done\n";
   }
   else{	
     lmt->load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);
