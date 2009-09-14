@@ -1,6 +1,8 @@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src scripts doc example
 
+EXTRA_DIST = README
+
 program_transform_name = 's/_lm/-lm/;' 
 
 if SAME_MACHTYPE
