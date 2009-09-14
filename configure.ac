@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.63])
+AC_PREREQ([2.59])
 AC_INIT(irstlm, 5.xx.xx, bertoldi@fbk.eu or federico@fbk.eu)
 AM_INIT_AUTOMAKE(irstlm, 5.xx.xx)
 
@@ -27,7 +27,7 @@ AC_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
+#AC_TYPE_SSIZE_T
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
