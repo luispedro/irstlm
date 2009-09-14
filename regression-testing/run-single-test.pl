@@ -22,7 +22,7 @@ GetOptions("test=s"    => \$test_name,
 
 die "Please specify a test to run with --test\n" unless $test_name;
 
-die "Please specify the location of the data directory with --data-dir\n" unless $data_dir;
+die "Please specify the location of the data directory (absolute path) with --data-dir\n" unless $data_dir;
 
 #setting the path where LM are stored
 $ENV{IRSTLM_LM_PATH} = "$data_dir/lm";
