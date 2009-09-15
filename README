@@ -19,6 +19,8 @@ make install
 It will generate the irstlm library and commands, respectively,
 under the directories ./lib and ./bin.
 
+It will also create a tarball only including executables, documentation and examples 
+
 Documentation about the use of the irstlm package is available
 under the directory ./doc.
 

@@ -41,6 +41,7 @@ AC_SUBST(bindir,$prefix/bin/$MY_ARCH)
 AC_SUBST(wrapperbindir,$prefix/bin)
 AC_SUBST(basebindir,$prefix/bin)
 AC_SUBST(baselibdir,$prefix/lib)
+AC_SUBST(bininstalldir,irstlm-$PACKAGE_VERSION)
 
 AC_SUBST(MY_MACHTYPE, $MACHTYPE)
 AC_SUBST(MY_ARCH, $MY_ARCH)
