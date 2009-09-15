@@ -223,7 +223,7 @@ int main(int argc, const char **argv)
 				lmt->lprob(ng,&bow,&bol);
 				
 				if (debug==1){
-					std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << ng.size-bol << "]" << " "; 
+					std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << lmt->maxlevel()-bol << "]" << " "; 
 					std::cout << std::endl;
 				}
 				
