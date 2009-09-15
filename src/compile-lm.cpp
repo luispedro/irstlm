@@ -37,6 +37,7 @@ using namespace std;
 std::string stxt = "no";
 std::string sscore = "no";
 std::string seval = "";
+std::string srandcalls = "0";
 std::string sfilter = "";
 std::string sdebug = "0"; 
 std::string smemmap = "0";
@@ -57,6 +58,7 @@ void usage(const char *msg = 0) {
     << "--filter|-f wordlist (filter a binary language model with a word list)"<< std::endl
     << "--keepunigrams|-ku [yes|no] (filter by keeping all unigrams in the table: default yes)"<< std::endl
 	<< "--eval|-e text-file (computes perplexity of text-file and returns)"<< std::endl
+    << "--randcalls|-r N (computes N random calls on the eval text-file)"<< std::endl
 	<< "--dub dict-size (dictionary upperbound to compute OOV word penalty: default 10^7)"<< std::endl
 	<< "--score|-s [yes|no]  (computes log-prob scores from standard input)"<< std::endl
 	<< "--debug|-d 1 (verbose output for --eval option)"<< std::endl
@@ -104,6 +106,9 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
     if (starts_with(opt, "--eval") || starts_with(opt, "-e"))
       seval = get_param(opt, argc, argv, argi);
   else
+     if (starts_with(opt, "--randcalls") || starts_with(opt, "-r"))
+      srandcalls = get_param(opt, argc, argv, argi);
+  else
     if (starts_with(opt, "--score") || starts_with(opt, "-s"))
       sscore = get_param(opt, argc, argv, argi);  
   else
@@ -125,211 +130,236 @@ void handle_option(const std::string& opt, int argc, const char **argv, int& arg
 
 int main(int argc, const char **argv)
 {
-  
-  if (argc < 2) { usage(); exit(1); }
-  std::vector<std::string> files;
-  for (int i=1; i < argc; i++) {
-    std::string opt = argv[i];
-    if (opt[0] == '-') { handle_option(opt, argc, argv, i); }
-      else files.push_back(opt);
-  }
-  
-  if (files.size() > 2) { usage("Too many arguments"); exit(1); }
-  if (files.size() < 1) { usage("Please specify a LM file to read from"); exit(1); }
-
-  bool textoutput = (stxt == "yes"? true : false);
-  
-  //Define output type of table
-  OUTFILE_TYPE outtype;
-  if (stxt == "yes") outtype=TEXT;
-  else
-    if (seval != "" || sscore == "yes") outtype=NONE;
-  else  outtype=BINARY;
-        
-  
-  int debug = atoi(sdebug.c_str()); 
-  int memmap = atoi(smemmap.c_str());
-  int dub = atoi(sdub.c_str());
-    
- 
 	
-  std::string infile = files[0];
-  std::string outfile="";
-  
-  if (files.size() == 1) {  
-    outfile=infile;
-    
-    //remove path information
-    std::string::size_type p = outfile.rfind('/');
-    if (p != std::string::npos && ((p+1) < outfile.size()))           
-      outfile.erase(0,p+1);
-          
-    //eventually strip .gz 
-    if (outfile.compare(outfile.size()-3,3,".gz")==0)
-       outfile.erase(outfile.size()-3,3);
-   
-    outfile+=(textoutput?".lm":".blm");
-  }
-  else
-     outfile = files[1];
- 
-  std::cerr << "inpfile: " << infile << std::endl;
-  if (sscore=="" && seval=="") std::cerr << "outfile: " << outfile << std::endl;
-  if (sscore=="") std::cerr << "interactive: " << sscore << std::endl;
-  if (memmap) std::cerr << "memory mapping: " << memmap << std::endl;
-  std::cerr << "dub: " << dub<< std::endl;
-   
-  lmtable* lmt=new lmtable(); 
-  
-  std::cerr << "Reading " << infile << "..." << std::endl;
-  inputfilestream inp(infile.c_str());
-  
-  if (!inp.good()) {
-    std::cerr << "Failed to open " << infile << "!" << std::endl;
-    exit(1);
-  }  
-    
-  if (sfilter != ""){
-	std::cerr << "loading filtered version of LM ... \n";
-	lmt->load(inp,infile.c_str(),outfile.c_str(),memmap=1,outtype);
-	dictionary *dict; dict=new dictionary((char *)sfilter.c_str());
-	lmtable* sublmt; sublmt=lmt->cpsublm(dict,(skeepunigrams=="yes"));
-	delete lmt; lmt=sublmt;
-	delete dict;
-	std::cerr << "...done\n";
-  }
-  else{	
-    lmt->load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);
-  }
-  
-  if (dub) lmt->setlogOOVpenalty((int)dub);
-  
-  if (seval != ""){
-    std::cerr << "Start Eval" << std::endl;
-    std::cerr << "OOV code: " << lmt->dict->oovcode() << std::endl;
-    ngram ng(lmt->dict);    
-    std::cout.setf(ios::fixed);
-    std::cout.precision(2);
-   
-    if (debug>0) std::cout.precision(8);
-    std::fstream inptxt(seval.c_str(),std::ios::in);
-    
-    int Nbo=0,Nw=0,Noov=0;
-    double logPr=0,PP=0,PPwp=0,Pr;
-    unsigned int statesize=0;
+	if (argc < 2) { usage(); exit(1); }
+	std::vector<std::string> files;
+	for (int i=1; i < argc; i++) {
+		std::string opt = argv[i];
+		if (opt[0] == '-') { handle_option(opt, argc, argv, i); }
+		else files.push_back(opt);
+	}
 	
-    ng.dict->incflag(1);
-    int bos=ng.dict->encode(ng.dict->BoS());
-    int eos=ng.dict->encode(ng.dict->EoS());
-    ng.dict->incflag(0);
-
+	if (files.size() > 2) { usage("Too many arguments"); exit(1); }
+	if (files.size() < 1) { usage("Please specify a LM file to read from"); exit(1); }
+	
+	bool textoutput = (stxt == "yes"? true : false);
+	
+	//Define output type of table
+	OUTFILE_TYPE outtype;
+	if (stxt == "yes") outtype=TEXT;
+	else
+		if (seval != "" || sscore == "yes") outtype=NONE;
+		else  outtype=BINARY;
+	
+	
+	int debug = atoi(sdebug.c_str()); 
+	int memmap = atoi(smemmap.c_str());
+	int dub = atoi(sdub.c_str());
+	int randcalls = atoi(srandcalls.c_str());
+	
+	
+	std::string infile = files[0];
+	std::string outfile="";
+	
+	if (files.size() == 1) {  
+		outfile=infile;
+		
+		//remove path information
+		std::string::size_type p = outfile.rfind('/');
+		if (p != std::string::npos && ((p+1) < outfile.size()))           
+			outfile.erase(0,p+1);
+		
+		//eventually strip .gz 
+		if (outfile.compare(outfile.size()-3,3,".gz")==0)
+			outfile.erase(outfile.size()-3,3);
+		
+		outfile+=(textoutput?".lm":".blm");
+	}
+	else
+		outfile = files[1];
+	
+	std::cerr << "inpfile: " << infile << std::endl;
+	if (sscore=="" && seval=="") std::cerr << "outfile: " << outfile << std::endl;
+	if (sscore=="") std::cerr << "interactive: " << sscore << std::endl;
+	if (memmap) std::cerr << "memory mapping: " << memmap << std::endl;
+	std::cerr << "dub: " << dub<< std::endl;
+	
+	lmtable* lmt=new lmtable(); 
+	
+	std::cerr << "Reading " << infile << "..." << std::endl;
+	inputfilestream inp(infile.c_str());
+	
+	if (!inp.good()) {
+		std::cerr << "Failed to open " << infile << "!" << std::endl;
+		exit(1);
+	}  
     
-    
+	if (sfilter != ""){
+		std::cerr << "loading filtered version of LM ... \n";
+		lmt->load(inp,infile.c_str(),outfile.c_str(),memmap=1,outtype);
+		dictionary *dict; dict=new dictionary((char *)sfilter.c_str());
+		lmtable* sublmt; sublmt=lmt->cpsublm(dict,(skeepunigrams=="yes"));
+		delete lmt; lmt=sublmt;
+		delete dict;
+		std::cerr << "...done\n";
+	}
+	else{	
+		lmt->load(inp,infile.c_str(),outfile.c_str(),memmap,outtype);
+	}
+	
+	if (dub) lmt->setlogOOVpenalty((int)dub);
+	
+	if (seval != "")
+		
+		if (randcalls>0){ //perform random calls on the dictionary
+			dictionary *dict; dict=new dictionary((char *)seval.c_str());
+			ngram ng(lmt->dict); 
+			srand(1234);
+			double bow; int bol=0; 
+			for (int n=0;n<randcalls;n++){
+				//extracts a random word from dict
+				int w=rand() % dict->size();
+				ng.pushc(lmt->dict->encode(dict->decode(w)));	
+				lmt->lprob(ng,&bow,&bol);
+				
+				if (debug==1){
+					std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << ng.size-bol << "]" << " "; 
+					std::cout << std::endl;
+				}
+				
+				if ((n % 100000)==0){ 
+					std::cerr << "check cache levels" << std::endl;
+					lmt->check_cache_levels();   
+				}
+			}
+			
+		}
+		else
+		{
+			std::cerr << "Start Eval" << std::endl;
+			std::cerr << "OOV code: " << lmt->dict->oovcode() << std::endl;
+			ngram ng(lmt->dict);    
+			std::cout.setf(ios::fixed);
+			std::cout.precision(2);
+			
+			if (debug>0) std::cout.precision(8);
+			std::fstream inptxt(seval.c_str(),std::ios::in);
+			
+			int Nbo=0,Nw=0,Noov=0;
+			double logPr=0,PP=0,PPwp=0,Pr;
+			unsigned int statesize=0;
+			
+			ng.dict->incflag(1);
+			int bos=ng.dict->encode(ng.dict->BoS());
+			int eos=ng.dict->encode(ng.dict->EoS());
+			ng.dict->incflag(0);
+			
+			
 #ifdef TRACE_CACHE
-    lmt.init_probcache();
+			lmt.init_probcache();
 #endif
-    double bow; int bol=0; 
-    while(inptxt >> ng){      
-      
-      if (ng.size>lmt->maxlevel()) ng.size=lmt->maxlevel();
-      
-      // reset ngram at begin of sentence
-      //if (*ng.wordp(1)==bos) continue;
-      if (*ng.wordp(1)==bos) {ng.size=1;continue;}
- 
-      if (ng.size>=1){ 
-        logPr+=(Pr=lmt->lprob(ng,&bow,&bol)); 
-        
-        if (debug==1){
-          std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << ng.size-bol << "]" << " "; 
-          if (*ng.wordp(1)==eos) std::cout << std::endl;
-        }
-        if (debug==2)
-          std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << std::endl; 
-        
-        if (debug==3)
-          std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << " bow:" << bow << std::endl; 
-        
-        if (debug>3){
-		  lmt->maxsuffptr(ng,&statesize);	
-          std::cout << ng << "[" << ng.size-bol << "-gram: recombine:" << statesize << "]" << " " << Pr << " bow:" << bow;
-          double totp=0.0; int oldw=*ng.wordp(1);
-          double oovp=lmt->getlogOOVpenalty();lmt->setlogOOVpenalty2(0);
-          
-          for (int c=0;c<ng.dict->size();c++){
-            *ng.wordp(1)=c;totp+=pow(10.0,lmt->lprob(ng));
-          }
-          *ng.wordp(1)=oldw;
-          
-          if ( totp < (1.0 - 1e-5) || totp > (1.0 + 1e-5))
-            std::cout << "  [t=" << totp << "] POSSIBLE ERROR\n";
-          else 
-            std::cout << "\n";
-          
-          lmt->setlogOOVpenalty2((double)oovp);
-        }
-                  
-        if (*ng.wordp(1) == lmt->dict->oovcode()) Noov++; 
-		if (bol) Nbo++;       
-        Nw++;                 
-      }
-    } 
-    
-    PP=exp((-logPr * log(10.0)) /Nw);
-
-    PPwp= PP * (1 - 1/exp((Noov *  lmt->getlogOOVpenalty()) * log(10.0) / Nw));
-    
-    std::cout << "%% Nw=" << Nw << " PP=" << PP << " PPwp=" << PPwp
-      << " Nbo=" << Nbo << " Noov=" << Noov 
-      << " OOV=" << (float)Noov/Nw * 100.0 << "%" << std::endl;
-
-	  delete lmt;
-      return 0;    
-  };
-  
-  
-  if (sscore == "yes"){    
-    
-    ngram ng(lmt->dict);    
-    std::cout.setf(ios::scientific);
-    std::cout << "> ";
-    
-    //use caches to save time
-    //lmt->init_probcache();
-    //lmt->init_lmtcaches(lmt->maxlevel());
-    
-    unsigned int n=0; int bol; double bow;
-    while(std::cin >> ng){
-
-      if (ng.size>=lmt->maxlevel()){
-        ng.size=lmt->maxlevel();
-        ++n;
-        std::cout << ng << " p= " << lmt->lprob(ng,&bow,&bol) * M_LN10;
-        
-        std::cout << " bo= " << bol << std::endl;
-        if ((n % 10000000)==0){ 
-          std::cerr << "check cache levels" << std::endl;
-          lmt->check_cache_levels();   
-        }        
+			double bow; int bol=0; 
+			while(inptxt >> ng){      
+				
+				if (ng.size>lmt->maxlevel()) ng.size=lmt->maxlevel();
+				
+				// reset ngram at begin of sentence
+				//if (*ng.wordp(1)==bos) continue;
+				if (*ng.wordp(1)==bos) {ng.size=1;continue;}
+				
+				if (ng.size>=1){ 
+					logPr+=(Pr=lmt->lprob(ng,&bow,&bol)); 
+					
+					if (debug==1){
+						std::cout << ng.dict->decode(*ng.wordp(1)) << "[" << ng.size-bol << "]" << " "; 
+						if (*ng.wordp(1)==eos) std::cout << std::endl;
+					}
+					if (debug==2)
+						std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << std::endl; 
+					
+					if (debug==3)
+						std::cout << ng << "[" << ng.size-bol << "-gram]" << " " << Pr << " bow:" << bow << std::endl; 
+					
+					if (debug>3){
+						lmt->maxsuffptr(ng,&statesize);	
+						std::cout << ng << "[" << ng.size-bol << "-gram: recombine:" << statesize << "]" << " " << Pr << " bow:" << bow;
+						double totp=0.0; int oldw=*ng.wordp(1);
+						double oovp=lmt->getlogOOVpenalty();lmt->setlogOOVpenalty2(0);
+						
+						for (int c=0;c<ng.dict->size();c++){
+							*ng.wordp(1)=c;totp+=pow(10.0,lmt->lprob(ng));
+						}
+						*ng.wordp(1)=oldw;
+						
+						if ( totp < (1.0 - 1e-5) || totp > (1.0 + 1e-5))
+							std::cout << "  [t=" << totp << "] POSSIBLE ERROR\n";
+						else 
+							std::cout << "\n";
+						
+						lmt->setlogOOVpenalty2((double)oovp);
+					}
+					
+					if (*ng.wordp(1) == lmt->dict->oovcode()) Noov++; 
+					if (bol) Nbo++;       
+					Nw++;                 
+				}
+			} 
+			
+			PP=exp((-logPr * log(10.0)) /Nw);
+			
+			PPwp= PP * (1 - 1/exp((Noov *  lmt->getlogOOVpenalty()) * log(10.0) / Nw));
+			
+			std::cout << "%% Nw=" << Nw << " PP=" << PP << " PPwp=" << PPwp
+			<< " Nbo=" << Nbo << " Noov=" << Noov 
+			<< " OOV=" << (float)Noov/Nw * 100.0 << "%" << std::endl;
+			
+			delete lmt;
+			return 0;    
+		};
+	
+	
+	if (sscore == "yes"){    
+		
+		ngram ng(lmt->dict);    
+		std::cout.setf(ios::scientific);
+		std::cout << "> ";
+		
+		//use caches to save time
+		//lmt->init_probcache();
+		//lmt->init_lmtcaches(lmt->maxlevel());
+		
+		unsigned int n=0; int bol; double bow;
+		while(std::cin >> ng){
+			
+			if (ng.size>=lmt->maxlevel()){
+				ng.size=lmt->maxlevel();
+				++n;
+				std::cout << ng << " p= " << lmt->lprob(ng,&bow,&bol) * M_LN10;
+				
+				std::cout << " bo= " << bol << std::endl;
+				if ((n % 10000000)==0){ 
+					std::cerr << "check cache levels" << std::endl;
+					lmt->check_cache_levels();   
+				}        
                 
-      }
-      else
-        std::cout << ng << " p= NULL" << std::endl;      
-      std::cout << "> ";                 
-    }
-    
+			}
+			else
+				std::cout << ng << " p= NULL" << std::endl;      
+			std::cout << "> ";                 
+		}
+		
+		delete lmt;
+		return 0;
+	}
+	
+	if (textoutput) {
+		std::cout << "Saving in txt format to " << outfile << std::endl;
+		lmt->savetxt(outfile.c_str());    
+	} else if (!memmap) {
+		std::cout << "Saving in bin format to " << outfile << std::endl;
+		lmt->savebin(outfile.c_str());
+	}
 	delete lmt;
-    return 0;
-  }
-  
-  if (textoutput) {
-    std::cout << "Saving in txt format to " << outfile << std::endl;
-    lmt->savetxt(outfile.c_str());    
-  } else if (!memmap) {
-    std::cout << "Saving in bin format to " << outfile << std::endl;
-    lmt->savebin(outfile.c_str());
-  }
-  delete lmt;
-  return 0;
+	return 0;
 }
 
