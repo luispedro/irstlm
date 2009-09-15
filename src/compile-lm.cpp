@@ -213,12 +213,21 @@ int main(int argc, const char **argv)
 		
 		if (randcalls>0){ //perform random calls on the dictionary
 			dictionary *dict; dict=new dictionary((char *)seval.c_str());
+			
+			//build extensive histogram
+			int histo[dict->totfreq()]; //total frequency
+		    int totfreq=0;
+			for (int n=0;n<dict->size();n++)
+				for (int m=0;m<dict->freq(n);m++) 
+				histo[totfreq++]=n;
+			
 			ngram ng(lmt->dict); 
 			srand(1234);
 			double bow; int bol=0; 
+			
 			for (int n=0;n<randcalls;n++){
 				//extracts a random word from dict
-				int w=rand() % dict->size();
+				int w=histo[rand() % totfreq];
 				ng.pushc(lmt->dict->encode(dict->decode(w)));	
 				lmt->lprob(ng,&bow,&bol);
 				
