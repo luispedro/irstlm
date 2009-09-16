@@ -16,7 +16,7 @@ IFS=.; set $ac_version; IFS=' '
 if test "$1" = "2" -a "$2" -lt "59" || test "$1" -lt "2"; then
 echo "bootstrap: autoconf version $ac_version found."
 echo "           You need autoconf version 2.59 or newer installed"
-echo "           to build IRSTSLM from SVN."
+echo "           to build IRSTLM from SVN."
 echo "           Please install autoconf version 2.59 or newer and set AUTOCONF variable accordingly."
 exit 1
 else
