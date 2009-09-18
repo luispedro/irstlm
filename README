@@ -1,13 +1,16 @@
-IRSTLM Toolkit
+IRSTLM Toolkit 
 
 CONTENT:
 
-- doc: a short tutorial
 - example: examples of tutorial
 - src: source code
 - bin: binaries (to be generated) and scripts
 - lib: libraries (to be generated)
 - readme: this file
+
+DOCUMENTATION
+
+A User Manual is available under http://hlt.fbk.eu/en/irstlm
 
 HOW TO INSTALL
 
