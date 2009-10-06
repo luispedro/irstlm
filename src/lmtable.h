@@ -195,7 +195,7 @@ public:
   void configure(int n,bool quantized);
     
  //set penalty for OOV words  
-  double getlogOOVpenalty(){ return logOOVpenalty; }
+  double getlogOOVpenalty() const { return logOOVpenalty; }
   
   double setlogOOVpenalty(int dub){ 
     assert(dub > dict->size());
@@ -206,8 +206,8 @@ public:
     return logOOVpenalty=oovp;
   }
   
-  int maxlevel(){return maxlev;};
-  bool isQuantized(){return isQtable;}
+  int maxlevel() const {return maxlev;};
+  bool isQuantized() const {return isQtable;}
   
   
   void savetxt(const char *filename);
@@ -345,7 +345,7 @@ public:
 
   void printTable(int level);
 
-  virtual inline dictionary* getDict() {
+  virtual inline dictionary* getDict() const {
     return dict;
   };
 
@@ -353,7 +353,7 @@ public:
     {
       orderQuery = v;
     }
-  inline bool isOrderQuery() 
+  inline bool isOrderQuery() const
     {
       return orderQuery;
     }
