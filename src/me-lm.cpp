@@ -1,4 +1,4 @@
-// $Id: compile-lm.cpp 252 2009-05-08 08:58:20Z mfederico $
+// $Id: me-lm.cpp 252 2009-05-08 08:58:20Z mfederico $
 
 /******************************************************************************
  IrstLM: IRST Language Model Toolkit, compile LM

@@ -46,6 +46,7 @@ class ngram{
  public:
   dictionary *dict;      //dictionary
   char* link;            // ngram-tree pointer
+  char* succlink;        // pointer to the first successor
   int  midx[MAX_NGRAM];  // ngram-tree scan pointer
   int    lev;            // ngram-tree level
   int   size;            // ngram size
@@ -53,7 +54,7 @@ class ngram{
   int   succ;            // number of successors
   int   bow;             // back-off weight 
   int   prob;            // probability
-  
+
   unsigned char info;    // ngram-tree info flags
   unsigned char pinfo;   // ngram-tree parent info flags
   int  isym;             // last interruption symbol

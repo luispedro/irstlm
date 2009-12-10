@@ -69,15 +69,19 @@ typedef enum {LMT_FIND,    //!< search: find an entry
   LMT_CONT     //!< scan: continue scan
 } LMT_ACTION;
 
+typedef unsigned long index_t; 
+
+#define BOUND_EMPTY1 -1 
+#define BOUND_EMPTY2 -2 
 
 class lmtable{
   
  protected:
-  char*      table[LMTMAXLEV+1]; //storage of all levels
-  LMT_TYPE tbltype[LMTMAXLEV+1]; //table type for each levels
-  int      cursize[LMTMAXLEV+1]; //current size of levels
-  int      maxsize[LMTMAXLEV+1]; //current size of levels
-  int*    startpos[LMTMAXLEV+1]; //support vector to store start positions
+  char*       table[LMTMAXLEV+1];  //storage of all levels
+  LMT_TYPE    tbltype[LMTMAXLEV+1];  //table type for each levels
+  long long       cursize[LMTMAXLEV+1];  //current size of levels
+  long long       maxsize[LMTMAXLEV+1];  //current size of levels
+  long long*     startpos[LMTMAXLEV+1];  //support vector to store start positions
 	
   int               maxlev; //max level of table
   char           info[100]; //information put in the header
@@ -105,7 +109,7 @@ class lmtable{
   
   //improve access speed
   ngramcache* lmtcache[LMTMAXLEV+1];
-	ngramcache* probcache;
+  ngramcache* probcache;
   ngramcache* statecache; 
   ngramcache* statesizecache;
   int max_cache_lev;
@@ -157,7 +161,7 @@ public:
     for (int l=1;l<=maxlev;l++){
       if (table[l]){
           if (memmap > 0 && l >= memmap)
-            Munmap(table[l]-tableGaps[l],(long long)cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
+            Munmap(table[l]-tableGaps[l],cursize[l]*nodesize(tbltype[l])+tableGaps[l],0);
         else
           delete [] table[l];
       }
@@ -170,14 +174,14 @@ public:
   };
 
 
-  int wdprune(float *thr, int	aflag=0);
-  int wdprune(float	*thr, int aflag, ngram	ng, int	ilev, int	elev, int	ipos, int	epos,
+  long long wdprune(float *thr, int	aflag=0);
+  long long wdprune(float	*thr, int aflag, ngram	ng, int	ilev, int	elev, long long	ipos, long long	epos,
                 double	lk=0, double	bo=0, double	*ts=0, double	*tbs=0);
   double lprobx(ngram	ong, double	*lkp=0, double	*bop=0, int	*bol=0);
 
-  int ngcnt(int		*cnt);
-  int ngcnt(int		*cnt, ngram	ng, int l, int ipos, int epos);
-  int pscale(int        lev, int        ipos, int       epos, double s);
+  long long ngcnt(long long		*cnt);
+  long long ngcnt(long long		*cnt, ngram	ng, int l, long long ipos, long long epos);
+  int pscale(int lev, long long ipos, long long epos, double s);
     
   void init_probcache();
   void init_statecache();
@@ -212,7 +216,7 @@ public:
   
   void savetxt(const char *filename);
   void savebin(const char *filename);
-  void dumplm(std::fstream& out,ngram ng, int ilev, int elev, int ipos,int epos);
+  void dumplm(std::fstream& out,ngram ng, int ilev, int elev, long long ipos,long long epos);
   
   void load(std::istream& inp,const char* filename=NULL,const char* outfilename=NULL,int mmap=0,OUTFILE_TYPE outtype=NONE);
   void loadtxt(std::istream& inp,const char* header,const char* outfilename,int mmap);
@@ -238,10 +242,10 @@ public:
   virtual double clprob(ngram ng); 
   
   
-  void *search(int lev,int offs,int n,int sz,int *w,
+  void *search(int lev,long long offs,long long n,int sz,int *w,
                LMT_ACTION action,char **found=(char **)NULL);
   
-  int mybsearch(char *ar, int n, int size, unsigned char *key, int *idx);   
+  int mybsearch(char *ar, long long n, int size, unsigned char *key, long long *idx);   
   
   int add(ngram& ng,int prob,int bow);
   void checkbounds(int level);
@@ -269,6 +273,20 @@ public:
     return *value;
   };
   
+  inline long putmem(char* ptr,long long value,int offs,int size){
+    assert(ptr!=NULL);
+    for (int i=0;i<size;i++) 
+      ptr[offs+i]=(value >> (8 * i)) & 0xffLL;
+    return value;
+  };
+  
+  inline long getmem(char* ptr,long long* value,int offs,int size){
+    assert(ptr!=NULL);
+    *value=ptr[offs] & 0xff;
+    for (int i=1;i<size;i++) 
+      *value= *value | ( ( ptr[offs+i] & 0xffLL ) << (8 *i));
+    return *value;
+  };
 
   
   int nodesize(LMT_TYPE ndt){
@@ -327,12 +345,12 @@ public:
     return value;
   };
   
-  inline int bound(node nd,LMT_TYPE ndt, int value=-1)
+  inline long long bound(node nd,LMT_TYPE ndt, long long value=BOUND_EMPTY2)
   {
     assert(ndt==INTERNAL || ndt==QINTERNAL);
     int offs=LMTCODESIZE+2*(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
     
-    if (value==-1)
+    if (value==BOUND_EMPTY2)
       getmem(nd,&value,offs,BOUNDSIZE);
     else
       putmem(nd,value,offs,BOUNDSIZE);
