@@ -1313,6 +1313,7 @@ int lmtable::succscan(ngram& h,ngram& ng,LMT_ACTION action,int lev){
   LMT_TYPE ndt=tbltype[h.lev];
   int ndsz=nodesize(ndt);
 
+  long long offset;
   switch (action){
 
     case LMT_INIT:
@@ -1322,7 +1323,7 @@ int lmtable::succscan(ngram& h,ngram& ng,LMT_ACTION action,int lev){
       ng.trans(h);
 	  //get number of successors of h
       ng.midx[lev]=0;
-	  long long offset=(h.link>table[h.lev]?bound(h.link-ndsz,ndt):0);
+	  offset=(h.link>table[h.lev]?bound(h.link-ndsz,ndt):0);
        h.succ=bound(h.link,ndt)-offset;
 	   h.succlink=table[lev]+nodesize(tbltype[lev]) * offset;
 	  return 1; 
