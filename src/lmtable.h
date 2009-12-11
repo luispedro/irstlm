@@ -69,19 +69,31 @@ typedef enum {LMT_FIND,    //!< search: find an entry
   LMT_CONT     //!< scan: continue scan
 } LMT_ACTION;
 
-typedef unsigned long index_t; 
+typedef unsigned long table_pos_t;
 
-#define BOUND_EMPTY1 -1 
-#define BOUND_EMPTY2 -2 
+//CHECK this part from HERE
+//if table_pos_t is "long"
+#define table_pos_t_ALLONE 0xff
+
+//if table_pos_t is "long long"
+//#define table_pos_t_ALLONE 0xffLL
+
+//if table_pos_t is "unsigned long long"
+//#define table_pos_t_ALLONE 0xffULL
+
+//CHECK this part to HERE
+
+#define BOUND_EMPTY1 (numeric_limits<table_pos_t>::max() - 1)
+#define BOUND_EMPTY2 (numeric_limits<table_pos_t>::max() - 2)
 
 class lmtable{
   
  protected:
   char*       table[LMTMAXLEV+1];  //storage of all levels
   LMT_TYPE    tbltype[LMTMAXLEV+1];  //table type for each levels
-  long long       cursize[LMTMAXLEV+1];  //current size of levels
-  long long       maxsize[LMTMAXLEV+1];  //current size of levels
-  long long*     startpos[LMTMAXLEV+1];  //support vector to store start positions
+  table_pos_t       cursize[LMTMAXLEV+1];  //current size of levels
+  table_pos_t       maxsize[LMTMAXLEV+1];  //max size of levels
+  table_pos_t*     startpos[LMTMAXLEV+1];  //support vector to store start positions
 	
   int               maxlev; //max level of table
   char           info[100]; //information put in the header
@@ -174,14 +186,14 @@ public:
   };
 
 
-  long long wdprune(float *thr, int	aflag=0);
-  long long wdprune(float	*thr, int aflag, ngram	ng, int	ilev, int	elev, long long	ipos, long long	epos,
-                double	lk=0, double	bo=0, double	*ts=0, double	*tbs=0);
-  double lprobx(ngram	ong, double	*lkp=0, double	*bop=0, int	*bol=0);
+  table_pos_t wdprune(float *thr, int aflag=0);
+  table_pos_t wdprune(float *thr, int aflag, ngram ng, int ilev, int elev, table_pos_t ipos, table_pos_t epos,
+                double lk=0, double bo=0, double *ts=0, double *tbs=0);
+  double lprobx(ngram ong, double *lkp=0, double *bop=0, int *bol=0);
 
-  long long ngcnt(long long		*cnt);
-  long long ngcnt(long long		*cnt, ngram	ng, int l, long long ipos, long long epos);
-  int pscale(int lev, long long ipos, long long epos, double s);
+  table_pos_t ngcnt(table_pos_t *cnt);
+  table_pos_t ngcnt(table_pos_t *cnt, ngram ng, int l, table_pos_t ipos, table_pos_t epos);
+  int pscale(int lev, table_pos_t ipos, table_pos_t epos, double s);
     
   void init_probcache();
   void init_statecache();
@@ -216,7 +228,7 @@ public:
   
   void savetxt(const char *filename);
   void savebin(const char *filename);
-  void dumplm(std::fstream& out,ngram ng, int ilev, int elev, long long ipos,long long epos);
+  void dumplm(std::fstream& out,ngram ng, int ilev, int elev, table_pos_t ipos,table_pos_t epos);
   
   void load(std::istream& inp,const char* filename=NULL,const char* outfilename=NULL,int mmap=0,OUTFILE_TYPE outtype=NONE);
   void loadtxt(std::istream& inp,const char* header,const char* outfilename,int mmap);
@@ -242,10 +254,10 @@ public:
   virtual double clprob(ngram ng); 
   
   
-  void *search(int lev,long long offs,long long n,int sz,int *w,
+  void *search(int lev,table_pos_t offs,table_pos_t n,int sz,int *w,
                LMT_ACTION action,char **found=(char **)NULL);
   
-  int mybsearch(char *ar, long long n, int size, unsigned char *key, long long *idx);   
+  int mybsearch(char *ar, table_pos_t n, int size, unsigned char *key, table_pos_t *idx);   
   
   int add(ngram& ng,int prob,int bow);
   void checkbounds(int level);
@@ -258,35 +270,32 @@ public:
   virtual const char *maxsuffptr(ngram ong, unsigned int* size=NULL);
   virtual const char *cmaxsuffptr(ngram ong, unsigned int* size=NULL);
   
-  inline int putmem(char* ptr,int value,int offs,int size){
+  inline void putmem(char* ptr,int value,int offs,int size){
     assert(ptr!=NULL);
     for (int i=0;i<size;i++)
       ptr[offs+i]=(value >> (8 * i)) & 0xff;
-    return value;
   };
   
-  inline int getmem(char* ptr,int* value,int offs,int size){
+  inline void getmem(char* ptr,int* value,int offs,int size){
     assert(ptr!=NULL);
     *value=ptr[offs] & 0xff;
     for (int i=1;i<size;i++)
       *value= *value | ( ( ptr[offs+i] & 0xff ) << (8 *i));
-    return *value;
   };
   
-  inline long putmem(char* ptr,long long value,int offs,int size){
+  inline void putmem(char* ptr,table_pos_t value,int offs,int size){
     assert(ptr!=NULL);
     for (int i=0;i<size;i++) 
-      ptr[offs+i]=(value >> (8 * i)) & 0xffLL;
-    return value;
+      ptr[offs+i]=(value >> (8 * i)) & table_pos_t_ALLONE;
   };
   
-  inline long getmem(char* ptr,long long* value,int offs,int size){
+  inline void getmem(char* ptr,table_pos_t* value,int offs,int size){
     assert(ptr!=NULL);
-    *value=ptr[offs] & 0xff;
+    *value=ptr[offs] & table_pos_t_ALLONE;
     for (int i=1;i<size;i++) 
-      *value= *value | ( ( ptr[offs+i] & 0xffLL ) << (8 *i));
-    return *value;
+      *value= *value | ( ( ptr[offs+i] & table_pos_t_ALLONE ) << (8 *i));
   };
+
 
   
   int nodesize(LMT_TYPE ndt){
@@ -345,7 +354,7 @@ public:
     return value;
   };
   
-  inline long long bound(node nd,LMT_TYPE ndt, long long value=BOUND_EMPTY2)
+  inline table_pos_t bound(node nd,LMT_TYPE ndt, table_pos_t value=BOUND_EMPTY2)
   {
     assert(ndt==INTERNAL || ndt==QINTERNAL);
     int offs=LMTCODESIZE+2*(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
