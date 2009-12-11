@@ -15,11 +15,11 @@ else
 install_cmd = \
 	pushd $(basebindir) ; \
 	if [[ -e $(MY_MACHTYPE) ]] ; then rm $(MY_MACHTYPE); fi ; \
-	ln -s $(basebindir)/$(MY_ARCH) $(MY_MACHTYPE) ; \
+	ln -s $(MY_ARCH) $(MY_MACHTYPE) ; \
 	popd ; \
 	pushd $(baselibdir) ; \
 	if [[ -e $(MY_MACHTYPE) ]] ; then rm $(MY_MACHTYPE); fi ; \
-	ln -s $(baselibdir)/$(MY_ARCH) $(MY_MACHTYPE) ; \
+	ln -s $(MY_ARCH) $(MY_MACHTYPE) ; \
 	popd ;
 endif
 
