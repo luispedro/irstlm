@@ -55,6 +55,7 @@ quantize_lm_SOURCES = quantize-lm.cpp
 LIBS = -lirstlm -lz
 DEPENDENCIES = libirstlm.a
 
+dict_DEPENDENCIES = $(DEPENDENCIES)
 ngt_DEPENDENCIES = $(DEPENDENCIES)
 compile_lm_DEPENDENCIES = $(DEPENDENCIES)
 interpolate_lm_DEPENDENCIES = $(DEPENDENCIES)
