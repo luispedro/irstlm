@@ -578,7 +578,7 @@ void lmtable::loadtxt(istream& inp,const char* header){
         configure(maxlev,isQtable);yetconfigured=true;
         //allocate space for loading the table of this level
         for (int i=1;i<=maxlev;i++)
-          table[i]= new char[maxsize[i] * nodesize(tbltype[i])];
+	  table[i] = new char[(int)maxsize[i] * nodesize(tbltype[i])];
       }
 
       cerr << Order << "-grams: reading ";
@@ -588,7 +588,9 @@ void lmtable::loadtxt(istream& inp,const char* header){
       //allocate support vector to manage badly ordered n-grams
       if (maxlev>1 && Order<maxlev) {
         startpos[Order]=new table_pos_t[maxsize[Order]];
-        for (table_pos_t c=0;c<maxsize[Order];c++) startpos[Order][c]=BOUND_EMPTY1;
+        for (table_pos_t c=0;c<maxsize[Order];c++){
+	 startpos[Order][c]=BOUND_EMPTY1;
+	}
       }
 
       //prepare to read the n-grams entries
@@ -602,6 +604,9 @@ void lmtable::loadtxt(istream& inp,const char* header){
 
           //if table is in incomplete ARPA format prob is just the
           //discounted frequency, so we need to add bow * Pr(n-1 gram)
+
+//            cerr << ng << " prob: " << prob << " low-prob: " << lprob(ng) << "\n";
+
           if (isItable && Order>1) {
             //get bow of lower of context
             get(ng,ng.size,ng.size-1);
@@ -612,9 +617,9 @@ void lmtable::loadtxt(istream& inp,const char* header){
 
             int tmp=maxlev;
             maxlev=Order-1;
-            //cerr << ng << "rbow: " << rbow << "prob: " << prob << "low-prob: " << lprob(ng) << "\n";
+            cerr << ng << "rbow: " << rbow << "prob: " << prob << "low-prob: " << lprob(ng) << "\n";
             prob= log(exp((double)prob * M_LN10) +  exp(((double)rbow + lprob(ng)) * M_LN10))/M_LN10;
-            //cerr << "new prob: " << prob << "\n";
+            cerr << "new prob: " << prob << "\n";
 
             maxlev=tmp;
           }
@@ -661,8 +666,11 @@ void lmtable::checkbounds(int level){
   char*  tbl=table[level];
   char*  succtbl=table[level+1];
 
+//  cout << "\n\nlevel:" << level << " table:" << (void*) table[level] << " succtbl:" << (void*) table[level+1] << std::endl;
+
   LMT_TYPE ndt=tbltype[level], succndt=tbltype[level+1];
   int ndsz=nodesize(ndt), succndsz=nodesize(succndt);
+//  cout << "ndsz:" << ndsz << " succndsz:" << succndsz << std::endl;
 
   //re-order table at level+1 on disk
   //generate random filename to avoid collisions
@@ -673,13 +681,22 @@ void lmtable::checkbounds(int level){
 
   //re-order table at level l+1
   newstart=0;
+  cout << "BOUND_EMPTY1:" << BOUND_EMPTY1 << " BOUND_EMPTY2:" << BOUND_EMPTY2 << std::endl;
   for (table_pos_t c=0;c<cursize[level];c++){
+//    cout << " level:" << level << " cursize[level]:" << cursize[level]
+//    	<< " tbl:" << (void*) tbl << " c:" << c  << " ndsz:" << ndsz << std::endl;
+//    cout << " tbl+c*ndsz:" << (tbl+c*ndsz) << " -> " << (void*) (tbl+c*ndsz) << std::endl;
     start=startpos[level][c]; end=bound(tbl+c*ndsz,ndt);
+//    cout << "start:" << start << " end:" << end << std::endl;
+
     //is start==BOUND_EMPTY1 there are no successors for this entry and end==BOUND_EMPTY2
+    if (start==BOUND_EMPTY1) end=BOUND_EMPTY2;
     if (end==BOUND_EMPTY2) end=start;
+//    cout << "start:" << start << " end:" << end << std::endl;
+//    cout << "cursize[level]:" << cursize[level] << " level:" << level << std::endl;
     assert(start<=end);
     assert(newstart+(end-start)<=cursize[level+1]);
-    assert(end<=cursize[level+1]);
+    assert(end == BOUND_EMPTY1 || end<=cursize[level+1]);
 
     if (start<end){
       out.write((char*)(succtbl + start * succndsz),(end-start) * succndsz);
@@ -691,6 +708,8 @@ void lmtable::checkbounds(int level){
         removefile(filePath);
       }
     }
+
+//    cout << "newstart:" << newstart << " newstart+(end-start):" << newstart+(end-start) << std::endl;
 
     bound(tbl+c*ndsz,ndt,newstart+(end-start));
     newstart+=(end-start);
@@ -790,13 +809,14 @@ void *lmtable::search(int lev,
                       char **found){
 
   /***
-      if (lev>=2)
+      if (n >=2)
       cout << "searching entry for codeword: " << ngp[0] << "...";
   ***/
 
   //assume 1-grams is a 1-1 map of the vocabulary
   //CHECK: explicit cast of n into float because table_pos_t could be unsigned and larger than MAXINT
   if (lev==1) return *found=(*ngp < (float) n ? table[1] + *ngp * sz:NULL);
+
 
   //prepare table to be searched with mybserach
   char* tb;
@@ -808,10 +828,10 @@ void *lmtable::search(int lev,
   *found=NULL;	//initialize output variable
 
   totbsearch[lev]++;
-
   switch(action){
   case LMT_FIND:
-    if (!tb || !mybsearch(tb,n,sz,(unsigned char *)w,&idx)) return NULL;
+//    if (!tb || !mybsearch(tb,n,sz,(unsigned char *)w,&idx)) return NULL;
+    if (!tb || !mybsearch(tb,n,sz,w,&idx)) return NULL;
     else
       return *found=tb + (idx * sz);
   default:
@@ -822,14 +842,17 @@ void *lmtable::search(int lev,
 }
 
 
-int lmtable::mybsearch(char *ar, table_pos_t n, int size,
-                       unsigned char *key, table_pos_t *idx)
+//int lmtable::mybsearch(char *ar, table_pos_t n, int size, unsigned char *key, table_pos_t *idx)
+int lmtable::mybsearch(char *ar, table_pos_t n, int size, char *key, table_pos_t *idx)
 {
-
   register table_pos_t low, high;
+  register char *p;
+  register int result=0;
+/*
   register unsigned char *p;
   register table_pos_t result=0;
   register int i;
+*/
 
   /* return idx with the first position equal or greater than key */
 
@@ -838,14 +861,30 @@ int lmtable::mybsearch(char *ar, table_pos_t n, int size,
   low = 0;high = n; *idx=0;
   while (low < high)
     {
+	
       *idx = (low + high) / 2;
+/*
       p = (unsigned char *) (ar + (*idx * size));
+*/
+      p = (char *) (ar + (*idx * size));
 
       //comparison
+      /*
       for (i=(LMTCODESIZE-1);i>=0;i--){
 	result=key[i]-p[i];
 	if (result) break;
       }
+      */
+
+	result=word(key)-word(p);
+
+/*
+      i=(LMTCODESIZE-1);
+      while ((i>=0) && (result==0)){
+	result=key[i]-p[i];
+	i--;
+     }
+ */
 
       if (result < 0)
 	high = *idx;

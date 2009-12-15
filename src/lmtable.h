@@ -69,7 +69,7 @@ typedef enum {LMT_FIND,    //!< search: find an entry
   LMT_CONT     //!< scan: continue scan
 } LMT_ACTION;
 
-typedef unsigned long table_pos_t;
+typedef unsigned int  table_pos_t;
 
 //CHECK this part from HERE
 //if table_pos_t is "long"
@@ -83,8 +83,13 @@ typedef unsigned long table_pos_t;
 
 //CHECK this part to HERE
 
-#define BOUND_EMPTY1 (numeric_limits<table_pos_t>::max() - 1)
-#define BOUND_EMPTY2 (numeric_limits<table_pos_t>::max() - 2)
+#define BOUND_EMPTY1 (numeric_limits<table_pos_t>::max() - 2)
+#define BOUND_EMPTY2 (numeric_limits<table_pos_t>::max() - 1)
+
+//#define BOUND_EMPTY BOUND_EMPTY2
+
+//#define BOUND_EMPTY1 (-1)
+//#define BOUND_EMPTY2 (-2)
 
 class lmtable{
   
@@ -257,7 +262,8 @@ public:
   void *search(int lev,table_pos_t offs,table_pos_t n,int sz,int *w,
                LMT_ACTION action,char **found=(char **)NULL);
   
-  int mybsearch(char *ar, table_pos_t n, int size, unsigned char *key, table_pos_t *idx);   
+//  int mybsearch(char *ar, table_pos_t n, int size, unsigned char *key, table_pos_t *idx);   
+  int mybsearch(char *ar, table_pos_t n, int size, char *key, table_pos_t *idx);   
   
   int add(ngram& ng,int prob,int bow);
   void checkbounds(int level);

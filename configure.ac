@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT(irstlm, 5.22.02, bertoldi@fbk.eu or federico@fbk.eu)
-AM_INIT_AUTOMAKE(irstlm, 5.22.02)
+AC_INIT(irstlm, 5.30.00, bertoldi@fbk.eu or federico@fbk.eu)
+AM_INIT_AUTOMAKE(irstlm, 5.30.00)
 
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
@@ -42,6 +42,7 @@ AC_SUBST(wrapperbindir,$prefix/bin)
 AC_SUBST(basebindir,$prefix/bin)
 AC_SUBST(baselibdir,$prefix/lib)
 AC_SUBST(bininstalldir,irstlm-$PACKAGE_VERSION)
+AC_SUBST(libinstalldir,irstlm-$PACKAGE_VERSION)
 
 AC_SUBST(MY_MACHTYPE, $MACHTYPE)
 AC_SUBST(MY_ARCH, $MY_ARCH)
