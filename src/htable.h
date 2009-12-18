@@ -33,9 +33,9 @@
 // Fast arithmetic, relying on powers of 2,
 // and on pre-processor concatenation property
 
-typedef struct{
+typedef struct ENTRY{
   char*                 key;
-  char*                next;  // secret from user
+  ENTRY*                next;  // secret from user
 }entry;
 
 typedef unsigned int address;

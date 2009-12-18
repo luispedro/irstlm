@@ -21,8 +21,6 @@
 ******************************************************************************/
 
 #include <stdio.h>
-#include <cstdlib>
-#include <cstring>
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
@@ -76,10 +74,14 @@ char *htable::search(char *item, HT_ACTION action)
   i=(h % size);
   
   //cout << "htable::search() hash i=" << i << "\n";
-  
-  p = &table[h % size];
 
-  q=*p;
+// 17 DIC 2009  
+//  p = &table[h % size];
+//  q=*p;
+
+  p=&table[h % size];
+  q=table[h % size];
+
 
   /*
   ** Follow collision chain
@@ -87,8 +89,13 @@ char *htable::search(char *item, HT_ACTION action)
   
   while (q != NULL && Comp((char *)q->key,(char *)item))
     {
-      p = (entry **)&q->next;
-      q=*p;
+// 17 DIC 2009  
+//      p = (entry **)(&q->next);
+//      q=*p;
+
+      p = &(q->next);
+      q = q->next;
+
       //if (action == HT_FIND) 
       collisions++;
     }
