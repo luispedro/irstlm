@@ -52,8 +52,10 @@ class ngram{
   int   size;            // ngram size
   long long   freq;      // ngram frequency or integer prob
   int   succ;            // number of successors
-  int   bow;             // back-off weight 
-  int   prob;            // probability
+//  int   bow;             // back-off weight 
+//  int   prob;            // probability
+  float   bow;             // back-off weight 
+  float   prob;            // probability
 
   unsigned char info;    // ngram-tree info flags
   unsigned char pinfo;   // ngram-tree parent info flags

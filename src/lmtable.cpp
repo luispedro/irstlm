@@ -39,7 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #define DEBUG 0
 
 //special value for pruned iprobs
-#define NOPROB (int) -2
+//#define NOPROB (int) -2
+#define NOPROB (float) -2
 
 using namespace std;
 
@@ -440,7 +441,8 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
             get(ng,ng.size,ng.size-1);
             float rbow=0.0;
             if (ng.lev==ng.size-1){ //found context
-              int ibow=ng.bow; rbow=*((float *)&ibow);
+              rbow=ng.bow;
+            //  int ibow=ng.bow; rbow=*((float *)&ibow);
             }
 
             int tmp=maxlev;
@@ -449,9 +451,13 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
             pb= log(exp((double)pb * M_LN10) +  exp(((double)rbow + lprob(ng)) * M_LN10))/M_LN10;
             maxlev=tmp;
           }
-          add(ng,
-              (int)(isQtable?pb:*((int *)&pb)),
-              (int)(isQtable?bow:*((int *)&bow)));
+
+	if (isQtable) add(ng, (qfloat_t)pb, (qfloat_t)bow);
+	else add(ng, pb, bow);
+
+//          add(ng,
+//              (int)(isQtable?pb:*((int *)&pb)),
+//              (int)(isQtable?bow:*((int *)&bow)));
         }
       }
       // To avoid huge memory write concentrated at the end of the program
@@ -612,7 +618,8 @@ void lmtable::loadtxt(istream& inp,const char* header){
             get(ng,ng.size,ng.size-1);
             float rbow=0.0;
             if (ng.lev==ng.size-1){ //found context
-              int ibow=ng.bow; rbow=*((float *)&ibow);
+                rbow=ng.bow;
+//              int ibow=ng.bow; rbow=*((float *)&ibow);
             }
 
             int tmp=maxlev;
@@ -624,9 +631,14 @@ void lmtable::loadtxt(istream& inp,const char* header){
             maxlev=tmp;
           }
 
+        if (isQtable) add(ng, (qfloat_t)prob, (qfloat_t)bow);
+        else add(ng, prob, bow);
+
+/*
           add(ng,
               (int)(isQtable?prob:*((int *)&prob)),
               (int)(isQtable?bow:*((int *)&bow)));
+*/
         }
       }
       // now we can fix table at level Order -1
@@ -649,11 +661,13 @@ void lmtable::printTable(int level) {
     printEntryN=(printEntryN<cursize[level])?printEntryN:cursize[level];
 
   cout << "level = " << level << "\n";
-  int p;
+
+//TOCHEKC: Nicola, 18 dicembre 2009
+  float p;
   for (table_pos_t c=0;c<printEntryN;c++){
     p=prob(tbl,ndt);
-    cout << *(float *)&p << " "
-	 << word(tbl) << "\n";
+    cout << p << " " << word(tbl) << "\n";
+    //cout << *(float *)&p << " " << word(tbl) << "\n";
     tbl+=ndsz;
   }
   return;
@@ -729,7 +743,9 @@ void lmtable::checkbounds(int level){
 //loading of LMs in text format. It searches for the prefix, then it adds the
 //suffix to the last level and updates the start-end positions.
 
-int lmtable::add(ngram& ng,int iprob,int ibow){
+//int lmtable::add(ngram& ng,int iprob,int ibow){
+template<typename TA, typename TB> 
+int lmtable::add(ngram& ng, TA iprob,TB ibow){
 
   char *found; LMT_TYPE ndt; int ndsz;
   static int no_more_msg = 0;
@@ -1306,7 +1322,8 @@ void lmtable::dumplm(fstream& out,ngram ng, int ilev, int elev, table_pos_t ipos
 
   for (table_pos_t i=ipos;i<epos;i++){
     *ng.wordp(1)=word(table[ilev]+i*ndsz);
-    int ipr=prob(table[ilev]+i*ndsz,ndt);
+    float ipr=prob(table[ilev]+i*ndsz,ndt);
+    //int ipr=prob(table[ilev]+i*ndsz,ndt);
 
     //skip pruned n-grams
     if(isPruned && ipr==NOPROB) continue;
@@ -1322,19 +1339,24 @@ void lmtable::dumplm(fstream& out,ngram ng, int ilev, int elev, table_pos_t ipos
     }
     else{
       //out << i << " "; //this was just to count printed n-grams
-      out << (isQtable?ipr:*(float *)&ipr) <<"\t";
+      out << (isQtable?(qfloat_t) ipr:ipr) <<"\t";
+      //out << (isQtable?ipr:*(float *)&ipr) <<"\t";
       for (int k=ng.size;k>=1;k--){
         if (k<ng.size) out << " ";
         out << lmtable::getDict()->decode(*ng.wordp(k));
       }
 
       if (ilev<maxlev){
+        float ibo=bow(table[ilev]+ i * ndsz,ndt);
+        if (isQtable) out << "\t" << (qfloat_t) ibo;
+        else if (ibo!=0.0) out << "\t" << ibo;
+/*
         int ibo=bow(table[ilev]+ i * ndsz,ndt);
         if (isQtable) out << "\t" << ibo;
         else
           if (*((float *)&ibo)!=0.0)
             out << "\t" << *((float *)&ibo);
-
+*/
       }
       out << "\n";
     }
@@ -1472,11 +1494,13 @@ double lmtable::lprob(ngram ong,double* bow, int* bol,int internalcall){
   //ng.trans(ong);
 
   double rbow,lpr=0;
-  int ibow,iprob;
+  float ibow,iprob;
+  //int ibow,iprob;
 
   if (get(ng,ng.size,ng.size)){
     iprob=ng.prob;
-    lpr = (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob));
+    lpr = (double)(isQtable?Pcenters[ng.size][(qfloat_t)iprob]:iprob);
+    //lpr = (double)(isQtable?Pcenters[ng.size][iprob]:*((float *)&iprob));
     if (*ng.wordp(1)==dict->oovcode()) lpr-=logOOVpenalty;
     return (double)lpr;
   }
@@ -1491,7 +1515,8 @@ double lmtable::lprob(ngram ong,double* bow, int* bol,int internalcall){
 	//found history in table: use its bo weight
 	//avoid wrong quantization of bow of <unk>
 	ibow=ng.bow;
-	rbow= (double) (isQtable?Bcenters[ng.lev][ibow]:*((float *)&ibow));
+	rbow= (double) (isQtable?Bcenters[ng.lev][(qfloat_t)ibow]:ibow);
+	//rbow= (double) (isQtable?Bcenters[ng.lev][ibow]:*((float *)&ibow));
       }
 		
       if (bow) (*bow)+=rbow;
@@ -1590,12 +1615,10 @@ double lmtable::lprobx(ngram	ong,
                        double	*bop,
                        int	*bol)
 {
-  double		bo,
-    lbo,
-    pr;
-  int		ipr;
-  ngram		ng(dict),
-    ctx(dict);
+  double bo, lbo, pr;
+  float		ipr;
+  //int		ipr;
+  ngram		ng(dict), ctx(dict);
 
   if(bol) *bol=0;
   if(ong.size==0) {
@@ -1619,7 +1642,8 @@ double lmtable::lprobx(ngram	ong,
     lbo = 0.0; //local back-off: default is logprob 0
     if(get(ctx)){ //this can be replaced with (ng.lev==(ng.size-1))
       ipr = ctx.bow;
-      lbo = isQtable?Bcenters[ng.size][ipr]:*(float*)&ipr;
+      lbo = isQtable?Bcenters[ng.size][(qfloat_t)ipr]:ipr;
+      //lbo = isQtable?Bcenters[ng.size][ipr]:*(float*)&ipr;
     }
     if(bop) *bop++=lbo;
     if(bol) ++*bol;
@@ -1628,7 +1652,8 @@ double lmtable::lprobx(ngram	ong,
     ctx.size--;
   }
   ipr = ng.prob;
-  pr = isQtable?Pcenters[ng.size][ipr]:*((float*)&ipr);
+  pr = isQtable?Pcenters[ng.size][(qfloat_t)ipr]:ipr;
+  //pr = isQtable?Pcenters[ng.size][ipr]:*((float*)&ipr);
   if(lkp) *lkp=pr;
   pr += bo;
   return pr;
@@ -1658,7 +1683,8 @@ table_pos_t lmtable::wdprune(float	*thr, int aflag, ngram	ng, int	ilev, int	elev
   int		   ndsz=nodesize(ndt);
   char		 *ndp;
   float		 lk;
-  int ipr, ibo;
+  float ipr, ibo;
+  //int ipr, ibo;
   table_pos_t i, k, nk;
 
   assert(ng.size==ilev-1);
@@ -1675,13 +1701,15 @@ table_pos_t lmtable::wdprune(float	*thr, int aflag, ngram	ng, int	ilev, int	elev
     //get probability
     ipr = prob(ndp, ndt);
     if(ipr==NOPROB) continue;	// Has it been already pruned ??
-    lk = *(float*)&ipr;
+    lk = ipr;
+    //lk = *(float*)&ipr;
 
     if(ilev<elev) { //there is an higher order
 
       //get backoff-weight for next level
       ibo = bow(ndp, ndt);
-      bo = *(float*)&ibo;
+      bo = ibo;
+      //bo = *(float*)&ibo;
 
       //get table boundaries for next level
       table_pos_t isucc = i>0 ? bound(ndp-ndsz, ndt) : 0;
@@ -1711,7 +1739,9 @@ table_pos_t lmtable::wdprune(float	*thr, int aflag, ngram	ng, int	ilev, int	elev
       // adjusts backoff:
       // 1-sum_succ(pr(w|ng)) / 1-sum_succ(pr(w|bng))
       bo = log((1-ts)/(1-tbs))/M_LN10;
-      *(float*)&ibo=bo;
+///TOCHECK: Nicola 18 dicembre 2009)
+      ibo=(float)bo;
+      //*(float*)&ibo=bo;
       bow(ndp, ndt, ibo);
     } else { //we are at the highest level
 
@@ -1738,14 +1768,17 @@ int lmtable::pscale(int lev, table_pos_t ipos, table_pos_t epos, double s)
   LMT_TYPE        ndt=tbltype[lev];
   int             ndsz=nodesize(ndt);
   char            *ndp;
-  int             ipr;
+  float             ipr;
+  //int             ipr;
 
   s=log(s)/M_LN10;
   ndp = table[lev]+ ipos*ndsz;
   for(table_pos_t i=ipos; i<epos; ndp+=ndsz,i++) {
     ipr = prob(ndp, ndt);
     if(ipr==NOPROB) continue;
-    *(float*)&ipr+=s;
+///TOCHECK: Nicola 18 dicembre 2009)
+    ipr+=(float) s;
+    //*(float*)&ipr+=s;
     prob(ndp, ndt, ipr);
   }
   return 0;
@@ -1764,7 +1797,8 @@ table_pos_t lmtable::ngcnt(table_pos_t	*cnt)
 table_pos_t lmtable::ngcnt(table_pos_t *cnt, ngram	ng, int	l, table_pos_t ipos, table_pos_t	epos){
 
   table_pos_t	i, isucc, esucc;
-  int ipr;
+  float ipr;
+  //int ipr;
   char		*ndp;
   LMT_TYPE	ndt=tbltype[l];
   int		ndsz=nodesize(ndt);

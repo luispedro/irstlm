@@ -70,10 +70,11 @@ typedef enum {LMT_FIND,    //!< search: find an entry
 } LMT_ACTION;
 
 typedef unsigned int  table_pos_t;
+typedef unsigned char  qfloat_t;
 
 //CHECK this part from HERE
 //if table_pos_t is "long"
-#define table_pos_t_ALLONE 0xff
+///define table_pos_t_ALLONE 0xff
 
 //if table_pos_t is "long long"
 //#define table_pos_t_ALLONE 0xffLL
@@ -264,8 +265,11 @@ public:
   
 //  int mybsearch(char *ar, table_pos_t n, int size, unsigned char *key, table_pos_t *idx);   
   int mybsearch(char *ar, table_pos_t n, int size, char *key, table_pos_t *idx);   
-  
-  int add(ngram& ng,int prob,int bow);
+ 
+
+//int add(ngram& ng,int prob,int bow);
+template<typename TA, typename TB> int add(ngram& ng, TA prob,TB bow);
+ 
   void checkbounds(int level);
 
   int get(ngram& ng){return get(ng,ng.size,ng.size);}
@@ -281,7 +285,7 @@ public:
     for (int i=0;i<size;i++)
       ptr[offs+i]=(value >> (8 * i)) & 0xff;
   };
-  
+ 
   inline void getmem(char* ptr,int* value,int offs,int size){
     assert(ptr!=NULL);
     *value=ptr[offs] & 0xff;
@@ -289,6 +293,7 @@ public:
       *value= *value | ( ( ptr[offs+i] & 0xff ) << (8 *i));
   };
   
+/* 
   inline void putmem(char* ptr,table_pos_t value,int offs,int size){
     assert(ptr!=NULL);
     for (int i=0;i<size;i++) 
@@ -301,7 +306,19 @@ public:
     for (int i=1;i<size;i++) 
       *value= *value | ( ( ptr[offs+i] & table_pos_t_ALLONE ) << (8 *i));
   };
+*/
 
+template<typename T>
+  inline void putmem(char* ptr,T value,int offs){
+    assert(ptr!=NULL);
+    memcpy(ptr+offs, &value, sizeof(T));
+  };
+
+template<typename T>
+  inline void getmem(char* ptr,T* value,int offs){
+    assert(ptr!=NULL);
+    memcpy((void*)value, ptr+offs, sizeof(T));
+  };
 
   
   int nodesize(LMT_TYPE ndt){
@@ -332,46 +349,130 @@ public:
     return value;
   };
   
-  inline int prob(node nd,LMT_TYPE ndt, int value=-1)
+template<typename T> 
+  inline T prob(node nd,LMT_TYPE ndt)
   {
     int offs=LMTCODESIZE;
-    int size=(ndt==QINTERNAL || ndt==QLEAF?QPROBSIZE:PROBSIZE);
+    T value;
+    getmem(nd,&value,offs);
+
+    return value;
+  };
+// explicit specialization of template function prob()
+//inline int prob(node nd,LMT_TYPE ndt){	return prob<int>(nd, ndt); }
+inline float prob(node nd,LMT_TYPE ndt){	return prob<float>(nd, ndt); }
+
+
+template<typename T> 
+  inline T prob(node nd,LMT_TYPE ndt, T value)
+  {
+    int offs=LMTCODESIZE;
     
-    if (value==-1)
-      getmem(nd,&value,offs,size);
-    else
-      putmem(nd,value,offs,size);
+    putmem(nd,value,offs);
     
     return value;
   };
+
+/*
+  inline int prob(node nd,LMT_TYPE ndt)
+  {
+    int offs=LMTCODESIZE;
+    int value;
+    getmem(nd,&value,offs);
+
+    return value;
+  };
+
+  inline int prob(node nd,LMT_TYPE ndt, int value)
+  {
+    int offs=LMTCODESIZE;
+    
+    putmem(nd,value,offs);
+    
+    return value;
+  };
+  */
   
-  
+
+template<typename T>
+  inline T bow(node nd,LMT_TYPE ndt)
+  {
+    int offs=LMTCODESIZE+(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
+    T value;
+    getmem(nd,&value,offs);
+
+    return value;
+  };
+// explicit specialization of template function bow()
+//inline int bow(node nd,LMT_TYPE ndt){  return bow<int>(nd, ndt); }
+inline float bow(node nd,LMT_TYPE ndt){  return bow<float>(nd, ndt); }
+
+
+template<typename T>
+  inline T bow(node nd,LMT_TYPE ndt, T value)
+  {
+    int offs=LMTCODESIZE+(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
+
+    putmem(nd,value,offs);
+
+    return value;
+  };
+
+
+/*
   inline int bow(node nd,LMT_TYPE ndt, int value=-1)
   {
     assert(ndt==INTERNAL || ndt==QINTERNAL);
-    int size=(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
-    int offs=LMTCODESIZE+size;
+    int offs=LMTCODESIZE+(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
     
     if (value==-1)
-      getmem(nd,&value,offs,size);
+      getmem(nd,&value,offs);
     else
-      putmem(nd,value,offs,size);
+      putmem(nd,value,offs);
     
     return value;
   };
-  
+*/
+ 
+
+template<typename T>
+  inline T bound(node nd,LMT_TYPE ndt)
+  {
+    int offs=LMTCODESIZE+2*(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
+    T value;
+    getmem(nd,&value,offs);
+
+    return value;
+  };
+// explicit specialization of template function bound()
+//inline int bound(node nd,LMT_TYPE ndt){  return bound<int>(nd, ndt); }
+inline table_pos_t bound(node nd,LMT_TYPE ndt){  return bound<table_pos_t>(nd, ndt); }
+
+
+template<typename T>
+  inline T bound(node nd,LMT_TYPE ndt, T value)
+  {
+    int offs=LMTCODESIZE+2*(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
+
+    putmem(nd,value,offs);
+
+    return value;
+  };
+
+/* 
   inline table_pos_t bound(node nd,LMT_TYPE ndt, table_pos_t value=BOUND_EMPTY2)
   {
     assert(ndt==INTERNAL || ndt==QINTERNAL);
     int offs=LMTCODESIZE+2*(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
     
     if (value==BOUND_EMPTY2)
-      getmem(nd,&value,offs,BOUNDSIZE);
+      getmem(nd,&value,offs);
     else
-      putmem(nd,value,offs,BOUNDSIZE);
+      putmem(nd,value,offs);
     
     return value;
   };
+*/
   
   void stat(int lev=0);
 
