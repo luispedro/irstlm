@@ -54,8 +54,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #define CHARSIZE  (int)1
 
 #define PROBSIZE  (int)4 //use float  
-#define QPROBSIZE (int)1 
-#define BOUNDSIZE (int)4
+#define QPROBSIZE (int)1 //use qfloat_t 
+//#define BOUNDSIZE (int)4 //use table_pos_t
+#define BOUNDSIZE (int)sizeof(table_entry_pos_t) //use table_pos_t
 
 #define UNIGRAM_RESOLUTION 10000000.0
 
@@ -69,23 +70,14 @@ typedef enum {LMT_FIND,    //!< search: find an entry
   LMT_CONT     //!< scan: continue scan
 } LMT_ACTION;
 
-typedef unsigned int  table_pos_t;
-typedef unsigned char  qfloat_t;
-
-//CHECK this part from HERE
-//if table_pos_t is "long"
-///define table_pos_t_ALLONE 0xff
-
-//if table_pos_t is "long long"
-//#define table_pos_t_ALLONE 0xffLL
-
-//if table_pos_t is "unsigned long long"
-//#define table_pos_t_ALLONE 0xffULL
+typedef unsigned int  table_entry_pos_t; //type for pointing to a full ngram in the table
+typedef unsigned long table_pos_t; // type for pointing to a single char in the table
+typedef unsigned char qfloat_t; //type for quantized probabilities
 
 //CHECK this part to HERE
 
-#define BOUND_EMPTY1 (numeric_limits<table_pos_t>::max() - 2)
-#define BOUND_EMPTY2 (numeric_limits<table_pos_t>::max() - 1)
+#define BOUND_EMPTY1 (numeric_limits<table_entry_pos_t>::max() - 2)
+#define BOUND_EMPTY2 (numeric_limits<table_entry_pos_t>::max() - 1)
 
 //#define BOUND_EMPTY BOUND_EMPTY2
 
@@ -97,9 +89,9 @@ class lmtable{
  protected:
   char*       table[LMTMAXLEV+1];  //storage of all levels
   LMT_TYPE    tbltype[LMTMAXLEV+1];  //table type for each levels
-  table_pos_t       cursize[LMTMAXLEV+1];  //current size of levels
-  table_pos_t       maxsize[LMTMAXLEV+1];  //max size of levels
-  table_pos_t*     startpos[LMTMAXLEV+1];  //support vector to store start positions
+  table_entry_pos_t       cursize[LMTMAXLEV+1];  //current size of levels
+  table_entry_pos_t       maxsize[LMTMAXLEV+1];  //max size of levels
+  table_entry_pos_t*     startpos[LMTMAXLEV+1];  //support vector to store start positions
 	
   int               maxlev; //max level of table
   char           info[100]; //information put in the header
@@ -192,14 +184,20 @@ public:
   };
 
 
-  table_pos_t wdprune(float *thr, int aflag=0);
-  table_pos_t wdprune(float *thr, int aflag, ngram ng, int ilev, int elev, table_pos_t ipos, table_pos_t epos,
+  //table_pos_t wdprune(float *thr, int aflag=0);
+  table_entry_pos_t wdprune(float *thr, int aflag=0);
+  //table_pos_t wdprune(float *thr, int aflag, ngram ng, int ilev, int elev, table_pos_t ipos, table_pos_t epos,
+  //              double lk=0, double bo=0, double *ts=0, double *tbs=0);
+  table_entry_pos_t wdprune(float *thr, int aflag, ngram ng, int ilev, int elev, table_entry_pos_t ipos, table_entry_pos_t epos,
                 double lk=0, double bo=0, double *ts=0, double *tbs=0);
   double lprobx(ngram ong, double *lkp=0, double *bop=0, int *bol=0);
 
-  table_pos_t ngcnt(table_pos_t *cnt);
-  table_pos_t ngcnt(table_pos_t *cnt, ngram ng, int l, table_pos_t ipos, table_pos_t epos);
-  int pscale(int lev, table_pos_t ipos, table_pos_t epos, double s);
+  //table_pos_t ngcnt(table_pos_t *cnt);
+  table_entry_pos_t ngcnt(table_entry_pos_t *cnt);
+  //table_pos_t ngcnt(table_pos_t *cnt, ngram ng, int l, table_pos_t ipos, table_pos_t epos);
+  table_entry_pos_t ngcnt(table_entry_pos_t *cnt, ngram ng, int l, table_entry_pos_t ipos, table_entry_pos_t epos);
+  //int pscale(int lev, table_pos_t ipos, table_pos_t epos, double s);
+  int pscale(int lev, table_entry_pos_t ipos, table_entry_pos_t epos, double s);
     
   void init_probcache();
   void init_statecache();
@@ -234,7 +232,8 @@ public:
   
   void savetxt(const char *filename);
   void savebin(const char *filename);
-  void dumplm(std::fstream& out,ngram ng, int ilev, int elev, table_pos_t ipos,table_pos_t epos);
+  //void dumplm(std::fstream& out,ngram ng, int ilev, int elev, table_pos_t ipos,table_pos_t epos);
+  void dumplm(std::fstream& out,ngram ng, int ilev, int elev, table_entry_pos_t ipos,table_entry_pos_t epos);
   
   void load(std::istream& inp,const char* filename=NULL,const char* outfilename=NULL,int mmap=0,OUTFILE_TYPE outtype=NONE);
   void loadtxt(std::istream& inp,const char* header,const char* outfilename,int mmap);
@@ -260,11 +259,12 @@ public:
   virtual double clprob(ngram ng); 
   
   
-  void *search(int lev,table_pos_t offs,table_pos_t n,int sz,int *w,
-               LMT_ACTION action,char **found=(char **)NULL);
+  //void *search(int lev,table_pos_t offs,table_pos_t n,int sz,int *w, LMT_ACTION action,char **found=(char **)NULL);
+  void *search(int lev,table_entry_pos_t offs,table_entry_pos_t n,int sz,int *w, LMT_ACTION action,char **found=(char **)NULL);
   
 //  int mybsearch(char *ar, table_pos_t n, int size, unsigned char *key, table_pos_t *idx);   
-  int mybsearch(char *ar, table_pos_t n, int size, char *key, table_pos_t *idx);   
+  //int mybsearch(char *ar, table_pos_t n, int size, char *key, table_pos_t *idx);   
+  int mybsearch(char *ar, table_entry_pos_t n, int size, char *key, table_entry_pos_t *idx);   
  
 
 //int add(ngram& ng,int prob,int bow);
@@ -471,11 +471,11 @@ template<typename T>
   };
 */
  
- inline float bound(node nd,LMT_TYPE ndt)
+ inline table_entry_pos_t bound(node nd,LMT_TYPE ndt)
   {
     int offs=LMTCODESIZE+2*(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
 
-    table_pos_t v;
+    table_entry_pos_t v;
     getmem(nd,&v,offs);
     return v;
   };
