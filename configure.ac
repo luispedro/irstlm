@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT(irstlm, 5.30.00, bertoldi@fbk.eu or federico@fbk.eu)
-AM_INIT_AUTOMAKE(irstlm, 5.30.00)
+AC_INIT(irstlm, 5.30.01, bertoldi@fbk.eu or federico@fbk.eu)
+AM_INIT_AUTOMAKE(irstlm, 5.30.01)
 
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])

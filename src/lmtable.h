@@ -327,10 +327,10 @@ template<typename T>
         return LMTCODESIZE + PROBSIZE + PROBSIZE + BOUNDSIZE;
       case QINTERNAL:
         return LMTCODESIZE + QPROBSIZE + QPROBSIZE + BOUNDSIZE;
-      case QLEAF:
-        return LMTCODESIZE + QPROBSIZE;      
       case LEAF:
         return LMTCODESIZE + PROBSIZE;      
+      case QLEAF:
+        return LMTCODESIZE + QPROBSIZE;      
       default:
         assert(0);
         return 0;
@@ -349,28 +349,39 @@ template<typename T>
     return value;
   };
   
-template<typename T> 
-  inline T prob(node nd,LMT_TYPE ndt)
+  inline float prob(node nd,LMT_TYPE ndt)
   {
     int offs=LMTCODESIZE;
-    T value;
-    getmem(nd,&value,offs);
 
-    return value;
+    float fv;
+    unsigned char cv;
+    switch (ndt){
+      case INTERNAL:
+	getmem(nd,&fv,offs);
+    	return fv;
+      case QINTERNAL:
+	getmem(nd,&cv,offs);
+    	return (float) cv;
+      case LEAF:
+	getmem(nd,&fv,offs);
+    	return fv;
+      case QLEAF:
+	getmem(nd,&cv,offs);
+    	return (float) cv;
+      default:
+        assert(0);
+        return 0;
+    }	
   };
-// explicit specialization of template function prob()
-//inline int prob(node nd,LMT_TYPE ndt){	return prob<int>(nd, ndt); }
-inline float prob(node nd,LMT_TYPE ndt){	return prob<float>(nd, ndt); }
-
 
 template<typename T> 
-  inline T prob(node nd,LMT_TYPE ndt, T value)
+  inline float prob(node nd,LMT_TYPE ndt, T value)
   {
     int offs=LMTCODESIZE;
     
     putmem(nd,value,offs);
     
-    return value;
+    return (float) value;
   };
 
 /*
@@ -394,6 +405,32 @@ template<typename T>
   */
   
 
+ inline float bow(node nd,LMT_TYPE ndt)
+  {
+    int offs=LMTCODESIZE+(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
+
+    float fv;
+    unsigned char cv;
+    switch (ndt){
+      case INTERNAL:
+        getmem(nd,&fv,offs);
+        return fv;
+      case QINTERNAL:
+        getmem(nd,&cv,offs);
+        return (float) cv;
+      case LEAF:
+        getmem(nd,&fv,offs);
+        return fv;
+      case QLEAF:
+        getmem(nd,&cv,offs);
+        return (float) cv;
+      default:
+        assert(0);
+        return 0;
+    }
+  };
+
+/*
 template<typename T>
   inline T bow(node nd,LMT_TYPE ndt)
   {
@@ -406,7 +443,7 @@ template<typename T>
 // explicit specialization of template function bow()
 //inline int bow(node nd,LMT_TYPE ndt){  return bow<int>(nd, ndt); }
 inline float bow(node nd,LMT_TYPE ndt){  return bow<float>(nd, ndt); }
-
+*/
 
 template<typename T>
   inline T bow(node nd,LMT_TYPE ndt, T value)
@@ -434,7 +471,16 @@ template<typename T>
   };
 */
  
+ inline float bound(node nd,LMT_TYPE ndt)
+  {
+    int offs=LMTCODESIZE+2*(ndt==QINTERNAL?QPROBSIZE:PROBSIZE);
 
+    table_pos_t v;
+    getmem(nd,&v,offs);
+    return v;
+  };
+
+/*
 template<typename T>
   inline T bound(node nd,LMT_TYPE ndt)
   {
@@ -447,6 +493,7 @@ template<typename T>
 // explicit specialization of template function bound()
 //inline int bound(node nd,LMT_TYPE ndt){  return bound<int>(nd, ndt); }
 inline table_pos_t bound(node nd,LMT_TYPE ndt){  return bound<table_pos_t>(nd, ndt); }
+*/
 
 
 template<typename T>

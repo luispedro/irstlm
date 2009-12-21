@@ -232,7 +232,6 @@ int parseline(istream& inp, int Order,ngram& ng,float& prob,float& bow){
   howmany = parseWords(line, words, Order + 3);
 
   if (!(howmany == (Order+ 1) || howmany == (Order + 2)))
-    cerr << "line=<" << line << ">\n";
   assert(howmany == (Order+ 1) || howmany == (Order + 2));
 
   //read words
@@ -447,13 +446,15 @@ void lmtable::loadtxtmmap(istream& inp,const char* header,const char* outfilenam
 
             int tmp=maxlev;
             maxlev=Order-1;
-            //cerr << ng << "rbow: " << rbow << "prob: " << pb << "low-prob: " << lprob(ng) << "\n";
+            cerr << ng << "rbow: " << rbow << "prob: " << pb << "low-prob: " << lprob(ng) << "\n";
             pb= log(exp((double)pb * M_LN10) +  exp(((double)rbow + lprob(ng)) * M_LN10))/M_LN10;
             maxlev=tmp;
           }
 
 	if (isQtable) add(ng, (qfloat_t)pb, (qfloat_t)bow);
 	else add(ng, pb, bow);
+            
+	cerr << ng << "bow: " << bow << "prob: " << ng.prob << "low-prob: " << lprob(ng) << "\n";
 
 //          add(ng,
 //              (int)(isQtable?pb:*((int *)&pb)),
@@ -584,7 +585,7 @@ void lmtable::loadtxt(istream& inp,const char* header){
         configure(maxlev,isQtable);yetconfigured=true;
         //allocate space for loading the table of this level
         for (int i=1;i<=maxlev;i++)
-	  table[i] = new char[(int)maxsize[i] * nodesize(tbltype[i])];
+	  table[i] = new char[maxsize[i] * nodesize(tbltype[i])];
       }
 
       cerr << Order << "-grams: reading ";
@@ -611,7 +612,7 @@ void lmtable::loadtxt(istream& inp,const char* header){
           //if table is in incomplete ARPA format prob is just the
           //discounted frequency, so we need to add bow * Pr(n-1 gram)
 
-//            cerr << ng << " prob: " << prob << " low-prob: " << lprob(ng) << "\n";
+//            cerr << "ng: " << ng << " prob: " << prob << " bow: " << bow << "\n";
 
           if (isItable && Order>1) {
             //get bow of lower of context
@@ -662,7 +663,7 @@ void lmtable::printTable(int level) {
 
   cout << "level = " << level << "\n";
 
-//TOCHEKC: Nicola, 18 dicembre 2009
+//TOCHECK: Nicola, 18 dicembre 2009
   float p;
   for (table_pos_t c=0;c<printEntryN;c++){
     p=prob(tbl,ndt);
@@ -1339,7 +1340,7 @@ void lmtable::dumplm(fstream& out,ngram ng, int ilev, int elev, table_pos_t ipos
     }
     else{
       //out << i << " "; //this was just to count printed n-grams
-      out << (isQtable?(qfloat_t) ipr:ipr) <<"\t";
+      out << ipr <<"\t";
       //out << (isQtable?ipr:*(float *)&ipr) <<"\t";
       for (int k=ng.size;k>=1;k--){
         if (k<ng.size) out << " ";
@@ -1348,7 +1349,7 @@ void lmtable::dumplm(fstream& out,ngram ng, int ilev, int elev, table_pos_t ipos
 
       if (ilev<maxlev){
         float ibo=bow(table[ilev]+ i * ndsz,ndt);
-        if (isQtable) out << "\t" << (qfloat_t) ibo;
+        if (isQtable) out << "\t" << ibo;
         else if (ibo!=0.0) out << "\t" << ibo;
 /*
         int ibo=bow(table[ilev]+ i * ndsz,ndt);
