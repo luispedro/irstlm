@@ -181,6 +181,8 @@ public:
           if (Bcenters[l]) delete [] Bcenters[l];
       }
     }
+
+    delete dict;
   };
 
 
