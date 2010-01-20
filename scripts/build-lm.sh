@@ -162,7 +162,7 @@ echo "Impotant: dictionary must be ordered according to order of appearance of w
 echo "used to generate n-gram blocks,  so that sub language model blocks results ordered too"
 
 for sdict in $tmpdir/dict.*;do
-sdict=`basename $sdict $tmpdir`
+sdict=`basename $sdict`
 echo $sdict;
 $bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.${sdict}.gz" -fd="$tmpdir/$sdict" $dictionary  -iknstat="$tmpdir/ikn.stat.$sdict" >> $logfile 2>&1
 done
@@ -170,11 +170,11 @@ done
 
 echo "Estimating language models for each word list"
 for sdict in `ls $tmpdir/dict.*` ; do
-sdict=`basename $sdict $tmpdir`
+sdict=`basename $sdict`
 echo $sdict;
 
 if [ $smoothing = "--kneser-ney" -o $smoothing = "--improved-kneser-ney" ]; then
-$scr/build-sublm.pl $verbose $prune $smoothing "cat $tmpdir/ikn.stat.$sdict*" --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict  >> $logfile #2>&1
+$scr/build-sublm.pl $verbose $prune $smoothing "cat $tmpdir/ikn.stat.dict.*" --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict  >> $logfile #2>&1
 else
 $scr/build-sublm.pl $verbose $prune $smoothing  --size $order --ngrams "gunzip -c $tmpdir/ngram.${sdict}.gz" -sublm $tmpdir/lm.$sdict  >> $logfile #2>&1
 fi
