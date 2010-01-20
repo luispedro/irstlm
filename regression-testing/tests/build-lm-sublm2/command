@@ -8,10 +8,27 @@ cd $testdir
 mkdir sublmdir
 
 $bin/build-lm.sh  -i 'gunzip -c input.gz' -n 4 -o output1.gz -k 5 -t sublmdir -p -d subdict  > /dev/null 2>&1
+rm -r  sublmdir; mkdir sublmdir
 $bin/build-lm.sh  -i 'gunzip -c input.gz' -n 4 -o output2.gz -k 1 -t sublmdir -p -d subdict  > /dev/null 2>&1
-gunzip output1.gz
-gunzip output2.gz
-diff output1 output2
+rm -r  sublmdir; mkdir sublmdir
+$bin/build-lm.sh  -i 'gunzip -c input.gz' -n 4 -o output3.gz -k 5 -t sublmdir -p -d subdict -s kneser-ney > /dev/null 2>&1
+rm -r  sublmdir; mkdir sublmdir
+$bin/build-lm.sh  -i 'gunzip -c input.gz' -n 4 -o output4.gz -k 1 -t sublmdir -p -d subdict -s kneser-ney > /dev/null 2>&1
+rm -r  sublmdir; mkdir sublmdir
+$bin/build-lm.sh  -i 'gunzip -c input.gz' -n 4 -o output5.gz -k 5 -t sublmdir -p -d subdict -s improved-kneser-ney > /dev/null 2>&1
+rm -r  sublmdir; mkdir sublmdir
+$bin/build-lm.sh  -i 'gunzip -c input.gz' -n 4 -o output6.gz -k 1 -t sublmdir -p -d subdict -s improved-kneser-ney > /dev/null 2>&1
 rm -r  sublmdir
+
+gunzip output1.gz output2.gz
+gunzip output3.gz output4.gz
+gunzip output5.gz output6.gz
+
+diff output1 output2
+diff output3 output4
+diff output5 output6
+
 rm output1 output2
+rm output3 output4
+rm output5 output6
 
