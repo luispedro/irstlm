@@ -194,7 +194,7 @@ for sfx in ${suffix[@]} ; do
 qsub $queueparameters -b no -j yes -sync no -o $qsubout.$sfx -e $qsuberr.$sfx -N $qsubname-$sfx << EOF
 cd $workingdir
 echo exit status $?
-$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.dict.${sfx}.gz" -fd="$tmpdir/dict.${sfx}" -iknstat="$tmpdir/ikn.stat.dict.${sfx}" 2> log_ngt-$sfx
+$bin/ngt -i="$inpfile" -n=$order -gooout=y -o="gzip -c > $tmpdir/ngram.dict.${sfx}.gz" -fd="$tmpdir/dict.${sfx}" $dictionary -iknstat="$tmpdir/ikn.stat.dict.${sfx}" 2> log_ngt-$sfx
 echo exit status $?
 echo
 EOF
