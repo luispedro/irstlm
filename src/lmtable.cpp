@@ -1197,8 +1197,8 @@ void lmtable::loadbin(istream& inp, const char* header,const char* filename,int 
 
     //check that the LM is uncompressed
     char miniheader[4];
-    read(diskid,miniheader,4);
-    if (strncmp(miniheader,"Qblm",4) && strncmp(miniheader,"blmt",4))
+    int bytes_read = read(diskid,miniheader,4);
+    if ((bytes_read != 4) || (strncmp(miniheader,"Qblm",4) && strncmp(miniheader,"blmt",4)))
       error((char*)"mmap functionality does not work with compressed binary LMs\n");
 #endif
   }
