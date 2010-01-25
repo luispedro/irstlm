@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 #include <math.h>
 #include <cstdlib>
+#include <limits>
 
 #include "util.h"
 #include "ngramcache.h"
@@ -74,15 +75,10 @@ typedef unsigned int  table_entry_pos_t; //type for pointing to a full ngram in 
 typedef unsigned long table_pos_t; // type for pointing to a single char in the table
 typedef unsigned char qfloat_t; //type for quantized probabilities
 
-//CHECK this part to HERE
-
-#define BOUND_EMPTY1 (numeric_limits<table_entry_pos_t>::max() - 2)
-#define BOUND_EMPTY2 (numeric_limits<table_entry_pos_t>::max() - 1)
+const table_entry_pos_t BOUND_EMPTY1 = (std::numeric_limits<table_entry_pos_t>::max() - 2);
+const table_entry_pos_t BOUND_EMPTY2 = (std::numeric_limits<table_entry_pos_t>::max() - 1);
 
 //#define BOUND_EMPTY BOUND_EMPTY2
-
-//#define BOUND_EMPTY1 (-1)
-//#define BOUND_EMPTY2 (-2)
 
 class lmtable{
   
