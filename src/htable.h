@@ -24,14 +24,7 @@
 #define MF_HTABLE_H
 
 #include <iostream>
-
-#define Prime1                 37
-#define Prime2                 1048583
-#define BlockSize              100
-
-
-// Fast arithmetic, relying on powers of 2,
-// and on pre-processor concatenation property
+#include <assert.h>
 
 typedef struct ENTRY{
   char*                 key;
@@ -76,7 +69,7 @@ class htable {
  public:
 
   //! Creates an hash table
-  htable(int n,int kl=0,HTYPE ht=STRPTR,size_t (*klf)(const char* )=NULL);
+  htable(int n, int kl=0, HTYPE ht=STRPTR, size_t (*klf)(const char* )=NULL);
 
   //! Destroys an and hash table
   ~htable();
@@ -88,10 +81,10 @@ class htable {
         break;
       case STR:case STRPTR: return HashStr(key);
     }
-    return 0; //should never happen
+    assert(0); //should never happen
   };
-  address HashInt(char *key);
-  address HashStr(char *key);  
+  address HashInt(char *key) const;
+  address HashStr(char *key) const;
   
   //! Compares the keys of two entries
   int Comp(char *Key1,char *Key2){
@@ -100,7 +93,7 @@ class htable {
         break;
       case STR:case STRPTR: return CompStr(Key1,Key2);
     };    
-    return 0; // should never happen
+    assert(0); // should never happen
   }
 
   int CompInt(char *Key1,char *Key2);

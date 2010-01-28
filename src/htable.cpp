@@ -29,9 +29,14 @@
 #include "htable.h"
 
 //bitwise rotation of unsigned integers
-
+// Fast arithmetic, relying on powers of 2,
+// and on pre-processor concatenation property
 #define rot_right(a,k) (((a) >> k ) | ((a) << (32-(k))))
 #define rot_left(a,k) (((a) << k ) | ((a) >> (32-(k))))
+
+#define Prime1                 37
+#define Prime2                 1048583
+#define BlockSize              100
 
 using namespace std;
 
@@ -200,7 +205,7 @@ htable::~htable()
   delete memory;
 }
 
-address htable::HashStr(char *key)
+address htable::HashStr(char *key) const
 {
   char *Key=(htype==STRPTR? *(char **)key:key);
   int  length=(keylen?keylen:keylenfunc(Key));
@@ -219,7 +224,7 @@ address htable::HashStr(char *key)
 
 //Herbert Glarner's "HSH 11/13" hash function.
 /*
-address htable::HashInt(char *key){
+address htable::HashInt(char *key) const{
   
 int *Key=(htype==INTPTR? *(int **)key:(int *)key);
   
@@ -244,7 +249,7 @@ int p=7;  //precision=8 * sizeof(int)-1, in general must be >=7
 
 */
 
-address htable::HashInt(char *key)
+address htable::HashInt(char *key) const
 {
   int *Key=(htype==INTPTR? *(int **)key:(int *)key);
    
