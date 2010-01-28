@@ -190,7 +190,7 @@ void htable::map(ostream& co,int cols){
 }
 
 
-void htable::stat(){
+void htable::stat() const{
   cerr << "htable class statistics\n";
   cerr << "size " << size 
        << " keys " << keys

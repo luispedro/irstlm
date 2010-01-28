@@ -106,15 +106,15 @@ class htable {
   char *scan(HT_ACTION action);
 
   //! Prints statistics
-  void stat();
+  void stat() const;
   
   //! Print a map of memory use
   void map(std::ostream& co=std::cout, int cols=80);
 
   //! Returns amount of used memory
-  int used(){return 
-	       size * sizeof(entry **) + 
-	       memory->used();};
+  int used() const {
+      return size * sizeof(entry **) + memory->used();
+  }
 };
 
 
