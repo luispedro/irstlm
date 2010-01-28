@@ -209,7 +209,7 @@ int main(int argc, const char **argv)
 	
 	if (dub) lmt->setlogOOVpenalty((int)dub);
 	
-	if (seval != "")
+	if (seval != "") {
 		
 		if (randcalls>0){ //perform random calls on the dictionary
 			dictionary *dict; dict=new dictionary((char *)seval.c_str());
@@ -324,7 +324,8 @@ int main(int argc, const char **argv)
 			
 			delete lmt;
 			return 0;    
-		};
+		}
+    }
 	
 	
 	if (sscore == "yes"){    
