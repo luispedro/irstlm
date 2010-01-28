@@ -33,6 +33,11 @@
 
 using namespace std;
 
+#ifndef GROWTH_STEP
+#define GROWTH_STEP 100000
+#endif
+
+
 dictionary::dictionary(char *filename,int size,char* isymb,char* oovlexfile){
 
   // unitialized memory 

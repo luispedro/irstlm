@@ -31,29 +31,18 @@
 #define MAX_WORD 1000
 #define LOAD_FACTOR  5
 
-#ifndef GROWTH_STEP 
-#define GROWTH_STEP 100000
-#endif
-
 #ifndef DICT_INITSIZE
 #define DICT_INITSIZE 100000
 #endif
 
 //Begin of sentence symbol
-#ifndef BOS_
-#define BOS_ "<s>"
-#endif
-
+const char* const BOS_ = "<s>";
 
 //End of sentence symbol
-#ifndef EOS_ 
-#define EOS_ "</s>"
-#endif
+const char* const EOS_ = "</s>";
 
 //Out-Of-Vocabulary symbol
-#ifndef OOV_ 
-#define OOV_ "<unk>"
-#endif
+const char* const OOV_ = "<unk>";
 
 typedef struct{
   const char *word;
@@ -78,22 +67,23 @@ class dictionary{
   int in_oov_lex;  //!< flag
   int oov_lex_code; //!< dictionary
   char* oov_str;    //!< oov string
- 
+
  public:
 
   friend class dictionary_iter;
 
-  dictionary* oovlex; //<! additional dictionary 
+  dictionary* oovlex; //<! additional dictionary
 
   inline int dub(){return dubv;}
   inline int dub(int value){return (dubv=value);}
 
-  inline const char *OOV(){return ((char*)OOV_);} 
-  inline const char *BoS(){return ((char*)BOS_);}
-  inline const char *EoS(){return ((char*)EOS_);}
+  inline const char *OOV() const {return OOV_;}
+  inline const char *BoS() const {return BOS_;}
+  inline const char *EoS() const {return EOS_;}
 
-  inline int oovcode(int v=-1){return oov_code=(v>=0?v:oov_code);}
-  
+  inline int oovcode() const {return oov_code;}
+  inline int oovcode(int v) {return oov_code=(v>=0?v:oov_code);}
+
   inline char *intsymb(char* isymb=NULL){
     if (isymb==NULL) return is;
     if (is!=NULL) delete [] is;
@@ -107,9 +97,9 @@ class dictionary{
   inline int oovlexsize(){return oovlex?oovlex->n:0;}
   inline int inoovlex(){return in_oov_lex;}
   inline int oovlexcode(){return oov_lex_code;}
-  
+
   int getword(fstream& inp , char* buffer);
-  int isprintable(char* w){
+  int isprintable(char* w) const {
     char buffer[MAX_WORD];
     sprintf(buffer,"%s",w);
     return strcmp(w,buffer)==0;
@@ -120,7 +110,7 @@ class dictionary{
     std::cerr << "OOV code is "<< c << std::endl;
     oovcode(c);
   }
-  
+
   inline dictionary* oovlexp(char *fname=NULL){
     if (fname==NULL) return oovlex;
     if (oovlex!=NULL) delete oovlex;
@@ -128,7 +118,7 @@ class dictionary{
     return oovlex;
   }
 
-  inline int setoovrate(double oovrate){ 
+  inline int setoovrate(double oovrate){
     encode(OOV()); //be sure OOV code exists
     int oovfreq=(int)(oovrate * totfreq());
     std::cerr << "setting OOV rate to: " << oovrate << " -- freq= " << oovfreq << std::endl;
@@ -142,11 +132,11 @@ class dictionary{
     N+=(long long)(value * tb[code].freq)-tb[code].freq;
     return tb[code].freq=(long long)(value * tb[code].freq);
   }
-  
+
   inline long freq(int code,long long value=-1){
     if (value>=0){
-      N+=value-tb[code].freq; 
-      tb[code].freq=value;	  
+      N+=value-tb[code].freq;
+      tb[code].freq=value;
     }
     return tb[code].freq;
   }
@@ -175,7 +165,7 @@ class dictionary{
   float* test(int curvesize, const char *filename, int listflag=0);	// return OOV statistics computed on test set
 
   void cleanfreq(){
-    for (int i=0;i<n;tb[i++].freq=0); 
+    for (int i=0;i<n;tb[i++].freq=0);
     N=0;
   }
 
