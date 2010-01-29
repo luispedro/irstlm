@@ -36,6 +36,10 @@ then
     AUTOHEADER=`which autoheader`
 fi
 
+if [ -z "$LIBTOOLIZE" ]
+then
+    LIBTOOLIZE=`which libtoolize`
+fi
 
 echo "Calling $ACLOCAL..."
 $ACLOCAL || die "aclocal failed"
@@ -43,6 +47,8 @@ echo "Calling $AUTOCONF..."
 $AUTOCONF || die "autoconf failed"
 echo "Calling $AUTOHEADER..."
 $AUTOHEADER || die "autoheader failed"
+echo "Calling $LIBTOOLIZE..."
+$LIBTOOLIZE || die "libtoolize failed"
 echo "Calling $AUTOMAKE..."
 $AUTOMAKE --add-missing --gnu || die "automake failed"
 

@@ -4,6 +4,7 @@
 AC_PREREQ([2.59])
 AC_INIT(irstlm, 5.30.01, bertoldi@fbk.eu or federico@fbk.eu)
 AM_INIT_AUTOMAKE(irstlm, 5.30.01)
+AM_PROG_LIBTOOL
 
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
@@ -36,11 +37,11 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([ftruncate memmove memset munmap pow strchr strcspn strdup strrchr strspn])
 
 MY_ARCH=`uname -m`
-AC_SUBST(libdir,$prefix/lib/$MY_ARCH)
-AC_SUBST(bindir,$prefix/bin/$MY_ARCH)
-AC_SUBST(wrapperbindir,$prefix/bin)
-AC_SUBST(basebindir,$prefix/bin)
-AC_SUBST(baselibdir,$prefix/lib)
+AC_SUBST(libdir)
+AC_SUBST(bindir)
+AC_SUBST(wrapperbindir, '${prefix}/bin')
+AC_SUBST(basebindir)
+AC_SUBST(baselibdir)
 AC_SUBST(bininstalldir,irstlm-$PACKAGE_VERSION)
 AC_SUBST(libinstalldir,irstlm-$PACKAGE_VERSION)
 
@@ -52,3 +53,4 @@ AM_CONDITIONAL(SAME_MACHTYPE, test $MY_MACHTYPE == $MY_ARCH)
 
 AC_CONFIG_FILES([Makefile src/Makefile scripts/Makefile example/Makefile])
 AC_OUTPUT
+

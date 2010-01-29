@@ -2,7 +2,7 @@ TAGS
 compile_lm
 dict
 interpolate_lm
-libirstlm.a
+libirstlm.la
 ngt
 prune_lm
 quantize_lm

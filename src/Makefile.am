@@ -2,11 +2,6 @@
 AM_CFLAGS =
 AM_CXXFLAGS = -DMYCODESIZE=3 -Wall 
 AM_CPPFLAGS = 
-AM_LDFLAGS = -L.
-
-#Install the headers in a versioned directory - e.g. examplelib-1.0:
-library_includedir=$(includedir)
-library_include_HEADERS = $(h_sources)
 
 h_sources = \
         cmd.h \
@@ -38,9 +33,12 @@ cpp_sources = \
 	ngramtable.cpp \
 	util.cpp
 
-lib_LIBRARIES = libirstlm.a
-libirstlm_a_SOURCES = $(h_sources) $(c_sources) $(cpp_sources)
+lib_LTLIBRARIES = libirstlm.la
+libirstlm_la_SOURCES = $(h_sources) $(c_sources) $(cpp_sources)
 
+#Install the headers in a versioned directory - e.g. examplelib-1.0:
+library_includedir=$(includedir)
+library_include_HEADERS = $(h_sources)
 
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
@@ -52,12 +50,12 @@ interpolate_lm_SOURCES = interpolate-lm.cpp
 prune_lm_SOURCES = prune-lm.cpp
 quantize_lm_SOURCES = quantize-lm.cpp
 
-LIBS = -lirstlm -lz
-DEPENDENCIES = libirstlm.a
+LIBS = -lz
+LIBIRSTLM = libirstlm.la
 
-dict_DEPENDENCIES = $(DEPENDENCIES)
-ngt_DEPENDENCIES = $(DEPENDENCIES)
-compile_lm_DEPENDENCIES = $(DEPENDENCIES)
-interpolate_lm_DEPENDENCIES = $(DEPENDENCIES)
-prune_lm_DEPENDENCIES = $(DEPENDENCIES)
-quantize_lm_DEPENDENCIES = $(DEPENDENCIES)
+dict_LDADD  = $(LIBIRSTLM)
+ngt_LDADD  = $(LIBIRSTLM)
+compile_lm_LDADD  = $(LIBIRSTLM)
+interpolate_lm_LDADD  = $(LIBIRSTLM)
+prune_lm_LDADD  = $(LIBIRSTLM)
+quantize_lm_LDADD  = $(LIBIRSTLM)

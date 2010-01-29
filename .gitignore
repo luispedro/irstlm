@@ -1,5 +1,7 @@
 *.o
+*.lo
 .deps/
+.libs
 Makefile
 Makefile.in
 aclocal.m4
@@ -13,3 +15,8 @@ depcomp
 install-sh
 missing
 stamp-h1
+config.guess
+config.sub
+i486-pc-linux-gnu
+libtool
+ltmain.sh
