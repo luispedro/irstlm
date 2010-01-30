@@ -37,7 +37,7 @@ lib_LTLIBRARIES = libirstlm.la
 libirstlm_la_SOURCES = $(h_sources) $(c_sources) $(cpp_sources)
 
 #Install the headers in a versioned directory - e.g. examplelib-1.0:
-library_includedir=$(includedir)
+library_includedir=$(includedir)/irstlm
 library_include_HEADERS = $(h_sources)
 
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
