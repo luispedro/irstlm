@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #include "htable.h"
 #include "ngramcache.h"
 #include "dictionary.h"
-#include "n_gram.h"
+#include "ngram.h"
 #include "lmtable.h"
 #include "lmmacro.h"
 #include "util.h"

@@ -27,7 +27,7 @@ using namespace std;
 #include "mempool.h"
 #include "htable.h"
 #include "dictionary.h"
-#include "n_gram.h"
+#include "ngram.h"
 #include "ngramtable.h"
 
 //ngramtable::ngramtable(char* filename,int maxl,char* is,

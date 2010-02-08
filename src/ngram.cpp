@@ -28,7 +28,7 @@
 #include "mempool.h"
 #include "htable.h"
 #include "dictionary.h"
-#include "n_gram.h"
+#include "ngram.h"
 #include "index.h"
 
 using namespace std;

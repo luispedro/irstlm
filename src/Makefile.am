@@ -13,7 +13,7 @@ h_sources = \
         lmtable.h \
         mempool.h \
         mfstream.h \
-        n_gram.h \
+        ngram.h \
         ngramcache.h \
         ngramtable.h \
         util.h
@@ -28,7 +28,7 @@ cpp_sources = \
 	lmtable.cpp \
 	mempool.cpp \
 	mfstream.cpp \
-	n_gram.cpp \
+	ngram.cpp \
 	ngramcache.cpp \
 	ngramtable.cpp \
 	util.cpp

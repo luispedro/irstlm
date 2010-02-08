@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #include "util.h"
 #include "ngramcache.h"
 #include "dictionary.h"
-#include "n_gram.h"
+#include "ngram.h"
 #include "lmtable.h"
 
 #define MAX_TOKEN_N_MAP 3
