@@ -9,21 +9,14 @@ using namespace std;
 #include "cmd.h"
 
 
-#define YES   1
-#define NO    0
-
-#define END_ENUM    {   (const char*)0,  0 }
-
-
-
 static Enum_T BooleanEnum [] = {
-  {    (char*)"Yes",    YES }, 
-  {    (char*)"No",     NO},
-  {    (char*)"yes",    YES }, 
-  {    (char*)"no",     NO},
-  {    (char*)"y",    YES }, 
-  {    (char*)"n",     NO},
-  END_ENUM
+  {(char*)"Yes",true},
+  {(char*)"No", false},
+  {(char*)"yes",true},
+  {(char*)"no", false},
+  {(char*)"y",  true},
+  {(char*)"n",  false},
+  {(char*)0,    false}
 };
 
 
