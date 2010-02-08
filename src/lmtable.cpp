@@ -36,11 +36,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 #include "lmtable.h"
 #include "util.h"
 
-#define DEBUG 0
+#define DEBUG false
 
 //special value for pruned iprobs
-//#define NOPROB (int) -2
-#define NOPROB (float) -2
+const float NOPROB = -2.0;
 
 using namespace std;
 
@@ -573,7 +572,7 @@ void lmtable::loadtxt(istream& inp,const char* header){
     bool backslash = (line[0] == '\\');
 
     if (sscanf(line, "ngram %d=%d", &Order, &n) == 2) {
-      maxsize[Order] = n; maxlev=Order; //upadte Order
+      maxsize[Order] = n; maxlev=Order; //update Order
 
     }
 
@@ -851,7 +850,7 @@ void *lmtable::search(int lev,
     else
       return *found=tb + (idx * sz);
   default:
-    error((char*)"lmtable::search: this option is available");
+    error("lmtable::search: this option is available");
   };
 
   return NULL;
@@ -1140,7 +1139,7 @@ void lmtable::loadbinheader(istream& inp,const char* header){
 
   if (strncmp(header,"Qblmt",5)==0) isQtable=1;
   else if(strncmp(header,"blmt",4)==0) isQtable=0;
-  else error((char*)"loadbin: LM file is not in binary format");
+  else error("loadbin: LM file is not in binary format");
 
   configure(maxlev,isQtable);
 
@@ -1188,18 +1187,18 @@ void lmtable::loadbin(istream& inp, const char* header,const char* filename,int 
 #else
 
     if (mmap <= maxlev) memmap=mmap;
-    else error((char*)"keep_on_disk value is out of range\n");
+    else error("keep_on_disk value is out of range\n");
 
     if ((diskid=open(filename, O_RDONLY))<0){
       std::cerr << "cannot open " << filename << "\n";
-      error((char*)"dying");
+      error("dying");
     }
 
     //check that the LM is uncompressed
     char miniheader[4];
     int bytes_read = read(diskid,miniheader,4);
     if ((bytes_read != 4) || (strncmp(miniheader,"Qblm",4) && strncmp(miniheader,"blmt",4)))
-      error((char*)"mmap functionality does not work with compressed binary LMs\n");
+      error("mmap functionality does not work with compressed binary LMs\n");
 #endif
   }
 
@@ -1213,7 +1212,7 @@ void lmtable::loadbin(istream& inp, const char* header,const char* filename,int 
     else{
 
 #ifdef WIN32
-      error((char*)"mmap not available under WIN32\n");
+      error("mmap not available under WIN32\n");
 #else
       cerr << "mapping " << cursize[l] << " " << l << "-grams\n";
       tableOffs[l]=inp.tellg();
@@ -1240,8 +1239,8 @@ int lmtable::get(ngram& ng,int n,int lev){
   ***/
   totget[lev]++;
 
-  if (lev > maxlev) error((char*)"get: lev exceeds maxlevel");
-  if (n < lev) error((char*)"get: ngram is too small");
+  if (lev > maxlev) error("get: lev exceeds maxlevel");
+  if (n < lev) error("get: ngram is too small");
 
   //set boudaries for 1-gram
   table_entry_pos_t offset=0,limit=cursize[1];
