@@ -51,6 +51,6 @@ AC_SUBST(program_transform_name, 's/_lm/-lm/;')
 
 AM_CONDITIONAL(SAME_MACHTYPE, test $MY_MACHTYPE == $MY_ARCH)
 
-AC_CONFIG_FILES([Makefile src/Makefile scripts/Makefile example/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile scripts/Makefile example/Makefile programs/Makefile])
 AC_OUTPUT
 

@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src scripts example
+SUBDIRS = src programs scripts example
 
 EXTRA_DIST = README
 
