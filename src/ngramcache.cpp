@@ -66,20 +66,19 @@ void ngramcache::reset(int n){
 
 
 
-char* ngramcache::get(const int* ngp,char* info){       
+char* ngramcache::get(const int* ngp,char* info) {
     char *found;
-   
-   accesses++;
-  if ((found=ht->search((char *)ngp,HT_FIND))){
-    if (info) memcpy(info,found+ngsize*sizeof(int),infosize);
-    hits++;
-  }; 
+
+    accesses++;
+    if ((found=ht->search((char *)ngp,HT_FIND))){
+        if (info) memcpy(info,found+ngsize*sizeof(int),infosize);
+        hits++;
+    }
     return found;
-};
-  
+}
 
 int ngramcache::add(const int* ngp,const char* info){
-    
+
     char* entry=mp->allocate();
     memcpy(entry,(char*) ngp,sizeof(int) * ngsize);    
     memcpy(entry + ngsize * sizeof(int),(char *)info,infosize);
@@ -89,6 +88,6 @@ int ngramcache::add(const int* ngp,const char* info){
     return 1;
   }
   
-void ngramcache::stat(){
+void ngramcache::stat() const {
    cerr << "ngramcache stats: entries=" << entries << " acc=" << accesses << " hits=" << hits << "\n";
 };
