@@ -20,7 +20,7 @@
 
 ******************************************************************************/
 
-// n-gram tables 
+// n-gram tables
 // by M. Federico
 // Copyright Marcello Federico, ITC-irst, 1998
 
@@ -52,9 +52,9 @@ class ngram{
   int   size;            // ngram size
   long long   freq;      // ngram frequency or integer prob
   int   succ;            // number of successors
-//  int   bow;             // back-off weight 
+//  int   bow;             // back-off weight
 //  int   prob;            // probability
-  float   bow;             // back-off weight 
+  float   bow;             // back-off weight
   float   prob;            // probability
 
   unsigned char info;    // ngram-tree info flags
@@ -63,17 +63,17 @@ class ngram{
 
   ngram(dictionary* d,int sz=0);
   ngram(const ngram& ng);
-  
-  int *wordp()// n-gram pointer
-    {return wordp(size);}; 
-  int *wordp(int k) // n-gram pointer
-    {return size>=k?&word[MAX_NGRAM-k]:0;}; 
-  const int *wordp() const // n-gram pointer
-    {return wordp(size);}; 
-  const int *wordp(int k) const // n-gram pointer
-    {return size>=k?&word[MAX_NGRAM-k]:0;}; 
 
-  int shift(){
+  int *wordp()// n-gram pointer
+    {return wordp(size);}
+  int *wordp(int k) // n-gram pointer
+    {return size>=k?&word[MAX_NGRAM-k]:0;}
+  const int *wordp() const // n-gram pointer
+    {return wordp(size);}
+  const int *wordp(int k) const // n-gram pointer
+    {return size>=k?&word[MAX_NGRAM-k]:0;}
+
+  int shift() {
     for (int i=(MAX_NGRAM-1);i>0;i--){
       word[i]=word[i-1];
     }
@@ -81,9 +81,10 @@ class ngram{
     return 1;
   }
 
+  int pushc(int c);
+  int pushw(const char* w);
 
   bool containsWord(const char* s,int lev) const {
-
     int c=dict->encode(s);
     if (c == -1) return false;
 
@@ -93,7 +94,7 @@ class ngram{
     }
     return false;
   }
-    
+
 
   void trans(const ngram& ng);
 
@@ -103,43 +104,26 @@ class ngram{
   friend std::ostream& operator<< (std::ostream& fi,ngram& ng);
 
   inline bool operator==(const ngram &compare) const
-        {
-	  if ( size != compare.size || dict != compare.dict)
-	    return false;
-	  else
-	    for (int i=size;i>0;i--)
-	      if (word[MAX_NGRAM-i] != compare.word[MAX_NGRAM-i])
-		return false;
-	  return true;
-        };
-
-  inline bool operator!=(const ngram &compare) const
-        {
-          if ( size != compare.size || dict != compare.dict)
-            return true;
-          else
-            for (int i=size;i>0;i--)
-              if (word[MAX_NGRAM-i] != compare.word[MAX_NGRAM-i])
-                return true;
+  {
+      if ( size != compare.size || dict != compare.dict)
           return false;
-        };
-
-
-
-  inline int ckhisto(int sz){
-    
-    for (int i=sz;i>1;i--) 
-      if (*wordp(i)==dict->oovcode())
-	return 0;
-    return 1;
+      for (int i=size;i>0;i--)
+          if (word[MAX_NGRAM-i] != compare.word[MAX_NGRAM-i])
+              return false;
+      return true;
   }
 
-  int pushc(int c);
-  int pushw(const char* w);
+  inline bool operator!=(const ngram &compare) const
+        { return !(*this == compare); }
+
+  inline int ckhisto(int sz) const {
+      for (int i=sz;i>1;i--)
+          if (*wordp(i)==dict->oovcode())
+              return 0;
+      return 1;
+  }
 
   //~ngram();
-
-
 
 };
 
