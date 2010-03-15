@@ -152,7 +152,8 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
 
   //give a look at the header to select loading method
   char header[MAX_LINE];
-  inp >> header; cerr << header << "\n";
+  inp >> header;
+  //cerr << header << "\n";
 
   if (strncmp(header,"Qblmt",5)==0 || strncmp(header,"blmt",4)==0){
     //if (outtype==BINARY) {
@@ -181,7 +182,7 @@ void lmtable::load(istream& inp,const char* filename,const char* outfilename,int
     loadtxt(inp,header,outfilename,keep_on_disk);
   }
 
-  cerr << "OOV code is " << lmtable::getDict()->oovcode() << "\n";
+  //cerr << "OOV code is " << lmtable::getDict()->oovcode() << "\n";
 }
 
 
@@ -1175,7 +1176,7 @@ void lmtable::loadbincodebook(istream& inp,int l){
 
 void lmtable::loadbin(istream& inp, const char* header,const char* filename,int mmap){
 
-  cerr << "loadbin()\n";
+  //cerr << "loadbin()\n";
   loadbinheader(inp,header);
   lmtable::getDict()->load(inp);
 
@@ -1205,16 +1206,15 @@ void lmtable::loadbin(istream& inp, const char* header,const char* filename,int 
   for (int l=1;l<=maxlev;l++){
     if (isQtable) loadbincodebook(inp,l);
     if ((memmap == 0) || (l < memmap)){
-      cerr << "loading " << cursize[l] << " " << l << "-grams\n";
+      //cerr << "loading " << cursize[l] << " " << l << "-grams\n";
       table[l]=new char[cursize[l] * nodesize(tbltype[l])];
       inp.read(table[l],cursize[l] * nodesize(tbltype[l]));
-    }
-    else{
+    } else {
 
 #ifdef WIN32
       error("mmap not available under WIN32\n");
 #else
-      cerr << "mapping " << cursize[l] << " " << l << "-grams\n";
+      // cerr << "mapping " << cursize[l] << " " << l << "-grams\n";
       tableOffs[l]=inp.tellg();
       table[l]=(char *)MMap(diskid,PROT_READ,
                             tableOffs[l], cursize[l]*nodesize(tbltype[l]),
@@ -1224,10 +1224,9 @@ void lmtable::loadbin(istream& inp, const char* header,const char* filename,int 
 #endif
 
     }
-  };
+  }
 
-  cerr << "done\n";
-
+  // cerr << "done\n";
 }
 
 
