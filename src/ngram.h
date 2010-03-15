@@ -82,16 +82,16 @@ class ngram{
   }
 
 
-  int containsWord(const char* s,int lev){
+  bool containsWord(const char* s,int lev) const {
 
     int c=dict->encode(s);
-    if (c == -1) return 0;
+    if (c == -1) return false;
 
     assert(lev <= size);
-    for (int i=0;i<lev;i++){
-      if (*wordp(size-i)== c) return 1;
+    for (int i=0; i<lev; i++){
+      if (*wordp(size-i) == c) return true;
     }
-    return 0;
+    return false;
   }
     
 
