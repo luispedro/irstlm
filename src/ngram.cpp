@@ -23,13 +23,13 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <stdlib.h>
+#include <string.h>
 #include <iomanip>
 #include <cassert>
 #include "mempool.h"
 #include "htable.h"
 #include "dictionary.h"
 #include "ngram.h"
-#include "index.h"
 
 using namespace std;
 
@@ -92,10 +92,8 @@ ifstream& operator>> ( ifstream& fi , ngram& ng){
 	 << w << ")\n";
   
   if (ng.dict->intsymb() && 
-      (strlen(w)==1) && (index(ng.dict->intsymb(),w[0])!=NULL)){
-    
-    ng.isym=(long)index(ng.dict->intsymb(),w[0]) -
-      (long)ng.dict->intsymb();
+      (strlen(w)==1) && (strchr(ng.dict->intsymb(),w[0])!=NULL)) {
+    ng.isym=(strchr(ng.dict->intsymb(),w[0]) - ng.dict->intsymb());
     ng.size=0;
     return fi;
   }
@@ -115,7 +113,6 @@ ifstream& operator>> ( ifstream& fi , ngram& ng){
   if (ng.size<MAX_NGRAM) ng.size++;
 
   return fi;
-
 }
 
 
@@ -165,8 +162,8 @@ istream& operator>> ( istream& fi , ngram& ng){
 	   << w << ")\n";
 
   if (ng.dict->intsymb() && 
-      (strlen(w)==1) && (index(ng.dict->intsymb(),w[0])!=NULL)){
-    ng.isym=(long)index(ng.dict->intsymb(),w[0])-(long)ng.dict->intsymb();
+      (strlen(w)==1) && (strchr(ng.dict->intsymb(),w[0])!=NULL)){
+    ng.isym=(strchr(ng.dict->intsymb(),w[0])-ng.dict->intsymb());
     ng.size=0;
     return fi;
   }

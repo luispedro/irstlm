@@ -7,7 +7,6 @@ h_sources = \
         dictionary.h \
 	gzfilebuf.h \
         htable.h \
-	index.h \
         lmmacro.h \
         lmtable.h \
         mempool.h \

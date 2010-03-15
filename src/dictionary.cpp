@@ -22,6 +22,7 @@
 
 #include "mfstream.h"
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <iomanip>
 #include <iostream>
@@ -29,7 +30,6 @@
 #include "mempool.h"
 #include "htable.h"
 #include "dictionary.h"
-#include "index.h"
 
 using namespace std;
 const int GROWTH_STEP = 100000;
@@ -98,7 +98,7 @@ int dictionary::getword(fstream& inp , char* buffer){
             continue;
         }
         //skip words which are  interrruption symbols (single chars)
-        if (is && (strlen(buffer)==1) && (index(is,buffer[0])!=NULL))
+        if (is && (strlen(buffer)==1) && (strchr(is,buffer[0])!=NULL))
             continue;
         return 1;
     }
