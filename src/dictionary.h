@@ -100,15 +100,10 @@ class dictionary {
   inline int oovlexcode(){return oov_lex_code;}
 
   int getword(fstream& inp , char* buffer);
-  int isprintable(char* w) const {
-    char buffer[MAX_WORD];
-    sprintf(buffer,"%s",w);
-    return strcmp(w,buffer)==0;
-  }
 
   inline void genoovcode(){
     int c=encode(OOV());
-    std::cerr << "OOV code is "<< c << std::endl;
+    //std::cerr << "OOV code is "<< c << std::endl;
     oovcode(c);
   }
 
