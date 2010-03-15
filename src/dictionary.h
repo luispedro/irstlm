@@ -44,16 +44,16 @@ const char* const EOS_ = "</s>";
 //Out-Of-Vocabulary symbol
 const char* const OOV_ = "<unk>";
 
-typedef struct{
+struct dict_entry {
   const char *word;
   int  code;
   long long  freq;
-}dict_entry;
+};
 
 class strstack;
 class htable;
 
-class dictionary{
+class dictionary {
   strstack   *st;  //!< stack of strings
   dict_entry *tb;  //!< entry table
   htable    *htb;  //!< hash table
@@ -74,7 +74,7 @@ class dictionary{
 
   dictionary* oovlex; //<! additional dictionary
 
-  inline int dub(){return dubv;}
+  inline int dub() const {return dubv;}
   inline int dub(int value){return (dubv=value);}
 
   inline const char *OOV() const {return OOV_;}
@@ -84,7 +84,7 @@ class dictionary{
   inline int oovcode() const {return oov_code;}
   inline int oovcode(int v) {return oov_code=(v>=0?v:oov_code);}
 
-  inline char *intsymb(char* isymb=NULL){
+  inline char *intsymb (char* isymb=NULL){
     if (isymb==NULL) return is;
     if (is!=NULL) delete [] is;
     is=new char[strlen(isymb+1)];
