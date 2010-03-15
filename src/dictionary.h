@@ -68,6 +68,7 @@ class dictionary {
   int oov_lex_code; //!< dictionary
   char* oov_str;    //!< oov string
 
+  dictionary(const dictionary&); //!< not implemented
  public:
 
   friend class dictionary_iter;
@@ -93,11 +94,11 @@ class dictionary {
     return is;
   }
 
-  inline int incflag(){return ifl;}
-  inline int incflag(int v){return ifl=v;}
-  inline int oovlexsize(){return oovlex?oovlex->n:0;}
-  inline int inoovlex(){return in_oov_lex;}
-  inline int oovlexcode(){return oov_lex_code;}
+  inline int incflag() const {return ifl;}
+  inline int incflag(int v) {return ifl=v;}
+  inline int oovlexsize() const {return oovlex?oovlex->n:0;}
+  inline int inoovlex() const {return in_oov_lex;}
+  inline int oovlexcode() const {return oov_lex_code;}
 
   int getword(fstream& inp , char* buffer);
 
@@ -122,7 +123,10 @@ class dictionary {
   }
 
 
-  inline long long incfreq(int code,long long value){N+=value;return tb[code].freq+=value;}
+  inline long long incfreq(int code,long long value) {
+      N+=value;
+      return tb[code].freq+=value;
+  }
 
   inline long long multfreq(int code,double value){
     N+=(long long)(value * tb[code].freq)-tb[code].freq;
@@ -137,7 +141,7 @@ class dictionary {
     return tb[code].freq;
   }
 
-  inline long long totfreq(){return N;}
+  inline long long totfreq() const { return N; }
 
   void grow();
   //dictionary(int size=400,char* isym=NULL,char* oovlex=NULL);
