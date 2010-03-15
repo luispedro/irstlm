@@ -149,8 +149,8 @@ class dictionary {
   dictionary(dictionary* d, int sortflag=1); //flag for sorting wrt to frequency (default=1, i.e. sort)
 
   ~dictionary();
-  void generate(char *filename);
-  void load(char *filename);
+  const char* generate(char *filename);
+  const char* load(char *filename);
   void save(char *filename, int freqflag=0);
   void load(std::istream& fd);
   void save(std::ostream& fd);

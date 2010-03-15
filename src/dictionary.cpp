@@ -106,30 +106,23 @@ int dictionary::getword(fstream& inp , char* buffer){
 }
 
 
-void dictionary::generate(char *filename){
+const char* dictionary::generate(char *filename){
     char buffer[MAX_WORD];
-    int counter=0;
     mfstream inp(filename,ios::in);
 
     if (!inp){
-        cerr << "cannot open " << filename << "\n";
-        exit(1);
+        return "dictionary::generate: cannot open file.";
     }
-
-    cerr << "dict:";
 
     ifl=1;
 
     while (getword(inp,buffer)){
-
         incfreq(encode(buffer),1);
-
-        if (!(++counter % 1000000)) cerr << ".";
     }
 
     ifl=0;
-    cerr << "\n";
     inp.close();
+    return 0;
 }
 
 // print_curve: show statistics on dictionary growth and (optionally) on
@@ -233,46 +226,42 @@ float* dictionary::test(int curvesize, const char *filename, int listflag) {
     return OOVrates;
 }
 
-void dictionary::load(char* filename){
+const char* dictionary::load(char* filename){
     char header[100];
     char buffer[MAX_WORD];
     char *addr;
-    int freqflag=0;
+    bool has_freq = false;
 
     mfstream inp(filename,ios::in);
 
     if (!inp){
-        cerr << "\ncannot open " << filename << "\n";
-        exit(1);
+        return "Cannot open file";
     }
 
-    cerr << "dict:";
-
     inp.getline(header,100);
-    if (strncmp(header,"DICT",4)==0)
-        freqflag=1;
-    else
+    if (strncmp(header,"DICT",4)==0) {
+        has_freq = true;
+    } else {
         if (strncmp(header,"dict",4)!=0){
-            cerr << "\ndictionary file " << filename << " has a wrong header\n";
-            exit(1);
+            return "Dictionary has wrong header.";
         }
+    }
 
 
-    while (getword(inp,buffer)){
+    while (getword(inp,buffer)) {
 
         tb[n].word=st->push(buffer);
         tb[n].code=n;
 
-        if (freqflag)
+        if (has_freq)
             inp >> tb[n].freq;
         else
             tb[n].freq=0;
 
         if ((addr=htb->search((char  *)&tb[n].word,HT_ENTER)))
             if (addr!=(char *)&tb[n].word){
-                cerr << "dictionary::loadtxt wrong entry was found ("
+                cerr << "dictionary::load wrong entry was found ("
                     <<  buffer << ") in position " << n << "\n";
-                //      exit(1);
                 continue;  // continue loading dictionary
             }
 
@@ -282,6 +271,7 @@ void dictionary::load(char* filename){
     }
 
     inp.close();
+    return 0;
 }
 
 
