@@ -48,7 +48,10 @@ dictionary::dictionary(char *filename,int size,char* isymb,char* oovlexfile){
     for (int i=0;i<size;i++) tb[i].freq=0;
 
     is=(char*) NULL;
-    intsymb(isymb);
+    if (isymb) {
+        is=new char[strlen(isymb)+1];
+        strcpy(is,isymb);
+      }
 
     oov_code = -1;
     in_oov_lex=0;

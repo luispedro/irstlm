@@ -86,13 +86,6 @@ class dictionary {
   inline int oovcode(int v) {return oov_code=(v>=0?v:oov_code);}
 
   const char* intsymb() const { return is; }
-  inline const char *intsymb (const char* isymb){
-    assert(isymb);
-    if (is!=NULL) delete [] is;
-    is=new char[strlen(isymb+1)];
-    strcpy(is,isymb);
-    return is;
-  }
 
   inline int incflag() const {return ifl;}
   inline int incflag(int v) {return ifl=v;}
